@@ -36,9 +36,11 @@ load_data <- function(PR_path, API_path, pop_path, cov_raster_paths){
 
   # Read covariate rasters
   covs_list <- lapply(cov_raster_paths, raster::raster)
-  crop_to <- find_smallest_extent(covs_list)
+  crop_to <- find_smallest_extent(c(covs_list, pop))
   covs_cropped <- lapply(covs_list, function(x) crop(x, crop_to))
   covs <- do.call(stack, CombineRasters(covs_cropped))
+
+  pop <- crop(pop, crop_to)
 
   return(list(pr = pr, api = api, pop = pop, covs = covs))
 
