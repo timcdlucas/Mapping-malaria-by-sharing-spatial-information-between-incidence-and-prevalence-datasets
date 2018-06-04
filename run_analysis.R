@@ -9,6 +9,15 @@
 
 # define paths
 
+PR_path <- '~/timz/GBD2017/Processing/Stages/04b_PR_DB_Import_Export/Verified_Outputs/2018_02_15/pfpr_dump.csv'
+API_path <- '~/timz/GBD2017/Processing/Stages/04c_API_Data_Export/Checkpoint_Outputs/subnational.csv'
+pop_path <- '~/timz/GBD2017/Processing/Stages/03_Muster_Population_Figures/Verified_Outputs/Output_Pop_At_Risk_Pf_5K/ihme_corrected_frankenpop_All_Ages_3_2015_at_risk_pf.tif'
+
+cov_raster_paths <- c(
+  '~/timz/mastergrids/MODIS_Global/MOD11A2_LST/LST_Day/5km/Annual/LST_Day.2015.Annual.mean.5km.Mean.tif',
+  '~/timz/mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/EVI/5km/Annual/EVI_Overall_Mean_0.tif',
+  '~/timz/mastergrids/Other_Global_Covariates/Rainfall/CHIRPS/5k/Annual/CHIRPS.2016.sum.5km.tif'
+)
 
 # load packages
 
@@ -35,12 +44,17 @@ library(standtmb)
 
 # load functions
 
+source('collect_data.R')
+source('CombineRasters.R')
+
+
+
 
 set.seed(180530)
 
 # load all data
 
-data <- load_data(paths)
+data <- load_data(PR_path, API_path, pop_path, cov_raster_paths)
 
 
 # indonesia

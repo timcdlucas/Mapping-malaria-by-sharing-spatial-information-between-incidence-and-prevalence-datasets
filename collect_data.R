@@ -22,14 +22,23 @@ load_data <- function(PR_path, API_path, pop_path, cov_raster_paths){
 
   check_inputs_load_data(PR_path, API_path, pop_path, cov_raster_paths)
 
-  
-  
-  pr <- read_csv(paths$PR_path)
+  # Read PR data
+  pr <- readr::read_csv(PR_path)
 
   
-  
+  # Read API data
+  api <- readr::read_csv(API_path)
 
 
+  # Read pop raster
+  pop <- raster::raster(pop_path)
+
+
+  # Read covariate rasters
+  covs <- raster::stack(cov_raster_paths)
+
+
+  return(list(pr = pr, api = api, pop = pop, covs = covs))
 
 }
 
