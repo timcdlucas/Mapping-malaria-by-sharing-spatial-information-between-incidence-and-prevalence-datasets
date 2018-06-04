@@ -6,6 +6,7 @@
 
 
 # setwd('~/Dropbox/work/analysis/point_polygon_joint_comparison')
+# setwd('~/timz/timothy/point_polygon_joint_comparison')
 
 # define paths
 

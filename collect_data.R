@@ -35,8 +35,10 @@ load_data <- function(PR_path, API_path, pop_path, cov_raster_paths){
 
 
   # Read covariate rasters
-  covs <- raster::stack(cov_raster_paths)
-
+  covs_list <- lapply(cov_raster_paths, raster::raster)
+  crop_to <- find_smallest_extent(covs_list)
+  covs_cropped <- lapply(covs_list, function(x) crop(x, crop_to))
+  covs <- do.call(stack, CombineRasters(covs_cropped))
 
   return(list(pr = pr, api = api, pop = pop, covs = covs))
 
@@ -63,3 +65,22 @@ check_inputs_load_data <- function(PR_path, API_path, pop_path, cov_raster_paths
   return(NULL)
 
 }
+
+
+
+find_smallest_extent <- function(raster_list){
+  
+
+  # Extract all extents
+  extent_mat <- do.call(rbind, lapply(raster_list, function(x) as.vector(extent(x))))
+
+  # Find smallest.
+  extent_vec <- c(max(extent_mat[, 1]), min(extent_mat[, 2]), max(extent_mat[, 3]), min(extent_mat[, 4]))
+  
+  crop_to <- extent(extent_vec)
+
+  return(crop_to)
+}
+
+
+
