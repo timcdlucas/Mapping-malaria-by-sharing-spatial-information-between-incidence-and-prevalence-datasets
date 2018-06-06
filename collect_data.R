@@ -18,7 +18,7 @@
 #'@param cov_raster_paths A charac vector of paths to covariate tifs.
 #'@return An object of class 'ppj' with some elements including separate training and testing data. 
 
-load_data <- function(PR_path, API_path, pop_path, cov_raster_paths){
+load_data <- function(PR_path, API_path, pop_path, cov_raster_paths, shapefile_path, shapefile_pattern){
 
   check_inputs_load_data(PR_path, API_path, pop_path, cov_raster_paths)
 
@@ -42,7 +42,20 @@ load_data <- function(PR_path, API_path, pop_path, cov_raster_paths){
 
   pop <- crop(pop, crop_to)
 
-  data <- list(pr = pr, api = api, pop = pop, covs = covs)
+
+  # Read in shapefiles
+  shp_filepaths <- list.files(shapefile_path, pattern = shapefile_pattern, full.names = TRUE)
+  stopifnot(length(shp_filepaths) > 0)
+
+  shps <- lapply(shp_filepaths, raster::shapefile)
+  shp_names <- shps %>% lapply(names) %>% do.call(c, .) %>% unique
+  common_names <- shp_names[sapply(shp_names, function(n) all(sapply(shps, function(x) n %in% names(x))))]
+  
+  shps <- lapply(shps, function(x) x[, common_names]) %>% do.call(rbind, .)
+
+  # Combine data.
+
+  data <- list(pr = pr, api = api, pop = pop, covs = covs, shapefiles = shapefiles)
   class(data) <- c('ppj_full_data', 'list')
 
   return(data)
