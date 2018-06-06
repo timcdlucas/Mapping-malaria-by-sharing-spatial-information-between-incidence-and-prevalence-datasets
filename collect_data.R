@@ -23,11 +23,11 @@ load_data <- function(PR_path, API_path, pop_path, cov_raster_paths){
   check_inputs_load_data(PR_path, API_path, pop_path, cov_raster_paths)
 
   # Read PR data
-  pr <- readr::read_csv(PR_path)
+  pr <- readr::read_csv(PR_path, guess_max  = 1e5)
 
   
   # Read API data
-  api <- readr::read_csv(API_path)
+  api <- readr::read_csv(API_path, guess_max  = 1e5)
 
 
   # Read pop raster
