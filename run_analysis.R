@@ -54,7 +54,7 @@ source('CombineRasters.R')
 set.seed(180530)
 
 # load all data
-
+# Perhaps read all raster years and have a step in process data to choose the right one? Or something. Kinda annoying.
 data <- load_data(PR_path, API_path, pop_path, cov_raster_paths)
 
 
