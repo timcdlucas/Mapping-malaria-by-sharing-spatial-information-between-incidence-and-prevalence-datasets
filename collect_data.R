@@ -42,7 +42,10 @@ load_data <- function(PR_path, API_path, pop_path, cov_raster_paths){
 
   pop <- crop(pop, crop_to)
 
-  return(list(pr = pr, api = api, pop = pop, covs = covs))
+  data <- list(pr = pr, api = api, pop = pop, covs = covs)
+  class(data) <- c('ppj_full_data', 'list)
+
+  return(data)
 
 }
 
