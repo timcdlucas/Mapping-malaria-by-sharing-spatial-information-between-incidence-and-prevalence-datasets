@@ -55,7 +55,7 @@ load_data <- function(PR_path, API_path, pop_path, cov_raster_paths, shapefile_p
 
   # Combine data.
 
-  data <- list(pr = pr, api = api, pop = pop, covs = covs, shapefiles = shapefiles)
+  data <- list(pr = pr, api = api, pop = pop, covs = covs, shapefiles = shps)
   class(data) <- c('ppj_full_data', 'list')
 
   return(data)
