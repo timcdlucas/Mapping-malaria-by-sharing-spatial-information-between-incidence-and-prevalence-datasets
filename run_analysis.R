@@ -41,7 +41,7 @@ library(ggplot2)
 
 ## Modelling packages
 library(TMB)
-library(standtmb)
+library(stantmb)
 
 # load functions
 
