@@ -63,7 +63,7 @@ data <- load_data(PR_path, API_path, pop_path, cov_raster_paths, shapefile_path,
 
 # pre analysis
 
-data_idn <- process_data(data, useiso3 = 'IDN')
+data_idn <- process_data(data, useiso3 = 'IDN', year = 2013)
 
 mesh_idn <- build_mesh(data_idn, mesh.args = list(...))
 

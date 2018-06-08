@@ -3,7 +3,14 @@
 #'@param Character vector of iso3s to use.
 #'@param year vector of years to uuse.
 
-process_data <- function(data, useiso3, year, api_column = 'api_mean_pf'){
+process_data <- function(data, 
+                         useiso3, 
+                         year, 
+                         api_column = 'api_mean_pf', 
+                         pr_pos_column = 'positive',
+                         pr_n_column = 'examined',
+                         shapefile_column = 'shapefil_id',
+                         shps_id_name = 'area_id'){
 
   stopifnot(inherits(data, 'ppj_full_data'))
   stopifnot(inherits(useiso3, 'character'))
@@ -20,7 +27,7 @@ process_data <- function(data, useiso3, year, api_column = 'api_mean_pf'){
 
   # Test polygon data
   
-  test_api(api)
+  test_api(api, api_column)
 
   # Subset PR  
 
@@ -40,14 +47,15 @@ process_data <- function(data, useiso3, year, api_column = 'api_mean_pf'){
 
   # Test PR data.
 
-
+  test_pr(pr, pr_pos_column, pr_n_column)
 
 
 
 
   
   # Subset shapefiles
-
+  shps <- data$shapefiles
+  shps <- shps[shps@data[, shps_id_name
 
   # Extract covariates
 
@@ -81,13 +89,16 @@ process_data <- function(data, useiso3, year, api_column = 'api_mean_pf'){
 test_api <- function(api, api_column){
 
   stopifnot(all(api[, api_column] >= 0))
-  
+  stopifnot(is.na(api
 
   return(NULL)
 }
 
 
+test_pr <- function(pr, pr_pos_column, pr_n_column){
 
+
+}
 
 
 
