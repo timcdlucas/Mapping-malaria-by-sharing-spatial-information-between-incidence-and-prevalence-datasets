@@ -24,6 +24,8 @@ load_data <- function(PR_path,
                       cov_raster_paths, 
                       shapefile_path, 
                       shapefile_pattern,
+                      year, 
+                      useiso3,
                       api_column = 'api_mean_pf', 
                       pr_pos_column = 'positive',
                       pr_n_column = 'examined',
@@ -34,21 +36,28 @@ load_data <- function(PR_path,
 
   check_inputs_load_data(PR_path, API_path, pop_path, cov_raster_paths)
 
+
+
+  # Read API data
+  api_full <- readr::read_csv(API_path, guess_max  = 1e5)
+  api <- api_full %>% filter(year %in% year, iso3 %in% useiso3)
+  api <- cbind(api_mean_pf = api[, api_column],
+               shapefile_id = api[, shapefile_column])
+
+
+
   # Read PR data
   pr <- readr::read_csv(PR_path, guess_max  = 1e5)
+
+  usecountries <- find_country_from_iso3(useiso3, api_full$iso3, api_full$country_name)
+  pr <- pr %>% filter(country %in% usecountries, year_start %in% year)
   pr_clean <- cbind(
                 positive = pr[, pr_pos_column],
                 examined = pr[, pr_n_column],
                 latitude = pr[, pr_latlon[1]],
                 longitude = pr[, pr_latlon[2]] 
-)
+  )
 
-
-
-  # Read API data
-  api <- readr::read_csv(API_path, guess_max  = 1e5)
-  api <- cbind(api_mean_pf = api[, api_column],
-               shapefile_id = api[, shapefile_column])
 
   # Read pop raster
   pop <- raster::raster(pop_path)
@@ -75,7 +84,7 @@ load_data <- function(PR_path,
 
   # Combine data.
 
-  data <- list(pr = pr, api = api, pop = pop, covs = covs, shapefiles = shps)
+  data <- list(pr = pr_clean, api = api, pop = pop, covs = covs, shapefiles = shps)
   class(data) <- c('ppj_full_data', 'list')
 
   return(data)
@@ -119,6 +128,22 @@ find_smallest_extent <- function(raster_list){
 
   return(crop_to)
 }
+
+
+
+
+find_country_from_iso3 <- function(useiso3, iso3, country){
+
+
+  # Need to find a country name because PR data doesn't have iso3 codes... 
+  usecountries <- country[match(useiso3, iso3)]
+
+  if(is.na(usecountries)) stop('No matching iso3')
+  # if(!all(usecountries %in% pr$country)) stop('At least one country not in PR data. Probably a name mismatch')
+  return(usecountries)
+}
+
+
 
 
 
