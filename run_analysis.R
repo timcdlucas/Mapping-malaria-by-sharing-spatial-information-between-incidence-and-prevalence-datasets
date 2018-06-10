@@ -46,12 +46,15 @@ library(stantmb)
 
 # Parallel processing
 library(foreach)
-registerDoMC(cores=detectCores() - 1)
+library(doParallel)
+cl <- makeCluster(min(detectCores() - 1, 20))
+registerDoParallel(cl)
 
 
 # load functions
 
 source('collect_data.R')
+source('process_data.R')
 source('CombineRasters.R')
 source('parallel-raster-extract.R')
 
