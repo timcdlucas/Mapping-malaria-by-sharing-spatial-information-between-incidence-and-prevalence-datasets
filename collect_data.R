@@ -28,27 +28,27 @@ load_data <- function(PR_path,
                       pr_pos_column = 'positive',
                       pr_n_column = 'examined',
                       pr_latlon = c('latitude', 'longitude'),
-                      pr_country = = 'country',
-                      shapefile_column = 'shapefil_id',
+                      pr_country = 'country',
+                      shapefile_column = 'shapefile_id',
                       shps_id_name = 'area_id'){
 
   check_inputs_load_data(PR_path, API_path, pop_path, cov_raster_paths)
 
   # Read PR data
   pr <- readr::read_csv(PR_path, guess_max  = 1e5)
-  pr_clean <- data_frame()
+  pr_clean <- cbind(
+                positive = pr[, pr_pos_column],
+                examined = pr[, pr_n_column],
+                latitude = pr[, pr_latlon[1]],
+                longitude = pr[, pr_latlon[2]] 
+)
 
-  # give standard column names
-  pr_clean$positive <- pr[, pr_pos_column]
-  pr_clean$examined <- pr[, pr_n_column]
-  pr_clean$latitude <- pr[, pr_latlon[1]]
-  pr_clean$longitude <- pr[, pr_latlon[2]] 
 
-  pr_clean <- pr[, c()]
 
   # Read API data
   api <- readr::read_csv(API_path, guess_max  = 1e5)
-
+  api <- cbind(api_mean_pf = api[, api_column],
+               shapefile_id = api[, shapefile_column])
 
   # Read pop raster
   pop <- raster::raster(pop_path)
