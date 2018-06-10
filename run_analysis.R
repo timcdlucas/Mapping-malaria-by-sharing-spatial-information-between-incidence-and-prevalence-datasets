@@ -40,7 +40,7 @@ library(GBDutils)
 library(ggplot2)
 
 
-## Modelling packages
+##  Modelling packages
 library(TMB)
 library(stantmb)
 
@@ -66,12 +66,13 @@ data <- load_data(PR_path, API_path, pop_path, cov_raster_paths, shapefile_path,
 data_idn <- process_data(
   binomial_positive = data$pr$positive,
   binomial_n = data$pr$examined,
-  coords = data$pr[, c('latitude', 'longitude'),
-                         response = data$api$api_mean_pf,
-                         shapefile_id = data$api$shapefile_id,
-                         shps_id_column = 'area_id',
-                         pop_raster = data$pop,
-                         cov_rasters = data$covariates)
+  coords = data$pr[, c('latitude', 'longitude')],
+  response = data$api$api_mean_pf,
+  shapefile_id = data$api$shapefile_id,
+  shps_id_column = 'area_id',
+  shapefiles = data$shapefiles,
+  pop_raster = data$pop,
+  cov_rasters = data$covs)
 
 mesh_idn <- build_mesh(data_idn, mesh.args = list(...))
 

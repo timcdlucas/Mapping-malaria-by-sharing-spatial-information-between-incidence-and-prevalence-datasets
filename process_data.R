@@ -1,59 +1,66 @@
 
 
 process_data <- function(
-binomial_positive,
+                         binomial_positive,
                          binomial_n,
-coords,
+                         coords,
                          response,
                          shapefile_id,
-  shapefiles,
+                         shapefiles,
                          shps_id_column = 'area_id',
                          pop_raster,
                          cov_rasters,
-  na.rm = FALSE){
+                         na.rm = FALSE){
 
   
-  stopifnot(inherits(shapefiles, 'SpatialPolygonDataFrame'))
+  stopifnot(inherits(shapefiles, 'SpatialPolygonsDataFrame'))
   stopifnot(inherits(pop_raster, 'RasterLayer'))
-  stopifnot(grepl('Raster', class(cov_rasters))
+  stopifnot(grepl('Raster', class(cov_rasters)))
   # Subset polygon data
 
   polygon <- cbind(response = response,
-shapefile_id = shapefile_id)
+                   shapefile_id = shapefile_id) %>% as.data.frame
 
-  if(na.rm){ 
+  if(na.rm == TRUE){ 
     rows <- nrow(polygon)
     polygon <- na.omit(polygon)
-    newrows <- brow(polygon)
-    if(rows > newrows) message(rows-newrows, 'rows with NAs omitted from polygon data')
+    newrows <- nrow(polygon)
+    if(rows > newrows) message(rows - newrows, 'rows with NAs omitted from polygon data')
   }
 
-  message('API data rows: ', nrow(api))
 
-shapefiles@data <- shapefiles@data[, 'shps_id_column', drop = FALSE]
+
+
+  shapefiles@data <- shapefiles@data[, shps_id_column, drop = FALSE]
 
 
   # Subset shapefiles
-  shapefiles <- shapefiles[shapefiles@data[, shps_id_name] %in% api$shapefil_id, ]
+  shapefiles <- shapefiles[shapefiles@data[, shps_id_column] %in% polygon$shapefile_id, ]
+
+  if(na.rm == TRUE){
+    polygon <- polygon %>% filter(shapefile_id %in% shapefiles@data[, shps_id_column])
+    finalrows <- nrow(polygon)
+    if(finalrows < newrows) message(newrows - finalrows, 'rows with missing polygons omitted from polygon data')
+  }
 
   # Test polygon data
-  
-  test_api(api, shapefiles)
+  message('API data rows: ', nrow(polygon))  
+  test_api(polygon, shapefiles)
 
   # Subset PR  
+    
+  names(coords) <- c('latitude', 'longitude')
+  pr <- cbind(positive = binomial_positive,
+              examined = binomial_n,
+              coords)
 
-names(coords) <- c('latitude', 'longitude')
- pr <- cbind(positive = binomial_positive,
- examined = binomial_n,
-coords)
-
- if(na.rm){ 
-    rows <- nrow(pr)
-    pr) <- na.omit(pr)
-    newrows <- brow(pr)
-    if(rows > newrows) message(rows-newrows, ' rows with NAs omitted from pr data')
-  }
-  
+   if(na.rm == TRUE){ 
+      rows <- nrow(pr)
+      pr <- na.omit(pr)
+      newrows <- nrow(pr)
+      if(rows > newrows) message(rows-newrows, ' rows with NAs omitted from pr data')
+   }
+                                  
   message('PR data rows: ', nrow(pr))
 
   # Test PR data.
@@ -66,8 +73,8 @@ coords)
   # Extract covariates
   extracted <- parallelExtract(stack(pop_raster, cov_rasters), shape files, fun = NULL)
 
-covs <- extracted[, -3]
-pop <- extracted[, 3]
+  covs <- extracted[, -3]
+  pop <- extracted[, 3]
 
 
   # Make polygon rasters
