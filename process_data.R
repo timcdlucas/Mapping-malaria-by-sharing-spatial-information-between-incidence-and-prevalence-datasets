@@ -80,7 +80,7 @@ process_data <- function(
 
 
   data <- list(pr = pr, 
-               api = api, 
+               polygon = polygon, 
                pop = pop, 
                covs = covs, 
                cov_rasters = cov_rasters, 
