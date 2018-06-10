@@ -1,111 +1,129 @@
 
-#'@param data list of class ppj_full_data created with load_data.
-#'@param Character vector of iso3s to use.
-#'@param year vector of years to uuse.
 
-process_data <- function(data, 
-                         useiso3, 
-                         year, 
-                         api_column = 'api_mean_pf', 
-                         pr_pos_column = 'positive',
-                         pr_n_column = 'examined',
-                         shapefile_column = 'shapefil_id',
-                         shps_id_name = 'area_id'){
+process_data <- function(
+binomial_positive,
+                         binomial_n,
+coords,
+                         response,
+                         shapefile_id,
+  shapefiles,
+                         shps_id_column = 'area_id',
+                         pop_raster,
+                         cov_rasters,
+  na.rm = FALSE){
 
-  stopifnot(inherits(data, 'ppj_full_data'))
-  stopifnot(inherits(useiso3, 'character'))
-
+  
+  stopifnot(inherits(shapefiles, 'SpatialPolygonDataFrame'))
+  stopifnot(inherits(pop_raster, 'RasterLayer'))
+  stopifnot(grepl('Raster', class(cov_rasters))
   # Subset polygon data
-  api <- data$api
-  api <- api %>% 
-           filter(year %in% year, 
-                  iso3 %in% useiso3)
 
-  api <- api[!is.na(api[, api_column]), ]
+  polygon <- cbind(response = response,
+shapefile_id = shapefile_id)
+
+  if(na.rm){ 
+    rows <- nrow(polygon)
+    polygon <- na.omit(polygon)
+    newrows <- brow(polygon)
+    if(rows > newrows) message(rows-newrows, 'rows with NAs omitted from polygon data')
+  }
 
   message('API data rows: ', nrow(api))
 
+shapefiles@data <- shapefiles@data[, 'shps_id_column', drop = FALSE]
+
+
+  # Subset shapefiles
+  shapefiles <- shapefiles[shapefiles@data[, shps_id_name] %in% api$shapefil_id, ]
+
   # Test polygon data
   
-  test_api(api, api_column)
+  test_api(api, shapefiles)
 
   # Subset PR  
 
-  pr <- data$pr
+names(coords) <- c('latitude', 'longitude')
+ pr <- cbind(positive = binomial_positive,
+ examined = binomial_n,
+coords)
 
-  # Need to find a country name because PR data doesn't have iso3 codes... 
-  usecountries <- data$api$country_name[match(useiso3, data$api$iso3)]
-
-  if(is.na(usecountries)) stop('No matching iso3')
-  if(!all(usecountries %in% pr$country)) stop('At least one country not in PR data. Probably a name mismatch')
-
-  pr <- pr %>% 
-          filter(year %in% year, 
-                 country %in% usecountries)
+ if(na.rm){ 
+    rows <- nrow(pr)
+    pr) <- na.omit(pr)
+    newrows <- brow(pr)
+    if(rows > newrows) message(rows-newrows, ' rows with NAs omitted from pr data')
+  }
   
   message('PR data rows: ', nrow(pr))
 
   # Test PR data.
 
-  test_pr(pr, pr_pos_column, pr_n_column)
+  test_pr(pr)
 
 
 
-
-  
-  # Subset shapefiles
-  shps <- data$shapefiles
-  shps <- shps[shps@data[, shps_id_name
 
   # Extract covariates
+  extracted <- parallelExtract(stack(pop_raster, cov_rasters), shape files, fun = NULL)
 
-  
-  # Test shape data
+covs <- extracted[, -3]
+pop <- extracted[, 3]
 
 
   # Make polygon rasters
 
-
-  # Crop rasters
 
 
   data <- list(pr = pr, 
                api = api, 
                pop = pop, 
                covs = covs, 
-               rasterised_shapes = rasters_shapes
                cov_rasters = cov_rasters, 
                pop_raster = pop_raster)
   class(data) <- c('ppj_data', 'list)
 
 
-  return(processed_data)
+  return(data)
 }
 
 
 
 
 
-test_api <- function(api, api_column){
+test_api <- function(polygon, shapefiles){
 
-  stopifnot(all(api[, api_column] >= 0))
-  stopifnot(is.na(api
+  stopifnot(all(polygon$response >= 0))
+  stopifnot(!any(is.na(polygon$response)))
+  stopifnot(!any(is.na(polygon$shapefile_id)))
+  stopifnot(!any(!polygon$shapefile_id %in% shapefiles$area_id))
 
   return(NULL)
 }
 
 
-test_pr <- function(pr, pr_pos_column, pr_n_column){
+test_pr <- function(pr){
 
+stopifnot(all(pr$examined >= 0))
+  stopifnot(!any(is.na(pr$examined)))
+  stopifnot(!any(pr$positive > pr$examined))
 
+  return(NULL)
 }
 
 
 
 
 
+find_iso3_from_country <- function(useiso3, iso3, country){
 
 
+  # Need to find a country name because PR data doesn't have iso3 codes... 
+  usecountries <- country[match(useiso3, iso3)]
+
+  if(is.na(usecountries)) stop('No matching iso3')
+  if(!all(usecountries %in% pr$country)) stop('At least one country not in PR data. Probably a name mismatch')
+return(usecountries)
+}
 
 
 
