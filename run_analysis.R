@@ -44,6 +44,11 @@ library(ggplot2)
 library(TMB)
 library(stantmb)
 
+# Parallel processing
+library(foreach)
+registerDoMC(cores=detectCores() - 1)
+
+
 # load functions
 
 source('collect_data.R')
@@ -56,7 +61,7 @@ set.seed(180530)
 
 # load all data
 # Perhaps read all raster years and have a step in process data to choose the right one? Or something. Kinda annoying.
-data <- load_data(PR_path, API_path, pop_path, cov_raster_paths, shapefile_path, shapefile_pattern = '.shp$')
+data <- load_data(PR_path, API_path, pop_path, cov_raster_paths, shapefile_path, shapefile_pattern = '.shp$', useiso3 = 'IDN', year = 2014)
 
 
 # indonesia

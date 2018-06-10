@@ -71,13 +71,11 @@ process_data <- function(
 
 
   # Extract covariates
-  extracted <- parallelExtract(stack(pop_raster, cov_rasters), shape files, fun = NULL)
+  extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
 
   covs <- extracted[, -3]
   pop <- extracted[, 3]
 
-
-  # Make polygon rasters
 
 
 
@@ -87,7 +85,7 @@ process_data <- function(
                covs = covs, 
                cov_rasters = cov_rasters, 
                pop_raster = pop_raster)
-  class(data) <- c('ppj_data', 'list)
+  class(data) <- c('ppj_data', 'list')
 
 
   return(data)
@@ -117,20 +115,6 @@ stopifnot(all(pr$examined >= 0))
   return(NULL)
 }
 
-
-
-
-
-find_iso3_from_country <- function(useiso3, iso3, country){
-
-
-  # Need to find a country name because PR data doesn't have iso3 codes... 
-  usecountries <- country[match(useiso3, iso3)]
-
-  if(is.na(usecountries)) stop('No matching iso3')
-  if(!all(usecountries %in% pr$country)) stop('At least one country not in PR data. Probably a name mismatch')
-return(usecountries)
-}
 
 
 
