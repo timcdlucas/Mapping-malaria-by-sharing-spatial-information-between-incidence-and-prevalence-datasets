@@ -5,6 +5,18 @@ build_mesh <- function(data, mesh.args = NULL){
 
   stopifnot(inherits(data, 'ppj_data'))
 
+
+  pars <- list(convex = -0.01,
+               concave = -0.5,
+               resolution = 300,
+               max.edge = c(0.4, 8), 
+               cut = 0.4, 
+               offset = c(1, 15))
+
+  pars[names(mesh.args)] <- mesh.args
+
+  mesh.args
+
   outline <- unionSpatialPolygons(data$shapefiles, IDs = rep(1, length(data$shapefiles)))
   plot(outline)
 
@@ -18,17 +30,17 @@ build_mesh <- function(data, mesh.args = NULL){
     
   # Find a nonconvex hull around points.
   outline.hull <- inla.nonconvex.hull(coords, 
-                                      convex = -0.01, 
-                                      concave = -0.5,
-                                      resolution = 300)
+                                      convex = convex, 
+                                      concave = concave,
+                                      resolution = resolution)
 
 
 
   mesh <- inla.mesh.2d( 
     boundary = outline.hull,
-    max.edge = c(0.4, 8), 
-    cut = 0.4, 
-    offset = c(1, 20))
+    max.edge = max.edge, 
+    cut = cut, 
+    offset = offset)
 
 
     message('Number of nodes: ', mesh$n)
