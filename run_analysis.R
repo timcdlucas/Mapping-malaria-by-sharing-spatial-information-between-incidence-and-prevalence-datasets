@@ -93,7 +93,7 @@ data_idn <- process_data(
   cov_rasters = data$covs)
 
 
-mesh_idn <- build_mesh(data_idn, mesh.args = NULL)
+mesh_idn <- build_mesh(data_idn, mesh.args = list(max.edge = c(0.8, 5), cut = 0.8))
 
 
 data_cv1_idn <- cv_folds(data_idn)
@@ -102,14 +102,12 @@ data_cv2_idn <- cv_spat_folds(data_idn)
 
 # run models
 
+arg_list <- NULL
+full_model <- fit_models(data_idn, mesh, model.args = arg_list)
 
-full_model <- fit_models(data_idn, mesh, model.args = list(...))
+cv1_output <- run_cv(data_cv1_idn, mesh, model.args = arg_list)
 
-cv1_output <- run_cv(data_cv1_idn, mesh,
-model.args = list(...))
-
-cv2_output <- run_cv(data_cv2_idn, mesh,
-model.args = list(...))
+cv2_output <- run_cv(data_cv2_idn, mesh, model.args = arg_list)
 
 
 
