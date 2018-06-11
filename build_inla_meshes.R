@@ -1,7 +1,50 @@
 
 #'@param data a data object of class 'ppj'
 
-build_mesh <- function(data){
+build_mesh <- function(data, mesh.args = NULL){
+
+  stopifnot(inherits(data, 'ppj_data'))
+
+  outline <- unionSpatialPolygons(data$shapefiles, IDs = rep(1, length(data$shapefiles)))
+  plot(outline)
+
+  # Join coords from all polygons
+  coords <- list()
+  for(i in seq_len(length(outline@polygons[[1]]@Polygons))){
+    coords[[i]] <- outline@polygons[[1]]@Polygons[[i]]@coords
+  }
+  coords <- do.call(rbind, coords)
+
+    
+  # Find a nonconvex hull around points.
+  outline.hull <- inla.nonconvex.hull(coords, 
+                                      convex = -0.01, 
+                                      concave = -0.5,
+                                      resolution = 300)
+
+
+
+  mesh <- inla.mesh.2d( 
+    boundary = outline.hull,
+    max.edge = c(0.4, 8), 
+    cut = 0.4, 
+    offset = c(1, 20))
+
+
+    message('Number of nodes: ', mesh$n)
+
+
+  p <- 
+    ggplot_projection_shapefile(raster = NULL, 
+                                spatialpolygons = outline, 
+                                mesh = mesh, 
+                                shapecol = 'red') +
+      scale_colour_manual(values = c('#00000000', 'red', 'white', 'white', 'white'))
+
+  print(p)
+
+
+  return(mesh)
 
 
 }
