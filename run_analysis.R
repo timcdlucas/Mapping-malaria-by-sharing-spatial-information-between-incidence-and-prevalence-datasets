@@ -25,6 +25,7 @@ cov_raster_paths <- c(
 
 ## Spatial packages
 library(raster)
+library(maptools)
 
 ## dataframe packages
 library(dplyr)
@@ -43,6 +44,15 @@ library(ggplot2)
 ##  Modelling packages
 library(TMB)
 library(stantmb)
+library(INLA)
+if(Sys.info()["sysname"] != 'Windows'){
+  message('using INLA unix workaround')
+  INLA:::inla.dynload.workaround()
+} else {
+  message('Not using INLA unix workaround. Expect you are using winows.')
+}
+library(INLAutils)
+
 
 # Parallel processing
 library(foreach)
@@ -82,7 +92,8 @@ data_idn <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs)
 
-mesh_idn <- build_mesh(data_idn, mesh.args = list(...))
+
+mesh_idn <- build_mesh(data_idn, mesh.args = NULL)
 
 
 data_cv1_idn <- cv_folds(data_idn)
