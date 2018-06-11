@@ -84,6 +84,7 @@ process_data <- function(
                pop = pop, 
                covs = covs, 
                cov_rasters = cov_rasters, 
+               shapefiles = shapefiles,
                pop_raster = pop_raster)
   class(data) <- c('ppj_data', 'list')
 
