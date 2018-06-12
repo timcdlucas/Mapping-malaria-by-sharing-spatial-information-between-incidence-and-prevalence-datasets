@@ -1,5 +1,6 @@
 
-#'@param data a data object of class 'ppj'
+#'@param data a data object of class 'ppj_data'
+#'@param mesh.args. list of extra mesh arguments. guess this is a silly implementation actually. 
 
 build_mesh <- function(data, mesh.args = NULL){
 
