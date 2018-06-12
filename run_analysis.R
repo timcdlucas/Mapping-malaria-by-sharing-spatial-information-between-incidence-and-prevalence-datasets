@@ -67,8 +67,11 @@ source('collect_data.R')
 source('process_data.R')
 source('CombineRasters.R')
 source('parallel-raster-extract.R')
+source('build_inla_meshes.R')
 
 
+# Compile the model
+compile("joint_model.cpp")
 
 set.seed(180530)
 
@@ -93,7 +96,7 @@ data_idn <- process_data(
   binomial_positive = data$pr$positive,
   binomial_n = data$pr$examined,
   coords = data$pr[, c('latitude', 'longitude')],
-  response = data$api$api_mean_pf,
+  response = data$api$api_mean,
   shapefile_id = data$api$shapefile_id,
   shps_id_column = 'area_id',
   shapefiles = data$shapefiles,

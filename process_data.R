@@ -74,8 +74,8 @@ process_data <- function(binomial_positive,
   extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
 
   raster_pts <- rasterToPoints(pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
-  extracted <- cbind(extracted, raster_pts@coords[extracted$cellid, ])
 
+  coords <- raster_pts@coords[extracted$cellid, ]
   covs <- extracted[, -3]
   pop <- extracted[, 3]
   pop[is.na(pop)] <- 0
@@ -86,6 +86,7 @@ process_data <- function(binomial_positive,
                polygon = polygon, 
                pop = pop, 
                covs = covs, 
+               coords = coords,
                cov_rasters = cov_rasters, 
                shapefiles = shapefiles,
                pop_raster = pop_raster)

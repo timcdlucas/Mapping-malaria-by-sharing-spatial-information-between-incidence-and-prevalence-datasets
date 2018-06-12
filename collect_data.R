@@ -61,8 +61,8 @@ load_data <- function(PR_path,
   # Read API data
   api_full <- readr::read_csv(API_path, guess_max  = 1e5)
   api <- api_full %>% filter(year %in% api_year, iso3 %in% useiso3)
-  api <- cbind(api_mean_pf = api[, api_column],
-               shapefile_id = api[, shapefile_column])
+  api <- cbind(api_mean = pull(api, api_column),
+               shapefile_id = pull(api, shapefile_column)) %>% as.data.frame
   
   
   
