@@ -74,7 +74,15 @@ set.seed(180530)
 
 # load all data
 # Perhaps read all raster years and have a step in process data to choose the right one? Or something. Kinda annoying.
-data <- load_data(PR_path, API_path, pop_path, cov_raster_paths, shapefile_path, shapefile_pattern = '.shp$', useiso3 = 'IDN', year = 2014)
+data <- load_data(PR_path, 
+                  API_path, 
+                  pop_path, 
+                  cov_raster_paths, 
+                  shapefile_path, 
+                  shapefile_pattern = '.shp$', 
+                  useiso3 = 'IDN', 
+                  pr_year = 2008,
+                  api_year = 2012)
 
 
 # indonesia
