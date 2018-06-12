@@ -27,11 +27,16 @@ load_data <- function(PR_path,
                       api_year, 
                       pr_year,
                       useiso3,
+                      standardisePR = c(2, 10),
+                      roundPR = FALSE,
+                      standardisePars = 'Pf_Smith2007',
                       api_column = 'api_mean_pf', 
                       pr_pos_column = 'positive',
                       pr_n_column = 'examined',
                       pr_latlon = c('latitude', 'longitude'),
                       pr_country = 'country',
+                      pr_age_low = 'lower_age',
+                      pr_age_high = 'upper_age',
                       shapefile_column = 'shapefile_id',
                       shps_id_name = 'area_id'){
   
@@ -52,13 +57,31 @@ load_data <- function(PR_path,
   
   usecountries <- find_country_from_iso3(useiso3, api_full$iso3, api_full$country_name)
   pr <- pr %>% filter(country %in% usecountries, year_start %in% pr_year)
-  pr_clean <- cbind(
-    positive = pr[, pr_pos_column],
-    examined = pr[, pr_n_column],
-    latitude = pr[, pr_latlon[1]],
-    longitude = pr[, pr_latlon[2]] 
-  )
   
+  pr_clean <- data_frame(
+    prevalence = pull(pr, pr_pos_column) / pull(pr, pr_n_column),
+    positive = pr %>% pull(pr_pos_column),
+    examined = pr %>% pull(pr_n_column),
+    latitude = pr %>% pull(pr_latlon[1]),
+    longitude =  pr %>% pull(pr_latlon[2])
+  )
+
+  if(!is.null(standardisePR)){
+    prev_stand <- convertPrevalence(pr_clean$prevalence, 
+                                    pr %>% pull(pr_age_low),
+                                    pr %>% pull(pr_age_high),
+                                    standardisePR[1],
+                                    standardisePR[2],
+                                    parameters = standardisePars
+                                    )
+    if(roundPR == TRUE){
+      pr_clean$positive <- round(pr_clean$examined * prev_stand)
+    } else {
+      pr_clean$positive <- pr_clean$examined * prev_stand
+    }
+    
+    
+  }  
   
   # Read pop raster
   pop <- raster::raster(pop_path)
