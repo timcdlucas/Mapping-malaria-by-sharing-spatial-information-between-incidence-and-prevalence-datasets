@@ -1,10 +1,10 @@
 
 
-process_data <- function(
-                         binomial_positive,
+process_data <- function(binomial_positive,
                          binomial_n,
                          coords,
                          response,
+                         response_sd,
                          shapefile_id,
                          shapefiles,
                          shps_id_column = 'area_id',
@@ -73,9 +73,12 @@ process_data <- function(
   # Extract covariates
   extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
 
+  raster_pts <- rasterToPoints(pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
+  extracted <- cbind(extracted, raster_pts@coords[extracted$cellid, ])
+
   covs <- extracted[, -3]
   pop <- extracted[, 3]
-
+  pop[is.na(pop)] <- 0
 
 
 
