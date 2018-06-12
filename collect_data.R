@@ -6,16 +6,30 @@
 #################################
 
 
-#' Function to collect together all data needed for the analysis. Split by country comes later.
-#'
-#' The paths required are:
-#'   PR_path
-#'   API_path
-#'   pop_path
+#' Function to collect together all data needed for the analysis. 
 #'
 #'
-#'@param paths named character vector of data paths
-#'@param cov_raster_paths A charac vector of paths to covariate tifs.
+#'@param PR_path Path to CSV containing parasite rate data.
+ #'@param API_path Path to CSV containing polygon incidence data.
+  #'@param  pop_path Path to population raster.
+ #'@param cov_raster_paths vector of paths to covariate rasters.
+  #'@param  shapefile_path
+ #'@param shapefile_pattern
+ #'@param  api_year
+  #'@param  pr_year
+  #'@param useiso3
+ #'@param  standardisePR
+#'@param  roundPR
+#'@param   standardisePars
+#'@param  api_column 
+#'@param  pr_pos_column
+#'@param   pr_n_column
+#'@param  pr_latlon
+#'@param  pr_country
+#'@param pr_age_low
+#'@param  pr_age_high
+#'@param    shapefile_column
+#'@param     shps_id_name 
 #'@return An object of class 'ppj' with some elements including separate training and testing data. 
 
 load_data <- function(PR_path, 
