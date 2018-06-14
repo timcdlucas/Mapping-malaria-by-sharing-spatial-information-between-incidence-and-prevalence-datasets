@@ -15,7 +15,9 @@ fit_model <- function(data, mesh, model.args = NULL){
 
   # scale and transform variables.
   cov_matrix <- scale(data$covs[, -c(1:2)])
-
+  
+  # TODO think about this more.
+  cov_matrix[is.na(cov_matrix)] <- 0
 
   
   priormean_log_kappa = -3
@@ -36,76 +38,6 @@ fit_model <- function(data, mesh, model.args = NULL){
   dyn.load(dynlib("joint_model"))
   
   
-  # 
-  # // Pixel data. 
-  # // All in long format so that if a pixel is in multiple polygons or multiple years, it will be represented by multiple rows.
-  # // Environmental/other covariates data matrix
-  # DATA_MATRIX(x);
-  # 
-  # // Population fraction of a polygon in a pixel. i.e. pixel i makes contains 0.01 of the population of polygon j
-  # DATA_VECTOR(xpop);
-  # 
-  # // two col matrix with start end indices for each shape case. 
-  # DATA_IARRAY(startendindex); 
-  # 
-  # // Shape data. Cases and region id.
-  # DATA_VECTOR(polygon_mean_API);
-  # DATA_VECTOR(polygon_sd_API);
-  # 
-  # // Weight polygon likelihood by this much
-  # DATA_SCALAR(polyweight);
-  # 
-  # 
-  # 
-  # // ------------------------------------------------------------------------ //
-  #   // Parameters
-  # // ------------------------------------------------------------------------ //
-  #   
-  #   // regression slopes
-  # // (log of) empirical mean incidence to guide intercept
-  # PARAMETER(intercept); // intercept
-  # PARAMETER_VECTOR(slope); 
-  # 
-  # 
-  # 
-  # DATA_SCALAR(priormean_intercept); // = -4.0; 
-  # DATA_SCALAR(priorsd_intercept);// = 2.0
-  # DATA_SCALAR(priormean_slope); // = 0.0;
-  # DATA_SCALAR(priorsd_slope); // = 1.0;
-  # 
-  # // 2016 spde hyperparameters
-  # // tau defines strength of random field. 
-  # // kappa defines distance within which points in field affect each other. 
-  # PARAMETER(log_tau);
-  # PARAMETER(log_kappa);
-  # 
-  # // Priors on spde hyperparameters
-  # //   kappa -- i.e. exp(priormean_log_kappa) -- set as approximately the width of the region being studied.
-  # //   This implies prior belief in a fairly flat field.
-  # //   tau -- exp(priormean_log_tau) -- set to close to zero. Betas on regression coefficients have priors of 0 so this is reasonable.
-  # //Type priormean_log_kappa = -3;
-  # //Type priorsd_log_kappa   = 0.5;
-  # //Type priormean_log_tau   = -0.50;
-  # //Type priorsd_log_tau     = 2.0;
-  # DATA_SCALAR(priormean_log_kappa);
-  # DATA_SCALAR(priorsd_log_kappa);
-  # DATA_SCALAR(priormean_log_tau);
-  # DATA_SCALAR(priorsd_log_tau);
-  # 
-  # // Convert hyperparameters to natural scale
-  # Type tau = exp(log_tau);
-  # Type kappa = exp(log_kappa);
-  # 
-  # 
-  # // Space-time random effect parameters
-  # // matrix logit_pr_offset [nrows = n_mesh, col=n_years].
-  # PARAMETER_VECTOR(nodemean);
-  # 
-  # // Prevalence to incidence conversion parameters 
-  # DATA_VECTOR(prev_inc_par); // length: 3 
-  # DATA_SCALAR(max_prev);
-  # 
-  # 
   parameters <- list(intercept = -4,
                      slope = rep(0, nlayers(data$cov_rasters)),
                      log_tau = priormean_log_tau,
@@ -117,8 +49,12 @@ fit_model <- function(data, mesh, model.args = NULL){
                      Apixel = Apix,
                      spde = spde,
                      startendindex = startendindex,
-                     polygon_mean_API = data$polygon$response,
+                     polygon_cases = data$polygon$response * data$polygon$population,
                      prev_inc_par = c(2.616, -3.596, 1.594),
+                     priormean_intercept = priormean_intercept,
+                     priorsd_intercept = priorsd_intercept,
+                     priormean_slope = priormean_slope,
+                     priorsd_slope = priorsd_slope,
                      priormean_log_kappa = priormean_log_kappa,
                      priorsd_log_kappa = priorsd_log_kappa,
                      priormean_log_tau = priormean_log_tau,
@@ -126,17 +62,18 @@ fit_model <- function(data, mesh, model.args = NULL){
   
 
   obj <- MakeADFun(
-    data = data, 
+    data = input_data, 
     parameters = parameters,
     #random = 'nodemean',
     DLL = "joint_model")
   
+  its = 100
   opt <- nlminb(obj$par, obj$fn, obj$gr, 
                 control = list(iter.max = its, eval.max = 2*its, trace = 10))
 
+  # sd_out <- sdreport(obj)
 
-
-  predictions <- predict_model()
+  predictions <- predict_model(opt$par, data, mesh)
   return(list(model = modelfit,
               predictions = preds))
 }
@@ -144,9 +81,42 @@ fit_model <- function(data, mesh, model.args = NULL){
 
 
 
-predict_model <- function(model, predict_model){
+predict_model <- function(pars, data, mesh){
+  
+  # Make pop raster that will be raster template.
+  pop <- crop(data$pop_raster, extent(data$shapefiles))
+  
+  # Get raster coords
+  raster_pts <- rasterToPoints(pop %>% inset(is.na(.), value = -9999), spatial = TRUE)
+  coords <- raster_pts@coords
+  
+  # Split up parameters
+  pars <- split(pars, names(pars))
+  
+  
+  # Get random field predicted
+  spde <- (inla.spde2.matern(mesh, alpha = 2)$param.inla)[c("M0", "M1", "M2")]	
+  n_s <- nrow(spde$M0)						
+  
+  Amatrix <- inla.mesh.project(mesh, loc = as.matrix(coords))$A
+  
+  field <- MakeField(Amatrix, pars)
+  field_ras <- rasterFromXYZ(cbind(coords, field))
 
-
+  # Create linear predictor.
+  cov_rasters <- crop(data$cov_rasters, extent(field_ras))
+  covs_by_betas <- list()
+  for(i in seq_len(nlayers(cov_rasters))){
+    covs_by_betas[[i]] <- pars$slope[i] * cov_rasters[[i]]
+  }
+  
+  cov_by_betas <- stack(covs_by_betas)
+  cov_contribution <- sum(cov_by_betas) + pars$intercept
+  
+  linear_pred <- cov_contribution + field_ras
+  
+  
+  
   return(predictions)
 }
 
@@ -177,6 +147,12 @@ make_startend_index <- function(data){
   startendindex <- startendindex[whichindices, ] - 1L
 }
 
+
+MakeField <- function(Amatrix, pars){
+  field <- (Amatrix %*% pars$nodemean)[, 1]
+  return(field)
+  
+}
 
 
 
