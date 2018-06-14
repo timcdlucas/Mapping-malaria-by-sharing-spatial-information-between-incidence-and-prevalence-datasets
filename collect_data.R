@@ -66,7 +66,7 @@ load_data <- function(PR_path,
                population = pull(api, api_column),
                shapefile_id = pull(api, shapefile_column)) %>% as.data.frame
   
-  
+  api <- api %>% filter(population > 0)
   
   # Read PR data
   pr <- readr::read_csv(PR_path, guess_max  = 1e5)

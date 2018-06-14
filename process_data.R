@@ -73,6 +73,8 @@ process_data <- function(binomial_positive,
 
   # Extract covariates
   extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
+  
+  # Handle covariate NAs.
 
   raster_pts <- rasterToPoints(pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
 

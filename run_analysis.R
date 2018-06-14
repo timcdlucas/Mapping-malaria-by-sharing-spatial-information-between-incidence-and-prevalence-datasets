@@ -30,6 +30,7 @@ library(maptools)
 ## dataframe packages
 library(dplyr)
 library(readr)
+library(magrittr)
 
 ## For standardising prevalence
 library(malariaAtlas)
@@ -68,7 +69,7 @@ source('process_data.R')
 source('CombineRasters.R')
 source('parallel-raster-extract.R')
 source('build_inla_meshes.R')
-
+source('fit_model.R')
 
 # Compile the model
 compile("joint_model.cpp")
@@ -96,7 +97,8 @@ data_idn <- process_data(
   binomial_positive = data$pr$positive,
   binomial_n = data$pr$examined,
   coords = data$pr[, c('latitude', 'longitude')],
-  response = data$api$api_mean,
+  polygon_response = data$api$api_mean,
+  polygon_population = data$api$population,
   shapefile_id = data$api$shapefile_id,
   shps_id_column = 'area_id',
   shapefiles = data$shapefiles,
@@ -114,7 +116,7 @@ data_cv2_idn <- cv_spat_folds(data_idn)
 # run models
 
 arg_list <- NULL
-full_model <- fit_models(data_idn, mesh, model.args = arg_list)
+full_model <- fit_models(data_idn, mesh_idn, model.args = arg_list)
 
 cv1_output <- run_cv(data_cv1_idn, mesh, model.args = arg_list)
 
