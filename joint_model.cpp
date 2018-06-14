@@ -30,7 +30,7 @@ using namespace R_inla;
 using namespace density;
 using namespace Eigen;
 
- ------------------------------------------------------------------------ //
+// ------------------------------------------------------------------------ //
 // Spatial field data
 // ------------------------------------------------------------------------ //
 
@@ -53,21 +53,11 @@ DATA_MATRIX(x);
 // Population fraction of a polygon in a pixel. i.e. pixel i makes contains 0.01 of the population of polygon j
 DATA_VECTOR(xpop);
 
-// ADMIN0 region id (pixel i is in ADMin0 polygon j). Sorted by... shapefile id
-DATA_IVECTOR(shapeadmin0);
-
-
 // two col matrix with start end indices for each shape case. 
 DATA_IARRAY(startendindex); 
 
 // Shape data. Cases and region id.
-DATA_VECTOR(polygon_mean_API);
-DATA_VECTOR(polygon_sd_API);
-
-// Weight polygon likelihood by this much
-DATA_SCALAR(polyweight);
-
-
+DATA_VECTOR(polygon_cases);
 
 // ------------------------------------------------------------------------ //
 // Parameters
@@ -115,12 +105,11 @@ PARAMETER_VECTOR(nodemean);
 
 // Prevalence to incidence conversion parameters 
 DATA_VECTOR(prev_inc_par); // length: 3 
-DATA_SCALAR(max_prev);
 
 
 // get number of data points to loop over
 // y (cases) length
-int n = polygon_mean_API.size(); 
+int n = polygon_cases.size(); 
 // Number of pixels
 int pixn = x.rows();
 
@@ -185,6 +174,8 @@ vector<Type> pixel_linear_pred(pixn);
 pixel_linear_pred = intercept + x*slope +
                       logit_prevalence_field_2016.array();
 
+REPORT(pixel_linear_pred);
+
 // recalculate startendindices to be in the form start, n
 startendindex.col(1) = startendindex.col(1) - startendindex.col(0) + 1;
 
@@ -200,21 +191,18 @@ vector<Type> reportinc(n);
 vector<Type> reportnll(n);
 vector<Type> reportinccount(n);
 vector<Type> reportpop(n);
-vector<Type> reportpopprev(n);
+//vector<Type> reportpopprev(n);
 vector<Type> reportprev(n);
-vector<Type> mean_inshape_prev(n);
 vector<Type> min_inshape_prev(n);
-vector<Type> reportnat_lin_pred(n);
 
 //For each shape use startendindex to find sum of pixel incidence rates
 for (int s = 0; s < n; s++) {
   // Sum pixel risks (raster + field 
 
   // Create logit prevalence
-  inshape_prev = pixel_linear_pred.segment(startendindex(s, 0), startendindex(s, 1)).array()
-;
-  inshape_prev = max_prev * invlogit(inshape_prev).pow(2);
-  mean_inshape_prev[s] = sum(inshape_prev) / inshape_prev.size();
+  inshape_prev = pixel_linear_pred.segment(startendindex(s, 0), startendindex(s, 1)).array();
+  inshape_prev = invlogit(inshape_prev);
+  reportprev[s] = sum(inshape_prev) / inshape_prev.size();
   min_inshape_prev[s] = min(inshape_prev);
     
     
@@ -231,16 +219,14 @@ for (int s = 0; s < n; s++) {
   inshape_pop = xpop.segment(startendindex(s, 0), startendindex(s, 1));
   shapepop = sum(inshape_pop);
 
-  reportinccount[s] = 1000 * shapeincidence / shapepop;
+  reportinccount[s] = shapeincidence;
   reportinc[s] = 1000 * shapeincidence / shapepop;
   reportpop[s] = shapepop;
 
-  reportprev[s] = sum(inshape_prev) / startendindex(s, 1);
-  
   
  
-    nll -= polyweight * dnorm(log10(1000 * shapeincidence / shapepop), polygon_mean_API[s], polygon_sd_API[s], true); 
-    reportnll[s] = -polyweight * dnorm(1000 * shapeincidence / shapepop, polygon_mean_API[s], polygon_sd_API[s], true); 
+    nll -= -dpois(shapeincidence, polygon_cases[s], true); 
+    reportnll[s] = -dpois(shapeincidence, polygon_cases[s], true); 
 }
 
 Type nll3 = nll;
@@ -251,9 +237,7 @@ REPORT(reportnll);
 REPORT(reportinccount);
 REPORT(reportpop);
 REPORT(reportprev);
-REPORT(reportpopprev);
-REPORT(polygon_mean_API);
-REPORT(mean_inshape_prev);
+REPORT(polygon_cases);
 REPORT(min_inshape_prev);
 REPORT(nll1);
 REPORT(nll3);
