@@ -3,8 +3,8 @@
 process_data <- function(binomial_positive,
                          binomial_n,
                          coords,
-                         response,
-                         response_sd,
+                         polygon_response,
+                         polygon_population,
                          shapefile_id,
                          shapefiles,
                          shps_id_column = 'area_id',
@@ -18,7 +18,8 @@ process_data <- function(binomial_positive,
   stopifnot(grepl('Raster', class(cov_rasters)))
   # Subset polygon data
 
-  polygon <- cbind(response = response,
+  polygon <- cbind(response = polygon_response,
+                   population = polygon_population,
                    shapefile_id = shapefile_id) %>% as.data.frame
 
   if(na.rm == TRUE){ 

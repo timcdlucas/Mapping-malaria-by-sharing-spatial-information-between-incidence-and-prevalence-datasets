@@ -45,6 +45,7 @@ load_data <- function(PR_path,
                       roundPR = FALSE,
                       standardisePars = 'Pf_Smith2007',
                       api_column = 'api_mean_pf', 
+                      pop_column = 'pop_at_risk_pf',
                       pr_pos_column = 'positive',
                       pr_n_column = 'examined',
                       pr_latlon = c('latitude', 'longitude'),
@@ -62,6 +63,7 @@ load_data <- function(PR_path,
   api_full <- readr::read_csv(API_path, guess_max  = 1e5)
   api <- api_full %>% filter(year %in% api_year, iso3 %in% useiso3)
   api <- cbind(api_mean = pull(api, api_column),
+               population = pull(api, api_column),
                shapefile_id = pull(api, shapefile_column)) %>% as.data.frame
   
   
