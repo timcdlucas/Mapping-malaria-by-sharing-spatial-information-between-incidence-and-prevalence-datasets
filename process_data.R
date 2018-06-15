@@ -69,9 +69,16 @@ process_data <- function(binomial_positive,
   test_pr(pr)
 
   
+  # Crop rasters
+  
+  # Make pop raster that will be raster template.
+   <- crop(data$pop_raster, extent(shapefiles))
+  cov_rasters <- crop(data$cov_rasters, extent(pop))
+  
   # Scale rasters
   cov_rasters <- scale(cov_rasters)
-
+  
+  
 
   # Extract covariates
   extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
