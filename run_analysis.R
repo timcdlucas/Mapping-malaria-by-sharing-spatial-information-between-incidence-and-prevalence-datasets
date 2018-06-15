@@ -18,8 +18,8 @@ shapefile_path = '~/timz/master_geometries/Admin_Units/Global/GBD/GBD2017_MAP/GB
 cov_raster_paths <- c(
   '~/timz/mastergrids/MODIS_Global/MOD11A2_LST/LST_Day/5km/Annual/LST_Day.2015.Annual.mean.5km.Mean.tif',
   '~/timz/mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/EVI/5km/Annual/EVI_Overall_Mean_0.tif',
-  '~/timz/mastergrids/Other_Global_Covariates/Rainfall/CHIRPS/5k/Annual/CHIRPS.2016.sum.5km.tif'
-)
+  '~/timz/mastergrids/Other_Global_Covariates/TemperatureSuitability/TSI_Pf_Dynamic/5km/Synoptic/TSI-Martens2-Pf.Synoptic.01.Min.5km.Data.tif'
+  )
 
 # load packages
 
@@ -44,7 +44,7 @@ library(ggplot2)
 
 ##  Modelling packages
 library(TMB)
-library(stantmb)
+#library(stantmb)
 library(INLA)
 if(Sys.info()["sysname"] != 'Windows'){
   message('using INLA unix workaround')
