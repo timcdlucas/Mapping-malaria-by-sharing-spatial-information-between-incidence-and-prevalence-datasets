@@ -13,9 +13,6 @@ fit_model <- function(data, mesh, model.args = NULL){
   n_s <- nrow(spde$M0)
   
 
-  # scale and transform variables.
-  cov_matrix <- scale(data$covs[, -c(1:2)])
-  
   # TODO think about this more.
   cov_matrix[is.na(cov_matrix)] <- 0
 
@@ -115,7 +112,7 @@ predict_model <- function(pars, data, mesh){
   
   linear_pred <- cov_contribution + field_ras
   
-  
+  prevalence <- 1 / (1 + exp(-1 * linear_pred))
   
   return(predictions)
 }

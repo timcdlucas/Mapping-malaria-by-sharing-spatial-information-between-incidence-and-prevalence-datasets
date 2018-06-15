@@ -68,7 +68,9 @@ process_data <- function(binomial_positive,
 
   test_pr(pr)
 
-
+  
+  # Scale rasters
+  cov_rasters <- scale(cov_rasters)
 
 
   # Extract covariates
