@@ -14,8 +14,8 @@ fit_model <- function(data, mesh, model.args = NULL){
   
 
   # TODO think about this more.
-  cov_matrix[is.na(cov_matrix)] <- 0
-
+  data$covs[is.na(data$covs)] <- 0
+  cov_matrix <- as.matrix(data$covs[, -c(1:2)])
   
   priormean_log_kappa = -3
   priorsd_log_kappa = 0.5
@@ -35,7 +35,7 @@ fit_model <- function(data, mesh, model.args = NULL){
   dyn.load(dynlib("joint_model"))
   
   
-  parameters <- list(intercept = -4,
+  parameters <- list(intercept = -5,
                      slope = rep(0, nlayers(data$cov_rasters)),
                      log_tau = priormean_log_tau,
                      log_kappa = priormean_log_kappa,
@@ -46,7 +46,7 @@ fit_model <- function(data, mesh, model.args = NULL){
                      Apixel = Apix,
                      spde = spde,
                      startendindex = startendindex,
-                     polygon_cases = data$polygon$response * data$polygon$population,
+                     polygon_cases = data$polygon$response * data$polygon$population / 1000,
                      prev_inc_par = c(2.616, -3.596, 1.594),
                      priormean_intercept = priormean_intercept,
                      priorsd_intercept = priorsd_intercept,
@@ -66,11 +66,11 @@ fit_model <- function(data, mesh, model.args = NULL){
   
   its = 100
   opt <- nlminb(obj$par, obj$fn, obj$gr, 
-                control = list(iter.max = its, eval.max = 2*its, trace = 10))
+                control = list(iter.max = its, eval.max = 2*its, trace = 0))
 
   # sd_out <- sdreport(obj)
 
-  predictions <- predict_model(opt$par, data, mesh)
+  predictions <- predict_model(pars = opt$par, data, mesh)
   return(list(model = modelfit,
               predictions = preds))
 }
@@ -80,11 +80,8 @@ fit_model <- function(data, mesh, model.args = NULL){
 
 predict_model <- function(pars, data, mesh){
   
-  # Make pop raster that will be raster template.
-  pop <- crop(data$pop_raster, extent(data$shapefiles))
-  
   # Get raster coords
-  raster_pts <- rasterToPoints(pop %>% inset(is.na(.), value = -9999), spatial = TRUE)
+  raster_pts <- rasterToPoints(data$pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
   coords <- raster_pts@coords
   
   # Split up parameters
@@ -101,10 +98,9 @@ predict_model <- function(pars, data, mesh){
   field_ras <- rasterFromXYZ(cbind(coords, field))
 
   # Create linear predictor.
-  cov_rasters <- crop(data$cov_rasters, extent(field_ras))
   covs_by_betas <- list()
-  for(i in seq_len(nlayers(cov_rasters))){
-    covs_by_betas[[i]] <- pars$slope[i] * cov_rasters[[i]]
+  for(i in seq_len(nlayers(data$cov_rasters))){
+    covs_by_betas[[i]] <- pars$slope[i] * data$cov_rasters[[i]]
   }
   
   cov_by_betas <- stack(covs_by_betas)

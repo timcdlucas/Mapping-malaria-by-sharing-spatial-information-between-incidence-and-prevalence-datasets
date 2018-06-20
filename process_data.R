@@ -72,8 +72,8 @@ process_data <- function(binomial_positive,
   # Crop rasters
   
   # Make pop raster that will be raster template.
-   <- crop(data$pop_raster, extent(shapefiles))
-  cov_rasters <- crop(data$cov_rasters, extent(pop))
+  pop_raster <- crop(pop_raster, extent(shapefiles))
+  cov_rasters <- crop(cov_rasters, extent(pop_raster))
   
   # Scale rasters
   cov_rasters <- scale(cov_rasters)
@@ -92,7 +92,7 @@ process_data <- function(binomial_positive,
   pop <- extracted[, 3]
   pop[is.na(pop)] <- 0
 
-
+  # Deal with NAs in covariates! TODO
 
   data <- list(pr = pr, 
                polygon = polygon, 
