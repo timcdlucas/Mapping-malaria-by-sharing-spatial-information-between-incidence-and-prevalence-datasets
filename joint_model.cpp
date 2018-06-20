@@ -225,7 +225,7 @@ for (int s = 0; s < n; s++) {
 
   
  
-    nll -= -dpois(shapeincidence, polygon_cases[s], true); 
+    nll -= dpois(polygon_cases[s], shapeincidence, true); 
     reportnll[s] = -dpois(shapeincidence, polygon_cases[s], true); 
 }
 
