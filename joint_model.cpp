@@ -226,7 +226,7 @@ for (int s = 0; s < n; s++) {
   
  
     nll -= dpois(polygon_cases[s], shapeincidence, true); 
-    reportnll[s] = -dpois(shapeincidence, polygon_cases[s], true); 
+    reportnll[s] = -dpois(polygon_cases[s], shapeincidence, true); 
 }
 
 Type nll3 = nll;
