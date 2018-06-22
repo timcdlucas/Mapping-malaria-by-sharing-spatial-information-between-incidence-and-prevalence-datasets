@@ -35,7 +35,6 @@ subset_data_cv <- function(data, polygon_folds, pr_folds, k){
   
   data_fold$train$pr <- data$pr[pr_folds != k, ]
   data_fold$train$polygon <- data$polygon[polygon_folds != k, ]
-  
   cov_rows <- data$covs$area_id %in% data_fold$train$polygon$shapefile_id
   data_fold$train$covs <- data$covs[cov_rows, ]
   data_fold$train$pop <- data$pop[cov_rows]
@@ -45,6 +44,8 @@ subset_data_cv <- function(data, polygon_folds, pr_folds, k){
   data_fold$train$shapefiles <- data$shapefiles[data$shapefiles$area_id %in% data_fold$train$covs$area_id, ]
   
   
+  data_fold$test$pr <- data$pr[pr_folds == k, ]
+  data_fold$test$polygon <- data$polygon[polygon_folds == k, ]
   data_fold$test$covs <- data$covs[!cov_rows, ]
   data_fold$test$pop <- data$pop[!cov_rows]
   data_fold$test$coords <- data$coords[!cov_rows, ]
