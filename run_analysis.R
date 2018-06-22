@@ -116,7 +116,11 @@ data_cv2_idn <- cv_spat_folds(data_idn)
 # run models
 
 arg_list <- NULL
-full_model <- fit_models(data_idn, mesh_idn, model.args = arg_list)
+full_model <- fit_model(data_idn, mesh_idn, model.args = arg_list)
+in_sample <- cv_performance(predictions = full_model$predictions, 
+                            holdout = data_idn)
+
+
 
 cv1_output <- run_cv(data_cv1_idn, mesh, model.args = arg_list)
 

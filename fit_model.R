@@ -71,8 +71,11 @@ fit_model <- function(data, mesh, model.args = NULL){
   # sd_out <- sdreport(obj)
 
   predictions <- predict_model(pars = opt$par, data, mesh)
-  return(list(model = modelfit,
-              predictions = preds))
+  
+  out <- list(model = list(opt, obj),
+           predictions = predictions)
+  class(out) <- 'ppj_model'
+  return(out)
 }
 
 
@@ -109,7 +112,15 @@ predict_model <- function(pars, data, mesh){
   linear_pred <- cov_contribution + field_ras
   
   prevalence <- 1 / (1 + exp(-1 * linear_pred))
+  api <- 1000 * PrevIncConversion(prevalence)
   
+  incidence_count <- api * data$pop_raster / 1000
+  
+  predictions <- list(api = api, 
+                      prevalence = prevalence, 
+                      incidence_count = incidence_count,
+                      pop = data$pop_raster)
+  class(predictions) <- 'ppj_preds'
   return(predictions)
 }
 
@@ -117,7 +128,22 @@ predict_model <- function(pars, data, mesh){
 
 cv_performance <- function(predictions, holdout){
 
-
+  # Extract raster data
+  rasters <- stack(predictions$pop, predictions$incidence_count)
+  names(rasters) <- c('population', 'incidence_count')
+  
+  extracted <- parallelExtract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
+  
+  # Calc pred incidence and API
+  
+  aggregated <- extracted %>% 
+                  na.omit %>% 
+                  group_by(area_id) %>% 
+                  summarise(pred_incidence_count = sum(incidence_count),
+                            pred_pop = sum(population),
+                            pred_api = 1000 * sum(incidence_count) / sum(population)) %>% 
+                  left_join(holdout$polygon, by = c('area_id' = 'shapefile_id')) 
+  # Calc API metrics
 
   return(list(polygon_pred_obs = polygon_pred_obs,
               pr_pred_obs = pr_pred_obs,
