@@ -70,6 +70,7 @@ source('CombineRasters.R')
 source('parallel-raster-extract.R')
 source('build_inla_meshes.R')
 source('fit_model.R')
+source('run_cv.R')
 
 # Compile the model
 compile("joint_model.cpp")

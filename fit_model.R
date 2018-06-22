@@ -17,10 +17,10 @@ fit_model <- function(data, mesh, model.args = NULL){
   data$covs[is.na(data$covs)] <- 0
   cov_matrix <- as.matrix(data$covs[, -c(1:2)])
   
-  priormean_log_kappa = -3
+  priormean_log_kappa = -4
   priorsd_log_kappa = 0.5
-  priormean_log_tau = 2
-  priorsd_log_tau = 1
+  priormean_log_tau = 8
+  priorsd_log_tau = 0.2
   
   priormean_intercept = -2
   priorsd_intercept = 1
@@ -185,6 +185,35 @@ MakeField <- function(Amatrix, pars){
 }
 
 
+
+
+
+
+
+#' Calc kappa and tau from rho and sd.,
+#' 
+#' 
+#' 
+#'  
+
+rsd2kt <- function(rho, sigma){
+  k <- sqrt(8) / rho
+  t <- 1 / (sqrt(4 * pi) * k * sigma)
+  
+  return(list(tau = t, kappa = k))
+}
+
+k2r <- function(k) sqrt(8) / k
+r2k <- function(r) sqrt(8) / r
+r2logk <- function(r) log(sqrt(8) / r)
+
+
+kt2rsd <- function(kappa, tau){
+  rho <- sqrt(8) / kappa
+  sigma <- 1 / (sqrt(4 * pi) * kappa * tau)
+  
+  return(list(rho = rho, sigma = sigma))
+}
 
 
 
