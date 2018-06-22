@@ -109,8 +109,8 @@ data_idn <- process_data(
 mesh_idn <- build_mesh(data_idn, mesh.args = list(max.edge = c(0.8, 5), cut = 0.8))
 
 
-data_cv1_idn <- cv_folds(data_idn)
-data_cv2_idn <- cv_spat_folds(data_idn)
+data_cv1_idn <- cv_folds(data_idn, k = 5)
+#data_cv2_idn <- cv_spat_folds(data_idn)
 
 
 # run models
@@ -121,10 +121,15 @@ in_sample <- cv_performance(predictions = full_model$predictions,
                             holdout = data_idn)
 
 
+# cv1_model <- fit_model(data_cv1_idn[[1]]$train, mesh_idn, model.args = arg_list)
+# cv1_test <- cv_performance(predictions = cv1_model$predictions, 
+#                             holdout = data_cv1_idn[[1]]$test)
+
+
 
 cv1_output <- run_cv(data_cv1_idn, mesh, model.args = arg_list)
 
-cv2_output <- run_cv(data_cv2_idn, mesh, model.args = arg_list)
+#cv2_output <- run_cv(data_cv2_idn, mesh, model.args = arg_list)
 
 
 
