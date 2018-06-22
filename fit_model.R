@@ -19,13 +19,13 @@ fit_model <- function(data, mesh, model.args = NULL){
   
   priormean_log_kappa = -3
   priorsd_log_kappa = 0.5
-  priormean_log_tau = -0.5
-  priorsd_log_tau = 2
+  priormean_log_tau = 2
+  priorsd_log_tau = 1
   
   priormean_intercept = -2
   priorsd_intercept = 1
   priormean_slope = 0
-  priorsd_slope = 1
+  priorsd_slope = 0.5
 
   
 
@@ -142,13 +142,24 @@ cv_performance <- function(predictions, holdout){
                   summarise(pred_incidence_count = sum(incidence_count),
                             pred_pop = sum(population),
                             pred_api = 1000 * sum(incidence_count) / sum(population)) %>% 
-                  left_join(holdout$polygon, by = c('area_id' = 'shapefile_id')) 
+                  left_join(holdout$polygon, by = c('area_id' = 'shapefile_id')) %>% 
+                  mutate(incidence_count = response * population / 1000)
   # Calc API metrics
-
-  return(list(polygon_pred_obs = polygon_pred_obs,
-              pr_pred_obs = pr_pred_obs,
-              polygon_metrics,
-              pr_metrics))  
+  polygon_metrics <- aggregated %>% 
+                       summarise(RMSE = sqrt(mean((pred_api - response) ^ 2)),
+                                 MAE = mean(abs(pred_api - response)),
+                                 pearson = cor(pred_api, response, method = 'pearson'),
+                                 spearman = cor(pred_api, response, method = 'spearman'),
+                                 RMSE_cases = sqrt(mean((incidence_count - pred_incidence_count) ^ 2)),
+                                 MAE_cases = mean(abs(incidence_count - pred_incidence_count)),
+                                 total_cases = sum(incidence_count - pred_incidence_count))
+  
+  
+  return(list(polygon_pred_obs = aggregated,
+              #pr_pred_obs = pr_pred_obs,
+              polygon_metrics = polygon_metrics
+              #pr_metrics))  
+  ))
 }
 
 
