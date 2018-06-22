@@ -18,7 +18,15 @@ run_cv <- function(cv_data, mesh, model.args, parallel_delay = 60){
   return(list(summary = summary, models = models, results = results))
 }
 
-
+# 
+# out <- foreach::foreach(i = seq_along(cv_data),
+#                         .packages = c('TMB', 'dplyr', 'INLA')) %dopar% { 
+#                           Sys.sleep(runif(1, 0, parallel_delay))
+#                           model <- fit_model(cv_data[[i]]$train, mesh, model.args)
+#                           result <- cv_performance(models[[i]]$predictions, cv_data[[i]]$test)
+#                           return(list(model, result))
+#                         }
+# 
 
 
 
