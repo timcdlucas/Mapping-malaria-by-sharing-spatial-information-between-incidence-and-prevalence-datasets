@@ -20,7 +20,7 @@ cv_folds <- function(data, k = 5){
   class(data_cv) <- c('ppj_cv', 'list')
   
   for(i in 1:k){
-    data_cv[[i]] <- subset_data_cv(data, f, foldspr, i)
+    data_cv[[i]] <- subset_data_cv(data, folds, foldspr, i)
   }
   
   return(data_cv)
