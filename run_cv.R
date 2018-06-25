@@ -1,6 +1,6 @@
 
 
-run_cv <- function(cv_data, mesh, model.args, parallel_delay = 60){
+run_cv <- function(cv_data, mesh, model.args, its = 10, parallel_delay = 0){
 
   stopifnot(inherits(cv_data, 'ppj_cv'))
 
@@ -8,8 +8,9 @@ run_cv <- function(cv_data, mesh, model.args, parallel_delay = 60){
   results <- list()
   
   for(i in seq_along(cv_data)){
+    message('Fitting model: ', i)
     Sys.sleep(runif(1, 0, parallel_delay))
-    models[[i]] <- fit_model(cv_data[[i]]$train, mesh, model.args)
+    models[[i]] <- fit_model(cv_data[[i]]$train, mesh, its, model.args)
     results[[i]] <- cv_performance(models[[i]]$predictions, cv_data[[i]]$test)
   }
   
