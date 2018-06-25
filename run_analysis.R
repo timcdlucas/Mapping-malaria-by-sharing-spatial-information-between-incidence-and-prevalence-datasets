@@ -71,6 +71,7 @@ source('parallel-raster-extract.R')
 source('build_inla_meshes.R')
 source('fit_model.R')
 source('run_cv.R')
+source('random_crossvalidation_setup.R')
 
 # Compile the model
 compile("joint_model.cpp")
@@ -110,14 +111,22 @@ data_idn <- process_data(
 mesh_idn <- build_mesh(data_idn, mesh.args = list(max.edge = c(0.8, 5), cut = 0.8))
 
 
-data_cv1_idn <- cv_folds(data_idn, k = 5)
+data_cv1_idn <- cv_folds(data_idn, k = 3)
 #data_cv2_idn <- cv_spat_folds(data_idn)
 
 
 # run models
 
-arg_list <- NULL
-full_model <- fit_model(data_idn, mesh_idn, model.args = arg_list)
+arg_list <- list(priormean_log_kappa = -3,
+                 priorsd_log_kappa = 0.3,
+                 priormean_log_tau = 6.5,
+                 priorsd_log_tau = 0.2,
+                 priormean_intercept = -2,
+                 priorsd_intercept = 3,
+                 priormean_slope = 0,
+                 priorsd_slope = 0.5 )
+
+full_model <- fit_model(data_idn, mesh_idn, its = 200, model.args = arg_list)
 in_sample <- cv_performance(predictions = full_model$predictions, 
                             holdout = data_idn)
 
@@ -128,7 +137,7 @@ in_sample <- cv_performance(predictions = full_model$predictions,
 
 
 
-cv1_output <- run_cv(data_cv1_idn, mesh, model.args = arg_list)
+cv1_output <- run_cv(data_cv1_idn, mesh_idn, its = 100, model.args = arg_list)
 
 #cv2_output <- run_cv(data_cv2_idn, mesh, model.args = arg_list)
 

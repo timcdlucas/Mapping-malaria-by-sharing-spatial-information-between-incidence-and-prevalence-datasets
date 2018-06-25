@@ -1,7 +1,7 @@
 
 
 
-fit_model <- function(data, mesh, model.args = NULL){
+fit_model <- function(data, mesh, its = 10, model.args = NULL){
 
   
   startendindex <- make_startend_index(data)
@@ -17,15 +17,22 @@ fit_model <- function(data, mesh, model.args = NULL){
   data$covs[is.na(data$covs)] <- 0
   cov_matrix <- as.matrix(data$covs[, -c(1:2)])
   
-  priormean_log_kappa = -4
-  priorsd_log_kappa = 0.5
+  priormean_log_kappa = -3
+  priorsd_log_kappa = 0.3
   priormean_log_tau = 8
   priorsd_log_tau = 0.2
   
   priormean_intercept = -2
-  priorsd_intercept = 1
+  priorsd_intercept = 3
   priormean_slope = 0
   priorsd_slope = 0.5
+  
+  if(!is.null(model.args)){
+    here <- environment()
+    #message(environmentName(here))
+    list2env(model.args, here)
+    #message(priormean_log_kappa)
+  }
 
   
 
@@ -64,7 +71,6 @@ fit_model <- function(data, mesh, model.args = NULL){
     #random = 'nodemean',
     DLL = "joint_model")
   
-  its = 100
   opt <- nlminb(obj$par, obj$fn, obj$gr, 
                 control = list(iter.max = its, eval.max = 2*its, trace = 0))
 
