@@ -18,7 +18,9 @@ shapefile_path = '~/timz/master_geometries/Admin_Units/Global/GBD/GBD2017_MAP/GB
 cov_raster_paths <- c(
   '~/timz/mastergrids/MODIS_Global/MOD11A2_LST/LST_Day/5km/Annual/LST_Day.2015.Annual.mean.5km.Mean.tif',
   '~/timz/mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/EVI/5km/Annual/EVI_Overall_Mean_0.tif',
-  '~/timz/mastergrids/Other_Global_Covariates/TemperatureSuitability/TSI_Pf_Dynamic/5km/Synoptic/TSI-Martens2-Pf.Synoptic.01.Min.5km.Data.tif'
+  '~/timz/mastergrids/Other_Global_Covariates/TemperatureSuitability/TSI_Pf_Dynamic/5km/Synoptic/TSI-Martens2-Pf.Synoptic.01.Min.5km.Data.tif',
+  '~/timz/GBD2017/Processing/Static_Covariates/MAP/other_rasters/accessibility/accessibility.5k.MEAN.tif',
+  '~/timz/mastergrids/Other_Global_Covariates/Elevation/SRTM-Elevation/5km/Synoptic/SRTM_elevation.Synoptic.Overall.Data.5km.mean.tif'
   )
 
 # load packages
@@ -98,14 +100,15 @@ data <- load_data(PR_path,
 data_idn <- process_data(
   binomial_positive = data$pr$positive,
   binomial_n = data$pr$examined,
-  coords = data$pr[, c('latitude', 'longitude')],
+  coords = data$pr[, c('longitude', 'latitude')],
   polygon_response = data$api$api_mean,
   polygon_population = data$api$population,
   shapefile_id = data$api$shapefile_id,
   shps_id_column = 'area_id',
   shapefiles = data$shapefiles,
   pop_raster = data$pop,
-  cov_rasters = data$covs)
+  cov_rasters = data$covs,
+  transform = 4:5)
 
 
 mesh_idn <- build_mesh(data_idn, mesh.args = list(max.edge = c(0.8, 5), cut = 0.8))
@@ -137,7 +140,7 @@ in_sample <- cv_performance(predictions = full_model$predictions,
 
 
 
-cv1_output <- run_cv(data_cv1_idn, mesh_idn, its = 100, model.args = arg_list)
+cv1_output <- run_cv(data_cv1_idn, mesh_idn, its = 200, model.args = arg_list)
 
 #cv2_output <- run_cv(data_cv2_idn, mesh, model.args = arg_list)
 
