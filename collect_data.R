@@ -83,7 +83,7 @@ load_data <- function(PR_path,
     latitude = pr %>% pull(pr_latlon[1]),
     longitude =  pr %>% pull(pr_latlon[2])
   )
-
+  
   if(!is.null(standardisePR)){
     prev_stand <- convertPrevalence(pr_clean$prevalence, 
                                     pr %>% pull(pr_age_low),
@@ -91,7 +91,7 @@ load_data <- function(PR_path,
                                     standardisePR[1],
                                     standardisePR[2],
                                     parameters = standardisePars
-                                    )
+    )
     if(roundPR == TRUE){
       pr_clean$positive <- round(pr_clean$examined * prev_stand)
     } else {
@@ -132,7 +132,6 @@ load_data <- function(PR_path,
   return(data)
   
 }
-
 
 
 

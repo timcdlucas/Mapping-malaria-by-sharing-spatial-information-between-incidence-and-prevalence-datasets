@@ -37,6 +37,7 @@ using namespace Eigen;
 // The A matrices are for projecting the mesh to a point for the pixel and point data respectively.
 // spde is the spde model itself.
 DATA_SPARSE_MATRIX(Apixel);
+DATA_MATRIX(Apoint);
 DATA_STRUCT(spde, spde_t);
 
 
@@ -59,6 +60,19 @@ DATA_IARRAY(startendindex);
 // Shape data. Cases and region id.
 DATA_VECTOR(polygon_cases);
 
+
+
+// ------------------------------------------------------------------------ //
+// Point level data
+// ------------------------------------------------------------------------ //
+
+// Point data. Covariate matrix, number of cases and denominators.
+DATA_MATRIX(pointx);
+DATA_VECTOR(pointcases);
+DATA_VECTOR(pointtested);
+
+
+
 // ------------------------------------------------------------------------ //
 // Parameters
 // ------------------------------------------------------------------------ //
@@ -75,7 +89,7 @@ DATA_SCALAR(priorsd_intercept);// = 2.0
 DATA_SCALAR(priormean_slope); // = 0.0;
 DATA_SCALAR(priorsd_slope); // = 1.0;
 
-// 2016 spde hyperparameters
+// spde hyperparameters
 // tau defines strength of random field. 
 // kappa defines distance within which points in field affect each other. 
 PARAMETER(log_tau);
@@ -112,6 +126,8 @@ DATA_VECTOR(prev_inc_par); // length: 3
 int n = polygon_cases.size(); 
 // Number of pixels
 int pixn = x.rows();
+// Number of point surveys
+int pointn = pointcases.size();
 
 
 // ------------------------------------------------------------------------ //
@@ -132,12 +148,12 @@ for(int s = 0; s < slope.size(); s++){
 
 
 
-// Likelihood of hyperparameters for 2016 field
+// Likelihood of hyperparameters for field
 nll -= dnorm(log_kappa, priormean_log_kappa, priorsd_log_kappa, true);
 nll -= dnorm(log_tau, priormean_log_tau, priorsd_log_tau, true);
 
 
-// Build 2016 spde matrix
+// Build spde matrix
 SparseMatrix<Type> Q = Q_spde(spde, kappa);
 
 // Likelihood of the random field.
@@ -155,13 +171,33 @@ Type nll1 = nll;
 
 
 // Calculate field for pixel data
-vector<Type> logit_prevalence_field_2016;
-logit_prevalence_field_2016 = Apixel * nodemean;
+vector<Type> logit_prevalence_pixel_field;
+logit_prevalence_pixel_field = Apixel * nodemean;
+
+// Calculate field for point data
+vector<Type> logit_prevalence_point_field;
+logit_prevalence_point_field = Apoint * nodemean;
 
 
 // ------------------------------------------------------------------------ //
 // Likelihood from data
 // ------------------------------------------------------------------------ //
+
+
+// Point data likelihood
+vector<Type> point_linear_pred(pointn);
+point_linear_pred = intercept + pointx*slope +
+  logit_prevalence_point_field.array();
+point_linear_pred = invlogit(point_linear_pred);
+
+for(int q = 0; q < pointn; q++){
+  nll -= dnbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
+}
+
+
+
+
+
 
 // Polygon level likelihood
 // For each i in n = cases.size()
@@ -172,7 +208,7 @@ logit_prevalence_field_2016 = Apixel * nodemean;
 
 vector<Type> pixel_linear_pred(pixn);
 pixel_linear_pred = intercept + x*slope +
-                      logit_prevalence_field_2016.array();
+  logit_prevalence_pixel_field.array();
 
 REPORT(pixel_linear_pred);
 

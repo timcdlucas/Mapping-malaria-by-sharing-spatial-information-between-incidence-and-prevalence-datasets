@@ -52,7 +52,7 @@ process_data <- function(binomial_positive,
   
   # Subset PR  
   
-  names(coords) <- c('latitude', 'longitude')
+  names(coords) <- c('longitude', 'latitude')
   pr <- cbind(positive = binomial_positive,
               examined = binomial_n,
               coords)
@@ -91,6 +91,9 @@ process_data <- function(binomial_positive,
   if(!skip_extract){
     extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
   }
+  
+  pr_extracted <- extract(cov_rasters, SpatialPoints(coords))
+  
   # Handle covariate NAs.
   
   raster_pts <- rasterToPoints(pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
@@ -106,6 +109,7 @@ process_data <- function(binomial_positive,
                polygon = polygon, 
                pop = pop, 
                covs = covs, 
+               pr_covs = pr_extracted,
                coords = coords,
                cov_rasters = cov_rasters, 
                shapefiles = shapefiles,
@@ -121,11 +125,11 @@ process_data <- function(binomial_positive,
 
 plot_raster_histograms <- function(covs){
   
-  oldpar <- par()
-  on.exit(par(oldpar))
   
   sq_sides <- ceiling(sqrt(nlayers(covs)))
-  par(mfrow = c(sq_sides, sq_sides))
+  oldpar <- par(mfrow = c(sq_sides, sq_sides))
+  on.exit(par(oldpar))
+  
   for(i in seq_len(nlayers(covs))){
     hist(na.omit(getValues(covs[[i]])),
          main = names(covs)[i])
