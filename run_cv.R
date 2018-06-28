@@ -42,9 +42,29 @@ summarise_cv_results <- function(results){
     lapply(seq_along(results), function(x) cbind(results[[x]]$polygon_metrics, fold = x)) %>% 
     do.call(rbind, .)
   
+  
+  
+  combined_pr <- 
+    lapply(seq_along(results), function(x) cbind(results[[x]]$pr_pred_obs, fold = x)) %>% 
+    do.call(rbind, .)
+  
+  pr_metrics <- combined_pr %>% 
+    summarise(RMSE = sqrt(mean((pred_prev - prevalence) ^ 2)),
+              MAE = mean(abs(pred_prev - prevalence)),
+              pearson = cor(pred_prev, prevalence, method = 'pearson'),
+              spearman = cor(pred_prev, prevalence, method = 'spearman'))
+  
+  combined_pr_summaries <- 
+    lapply(seq_along(results), function(x) cbind(results[[x]]$pr_metrics, fold = x)) %>% 
+    do.call(rbind, .)
+  
+  
   return(list(combined_aggregated = combined_aggregated,
               combined_summaries = combined_summaries,
-              polygon_metrics = polygon_metrics))
+              polygon_metrics = polygon_metrics,
+              combined_pr = combined_pr,
+              combined_pr_summaries = combined_pr_summaries,
+              pr_metrics = pr_metrics))
   
 }
 
