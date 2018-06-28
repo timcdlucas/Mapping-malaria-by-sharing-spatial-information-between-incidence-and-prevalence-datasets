@@ -85,7 +85,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
   
   out <- list(model = list(opt, obj),
            predictions = predictions)
-  class(out) <- 'ppj_model'
+  class(out) <- c('ppj_model', 'list')
   return(out)
 }
 
@@ -131,7 +131,7 @@ predict_model <- function(pars, data, mesh){
                       prevalence = prevalence, 
                       incidence_count = incidence_count,
                       pop = data$pop_raster)
-  class(predictions) <- 'ppj_preds'
+  class(predictions) <- c('ppj_preds', 'list')
   return(predictions)
 }
 
@@ -180,10 +180,12 @@ cv_performance <- function(predictions, holdout){
               pearson = cor(pred_prev, prevalence, method = 'pearson'),
               spearman = cor(pred_prev, prevalence, method = 'spearman'))
   
-  return(list(polygon_pred_obs = aggregated,
+  out <- list(polygon_pred_obs = aggregated,
               pr_pred_obs = pr_pred_obs,
               polygon_metrics = polygon_metrics,
-              pr_metrics = pr_metrics))  
+              pr_metrics = pr_metrics)
+  class(out) <- c('ppj_cv_performance', 'list')
+  return(out)  
 }
 
 
