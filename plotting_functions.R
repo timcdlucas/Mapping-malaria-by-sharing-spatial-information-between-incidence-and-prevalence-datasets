@@ -66,11 +66,9 @@ autoplot.ppj_cv <- function(object, jitter = 0.5, ...){
     geom_polygon() +
     geom_jitter(data = test_pr, aes(longitude, latitude, group = NULL), 
                 pch = 21,
-                height = jitter, width = jitter) +
+                height = jitter, width = jitter, show.legend = FALSE) +
     coord_equal() + 
     scale_fill_brewer(palette = 'Set3')
-  
-  
   
   print(p)
 }
@@ -81,6 +79,34 @@ autoplot.ppj_cv <- function(object, jitter = 0.5, ...){
 # ppj_model 
 #   plot parameters
 #   plot predictions - chose which.
+
+plot.ppj_model <- function(x, layers = 'all', ...){
+  
+  if(layers == 'all') layers <- names(x$predictions)
+  plot(stack(x$predictions[layers]), ...)
+  invisible(NULL)
+}
+
+
+autoplot.ppj_model <- function(object, skip_node_mean = TRUE, ...){
+  pars <- object$model[[1]]$par
+  if(skip_node_mean)  pars <- pars[names(pars) != 'nodemean']
+  
+  pars.df <- data_frame(value = pars, parameter_group = names(pars))
+  pars.df$parameter <- make.unique(pars.df$parameter_group, sep = '_')
+  
+  if(!skip_node_mean) pars.df$parameter[pars.df$parameter_group == 'nodemean'] <- ''
+  
+  p <- ggplot() + 
+         geom_point(data = pars.df %>% dplyr::filter(parameter_group != 'nodemean'), 
+                    aes(x = value, y = parameter, colour = parameter_group)) +
+         geom_jitter(data = pars.df %>% dplyr::filter(parameter_group == 'nodemean'), 
+               aes(x = value, y = parameter, colour = parameter_group),
+               alpha = 0.6, width = 0) +
+         facet_wrap(~ parameter_group, scale = 'free') + 
+         scale_fill_brewer(palette = 'Set3')
+  print(p)
+}
 
 
 # ppj_cv_performance
