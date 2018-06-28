@@ -180,7 +180,10 @@ cv_performance <- function(predictions, holdout){
     summarise(RMSE = sqrt(mean((pred_prev - prevalence) ^ 2)),
               MAE = mean(abs(pred_prev - prevalence)),
               pearson = cor(pred_prev, prevalence, method = 'pearson'),
-              spearman = cor(pred_prev, prevalence, method = 'spearman'))
+              spearman = cor(pred_prev, prevalence, method = 'spearman'),
+              log_pearson = cor(log1p(pred_prev), log1p(prevalence), method = 'pearson'),
+              log_spearman = cor(log1p(pred_prev), log1p(prevalence), method = 'spearman'))
+  
   
   out <- list(polygon_pred_obs = aggregated,
               pr_pred_obs = pr_pred_obs,
