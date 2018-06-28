@@ -292,7 +292,7 @@ obspred_map <- function(cv_data,
   ncols <- ifelse(column, 1, 2)
   grid <- plot_grid(p, p2, ncol = ncols)
   print(grid)
-  return(grid)
+  return(list(p, p1))
 }
 
 

@@ -42,7 +42,8 @@ library(GBDutils)
 
 ## Plotting packages
 library(ggplot2)
-
+library(cowplot)
+theme_set(theme_minimal())
 
 ##  Modelling packages
 library(TMB)
@@ -143,6 +144,8 @@ in_sample <- cv_performance(predictions = full_model$predictions,
 
 
 cv1_output <- run_cv(data_cv1_idn, mesh_idn, its = 200, model.args = arg_list)
+obspred_map(data_cv1_idn, cv1_output)
+obspred_map(data_cv1_idn, cv1_output, trans = 'log10')
 
 #cv2_output <- run_cv(data_cv2_idn, mesh, model.args = arg_list)
 
