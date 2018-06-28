@@ -35,6 +35,8 @@ summarise_cv_results <- function(results){
               MAE = mean(abs(pred_api - response)),
               pearson = cor(pred_api, response, method = 'pearson'),
               spearman = cor(pred_api, response, method = 'spearman'),
+              log_pearson = cor(log1p(pred_api), log1p(response), method = 'pearson'),
+              log_spearman = cor(log1p(pred_api), log1p(response), method = 'spearman'),
               RMSE_cases = sqrt(mean((incidence_count - pred_incidence_count) ^ 2)),
               MAE_cases = mean(abs(incidence_count - pred_incidence_count)),
               total_cases = sum(incidence_count - pred_incidence_count))
