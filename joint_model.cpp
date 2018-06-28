@@ -37,7 +37,7 @@ using namespace Eigen;
 // The A matrices are for projecting the mesh to a point for the pixel and point data respectively.
 // spde is the spde model itself.
 DATA_SPARSE_MATRIX(Apixel);
-DATA_MATRIX(Apoint);
+DATA_SPARSE_MATRIX(Apoint);
 DATA_STRUCT(spde, spde_t);
 
 // Indicate which datasets to use.
