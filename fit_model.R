@@ -9,7 +9,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
   # Sort out mesh bits
   spde <- (inla.spde2.matern(mesh, alpha = 2)$param.inla)[c("M0", "M1", "M2")]	
   Apix <- inla.mesh.project(mesh, loc = as.matrix(data$coords))$A
-  
+  Apoint <- inla.mesh.project(mesh, loc = as.matrix(data$pr[, c('longitude', 'latitude')]))$A
   n_s <- nrow(spde$M0)
   
 
@@ -17,6 +17,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
   data$covs[is.na(data$covs)] <- 0
   cov_matrix <- as.matrix(data$covs[, -c(1:2)])
   
+  
+  # Define prior defaults
   priormean_log_kappa = -3
   priorsd_log_kappa = 0.3
   priormean_log_tau = 8
@@ -27,11 +29,10 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
   priormean_slope = 0
   priorsd_slope = 0.5
   
+  # Replace defaults with anything given in model.args
   if(!is.null(model.args)){
     here <- environment()
-    #message(environmentName(here))
     list2env(model.args, here)
-    #message(priormean_log_kappa)
   }
 
   
@@ -51,6 +52,10 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
   input_data <- list(x = cov_matrix, 
                      xpop = data$pop,
                      Apixel = Apix,
+                     Apoint = Apoint,
+                     pointx = data$pr_covs,
+                     pointcases = data$pr$positive,
+                     pointtested = data$pr$examined,
                      spde = spde,
                      startendindex = startendindex,
                      polygon_cases = data$polygon$response * data$polygon$population / 1000,
