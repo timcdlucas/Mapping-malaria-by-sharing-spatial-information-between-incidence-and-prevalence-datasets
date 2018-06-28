@@ -10,7 +10,7 @@
 #  Plot polygon data
 #  Plot combined data.
 
-plot.ppj_data <- function(x, y = NULL, type = 'both', trans = 'identity', ...){
+autoplot.ppj_data <- function(object, type = 'both', trans = 'identity', limits = c(NA, NA), ...){
   
   df <- ggplot2::fortify(x$shapefiles, region = 'area_id')
   
@@ -22,7 +22,7 @@ plot.ppj_data <- function(x, y = NULL, type = 'both', trans = 'identity', ...){
   p <- ggplot(df, aes(long, lat, group = group, fill = response)) + 
          geom_polygon() +
          coord_equal() +
-         scale_fill_viridis_c(trans = trans)
+         scale_fill_viridis_c(trans = trans, limits = limits)
   
   
   
