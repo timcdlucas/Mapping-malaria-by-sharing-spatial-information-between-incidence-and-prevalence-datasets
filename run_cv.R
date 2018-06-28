@@ -17,8 +17,9 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, parallel_delay = 
   }
   
   summary <- summarise_cv_results(results)
-
-  return(list(summary = summary, models = models, results = results))
+  out <- list(summary = summary, models = models, results = results)
+  class(out) <- c('list', 'ppf_cv_results')
+  return(out)
 }
 
 
