@@ -46,6 +46,10 @@ process_data <- function(binomial_positive,
     if(finalrows < newrows) message(newrows - finalrows, 'rows with missing polygons omitted from polygon data')
   }
   
+  shapefiles@data <- shapefiles@data %>% 
+                       left_join(polygon, by = c('area_id' = 'shapefile_id'))
+  
+  
   # Test polygon data
   message('API data rows: ', nrow(polygon))  
   test_api(polygon, shapefiles)
