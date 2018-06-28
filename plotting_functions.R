@@ -12,9 +12,9 @@
 
 autoplot.ppj_data <- function(object, type = 'both', trans = 'identity', limits = c(NA, NA), ...){
   
-  df <- ggplot2::fortify(x$shapefiles, region = 'area_id')
+  df <- ggplot2::fortify(object$shapefiles, region = 'area_id')
   
-  df <- x$shapefiles@data %>% 
+  df <- object$shapefiles@data %>% 
           mutate(area_id = as.character(area_id)) %>% 
           left_join(df, ., by = c('id' = 'area_id'))
   
@@ -27,7 +27,7 @@ autoplot.ppj_data <- function(object, type = 'both', trans = 'identity', limits 
   
   
   if(type == 'both'){
-    p <- p + geom_point(data = x$pr, 
+    p <- p + geom_point(data = object$pr, 
                         aes(longitude, latitude, fill = positive / examined, group = NULL), 
                         shape = 21, colour = 'lightgrey', alpha = 0.8) 
   }
