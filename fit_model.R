@@ -166,11 +166,24 @@ cv_performance <- function(predictions, holdout){
                                  total_cases = sum(incidence_count - pred_incidence_count))
   
   
+  # Extract PR
+  pr_coords <- SpatialPoints(holdout$pr[, c('longitude', 'latitude')])
+  pr_preds <- extract(predictions$prevalence, pr_coords)
+  pr_pred_obs <- cbind(holdout$pr, pred_prev= pr_preds) %>% 
+                   mutate(prevalence = positive / examined)
+  
+  pr_pred_obs <- na.omit(pr_pred_obs)
+  
+  pr_metrics <- pr_pred_obs %>% 
+    summarise(RMSE = sqrt(mean((pred_prev - prevalence) ^ 2)),
+              MAE = mean(abs(pred_prev - prevalence)),
+              pearson = cor(pred_prev, prevalence, method = 'pearson'),
+              spearman = cor(pred_prev, prevalence, method = 'spearman'))
+  
   return(list(polygon_pred_obs = aggregated,
-              #pr_pred_obs = pr_pred_obs,
-              polygon_metrics = polygon_metrics
-              #pr_metrics))  
-  ))
+              pr_pred_obs = pr_pred_obs,
+              polygon_metrics = polygon_metrics,
+              pr_metrics = pr_metrics))  
 }
 
 
