@@ -32,7 +32,7 @@ autoplot.ppj_data <- function(object, type = 'both', trans = 'identity', limits 
                         shape = 21, colour = 'lightgrey', alpha = 0.8) 
   }
   print(p)
-  p
+  return(p)
 }
 
 # ppj_cv
@@ -71,6 +71,7 @@ autoplot.ppj_cv <- function(object, jitter = 0.5, ...){
     scale_fill_brewer(palette = 'Set3')
   
   print(p)
+  return(p)
 }
 
 
@@ -106,6 +107,7 @@ autoplot.ppj_model <- function(object, skip_node_mean = TRUE, ...){
          facet_wrap(~ parameter_group, scale = 'free') + 
          scale_fill_brewer(palette = 'Set3')
   print(p)
+  return(p)
 }
 
 
@@ -136,6 +138,7 @@ autoplot.ppj_cv_performance <- function(object, trans = 'identity', ...){
          scale_x_continuous(trans = trans) +
          scale_y_continuous(trans = trans)
   print(p)
+  return(p)
 }
 
 # ppf_cv_results
@@ -153,14 +156,15 @@ autoplot.ppf_cv_results <- function(object,
                                     ...){
   
   if(type == 'layers'){
-    ppf_cv_results_layers(object, layer)
+    p <- ppf_cv_results_layers(object, layer)
   } else if (type == 'raster_summary') {
-    ppf_cv_results_raster_summary(object, layer, fun)
+    p <- ppf_cv_results_raster_summary(object, layer, fun)
   } else if (type == 'obs_preds') {
-    ppf_cv_results_obspreds(object, trans)
+    p <- ppf_cv_results_obspreds(object, trans)
   } else {
-    stop('Availale plot types are layers')
+    stop('Availale plot types are layers, raster_summary and obs_preds')
   }
+  return(p)
 }
 
 ppf_cv_results_obspreds <- function(object, trans){
@@ -186,6 +190,7 @@ ppf_cv_results_obspreds <- function(object, trans){
     scale_x_continuous(trans = trans) +
     scale_y_continuous(trans = trans)
   print(p)
+  return(p)
 }
 
 ppf_cv_results_layers <- function(object, layer, fun){
