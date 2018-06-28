@@ -175,7 +175,7 @@ Type nll1 = nll;
 // ------------------------------------------------------------------------ //
 
 
-if(use_points){
+if(use_points[1] == 1){
   // Calculate field for point data
   vector<Type> logit_prevalence_point_field;
   logit_prevalence_point_field = Apoint * nodemean;
@@ -202,7 +202,14 @@ if(use_points){
 //   Calculate likelihood of binomial.
 
 
-if(use_polygons){
+if(use_polygons[1] == 1){
+  
+  
+  
+  // Calculate field for pixel data
+  vector<Type> logit_prevalence_pixel_field(pixn);
+  logit_prevalence_pixel_field = Apixel * nodemean;
+  
   vector<Type> pixel_linear_pred(pixn);
   pixel_linear_pred = intercept + x*slope +
     logit_prevalence_pixel_field.array();

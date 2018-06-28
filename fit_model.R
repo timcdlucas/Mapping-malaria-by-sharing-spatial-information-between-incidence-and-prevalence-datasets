@@ -29,6 +29,9 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
   priormean_slope = 0
   priorsd_slope = 0.5
   
+  use_polygons = 1
+  use_points = 1
+  
   # Replace defaults with anything given in model.args
   if(!is.null(model.args)){
     here <- environment()
@@ -67,7 +70,9 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
                      priormean_log_kappa = priormean_log_kappa,
                      priorsd_log_kappa = priorsd_log_kappa,
                      priormean_log_tau = priormean_log_tau,
-                     priorsd_log_tau = priorsd_log_tau)
+                     priorsd_log_tau = priorsd_log_tau,
+                     use_polygons = use_polygons,
+                     use_points = use_points)
   
 
   obj <- MakeADFun(
