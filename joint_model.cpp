@@ -190,9 +190,9 @@ point_linear_pred = intercept + pointx*slope +
   logit_prevalence_point_field.array();
 point_linear_pred = invlogit(point_linear_pred);
 
-for(int q = 0; q < pointn; q++){
-  nll -= dnbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
-}
+// Hopefully vectorised dbinom.
+nll -= sum(dnbinom(pointcases, pointtested, point_linear_pred, true));
+
 
 
 
