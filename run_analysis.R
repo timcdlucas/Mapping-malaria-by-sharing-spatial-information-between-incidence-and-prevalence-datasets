@@ -74,6 +74,7 @@ source('build_inla_meshes.R')
 source('fit_model.R')
 source('run_cv.R')
 source('random_crossvalidation_setup.R')
+source('plotting_functions.R')
 
 # Compile the model
 compile("joint_model.cpp")
@@ -109,12 +110,13 @@ data_idn <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs,
   transform = 4:5)
-
+autoplot(data_idn)
 
 mesh_idn <- build_mesh(data_idn, mesh.args = list(max.edge = c(0.8, 5), cut = 0.8))
-
+autoplot(mesh_idn)
 
 data_cv1_idn <- cv_folds(data_idn, k = 3)
+autoplot(data_cv1_idn)
 #data_cv2_idn <- cv_spat_folds(data_idn)
 
 
