@@ -254,7 +254,9 @@ obspred_map <- function(cv_data,
     left_join(df, ., by = c('id' = 'area_id'))
   
   # Create mosaiced predicted map
-  r <- cv_preds$models[[1]]$predictions[[layer]]
+  r <- lapply(cv_preds$models, function(x) x$predictions[[layer]]) %>% 
+         do.call(stack, .) %>% 
+         mean
   
   test_shapes@data <- test_poly
   
