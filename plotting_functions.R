@@ -270,8 +270,8 @@ obspred_map <- function(cv_data,
 
   # Find limits
   if(is.null(lims)){
-    min <- min(min(r_df$api), min(df$response))
-    max <- max(max(r_df$api), max(df$response))
+    min <- min(min(r_df$z), min(df$response))
+    max <- max(max(r_df$z), max(df$response))
     lims <- c(min, max) 
   }
   
