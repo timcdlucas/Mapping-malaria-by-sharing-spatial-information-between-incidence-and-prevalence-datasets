@@ -32,7 +32,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
   priorsd_slope = 0.5
   
   use_polygons = 1
-  use_points = 0
+  use_points = 1
   
   # Replace defaults with anything given in model.args
   if(!is.null(model.args)){

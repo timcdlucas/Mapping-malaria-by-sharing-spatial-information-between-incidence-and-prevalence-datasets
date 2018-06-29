@@ -117,11 +117,11 @@ mesh_idn <- build_mesh(data_idn, mesh.args = list(max.edge = c(0.8, 5), cut = 0.
 autoplot(mesh_idn)
 
 data_cv1_idn <- cv_folds(data_idn, k = 3)
-autoplot(data_cv1_idn)
-#data_cv2_idn <- cv_spat_folds(data_idn)
+autoplot(data_cv1_idn, jitter = 0.7)
 
 
 # run models
+# Run full model to get a handle on things.
 
 arg_list <- list(priormean_log_kappa = -3,
                  priorsd_log_kappa = 0.3,
@@ -130,12 +130,55 @@ arg_list <- list(priormean_log_kappa = -3,
                  priormean_intercept = -2,
                  priorsd_intercept = 3,
                  priormean_slope = 0,
-                 priorsd_slope = 0.5 )
+                 priorsd_slope = 0.5,
+                 use_polygons = 1,
+                 use_points = 1)
 
 full_model <- fit_model(data_idn, mesh_idn, its = 200, model.args = arg_list)
+autoplot(full_model)
+plot(full_model, layer = 'api')
+
 in_sample <- cv_performance(predictions = full_model$predictions, 
                             holdout = data_idn)
+autoplot(in_sample)
+autoplot(in_sample, trans = 'log1p')
 
+
+# Run 3 x models with 3 x hyperpars on cv1.
+arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
+cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 200, model.args = arg_list)
+obspred_map(data_cv1_idn, cv1_output1)
+obspred_map(data_cv1_idn, cv1_output1, trans = 'log10')
+
+arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
+cv1_output2 <- run_cv(data_cv1_idn, mesh_idn, its = 200, model.args = arg_list)
+obspred_map(data_cv1_idn, cv1_output2)
+obspred_map(data_cv1_idn, cv1_output2, trans = 'log10')
+
+
+arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
+cv1_output3 <- run_cv(data_cv1_idn, mesh_idn, its = 200, model.args = arg_list)
+obspred_map(data_cv1_idn, cv1_output3)
+obspred_map(data_cv1_idn, cv1_output3, trans = 'log10')
+
+save(cv1_output1, file = 'model_outputs/points_cv_1.RData')
+save(cv1_output2, file = 'model_outputs/polygon_cv_1.RData')
+save(cv1_output3, file = 'model_outputs/join_cv_1.RData')
+
+cv1_output1$summary$polygon_metrics
+cv1_output2$summary$polygon_metrics
+cv1_output3$summary$polygon_metrics
+
+cv1_output1$summary$pr_metrics
+cv1_output2$summary$pr_metrics
+cv1_output3$summary$pr_metrics
+
+
+
+# Run 3 x models with 3 x hyperpars on cv2
+
+
+#data_cv2_idn <- cv_spat_folds(data_idn)
 
 # cv1_model <- fit_model(data_cv1_idn[[1]]$train, mesh_idn, model.args = arg_list)
 # cv1_test <- cv_performance(predictions = cv1_model$predictions, 
@@ -143,12 +186,27 @@ in_sample <- cv_performance(predictions = full_model$predictions,
 
 
 
-cv1_output <- run_cv(data_cv1_idn, mesh_idn, its = 200, model.args = arg_list)
-obspred_map(data_cv1_idn, cv1_output)
-obspred_map(data_cv1_idn, cv1_output, trans = 'log10')
 
 #cv2_output <- run_cv(data_cv2_idn, mesh, model.args = arg_list)
 
 
 
-# create figures
+
+
+# Choose best hyperpar for each model, for each CV and collate.
+
+
+
+
+
+
+
+
+
+# create temp figures
+
+
+
+
+# Write out data needed for final figures.
+
