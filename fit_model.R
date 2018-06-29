@@ -15,6 +15,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
 
   # TODO think about this more.
   data$covs[is.na(data$covs)] <- 0
+  data$pr_covs[is.na(data$pr_covs)] <- 0
+  
   cov_matrix <- as.matrix(data$covs[, -c(1:2)])
   
   
@@ -30,7 +32,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
   priorsd_slope = 0.5
   
   use_polygons = 1
-  use_points = 1
+  use_points = 0
   
   # Replace defaults with anything given in model.args
   if(!is.null(model.args)){
@@ -42,7 +44,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
 
   # Compile and load the model
 
-  
+  #dyn.unload(dynlib("joint_model"))
   dyn.load(dynlib("joint_model"))
   
   

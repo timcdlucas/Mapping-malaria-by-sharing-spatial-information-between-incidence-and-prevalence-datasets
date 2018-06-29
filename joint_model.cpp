@@ -42,8 +42,8 @@ DATA_STRUCT(spde, spde_t);
 
 // Indicate which datasets to use.
 // If neither, just priors. So don't do that.
-DATA_IVECTOR(use_points);
-DATA_IVECTOR(use_polygons);
+DATA_SCALAR(use_points);
+DATA_SCALAR(use_polygons);
 
 // ------------------------------------------------------------------------ //
 // Polygon level data
@@ -165,8 +165,15 @@ nll += SCALE(GMRF(Q), 1.0/tau)(nodemean);
 Type nll1 = nll;
 
 
+Type polygon_weight = 1.0;
+Type point_weight = 1.0;
 
-
+if(use_polygons != 1){
+  polygon_weight = 0;
+}
+if(use_points != 1){
+  point_weight = 0;
+}
 
 
 
@@ -175,20 +182,25 @@ Type nll1 = nll;
 // ------------------------------------------------------------------------ //
 
 
-if(use_points[1] == 1){
-  // Calculate field for point data
-  vector<Type> logit_prevalence_point_field;
-  logit_prevalence_point_field = Apoint * nodemean;
-  
-  // Point data likelihood
-  vector<Type> point_linear_pred(pointn);
-  point_linear_pred = intercept + pointx*slope +
-    logit_prevalence_point_field.array();
-  point_linear_pred = invlogit(point_linear_pred);
-  
-  // Hopefully vectorised dbinom.
-  nll -= sum(dnbinom(pointcases, pointtested, point_linear_pred, true));
+// Calculate field for point data
+vector<Type> logit_prevalence_point_field;
+logit_prevalence_point_field = Apoint * nodemean;
+
+// Point data likelihood
+vector<Type> point_linear_pred(pointn);
+point_linear_pred = intercept + pointx*slope +
+  logit_prevalence_point_field.array();
+point_linear_pred = invlogit(point_linear_pred);
+
+// Hopefully vectorised dbinom.
+vector<Type> reportnllpoint(pointn);
+
+for(int q = 0; q < pointn; q++){
+  nll -= point_weight * dnbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
+  reportnllpoint[q] = -point_weight * dnbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
 }
+REPORT(reportnllpoint);
+Type nll2 = nll;
 
 
 
@@ -202,83 +214,83 @@ if(use_points[1] == 1){
 //   Calculate likelihood of binomial.
 
 
-if(use_polygons[1] == 1){
+
   
-  
-  
-  // Calculate field for pixel data
-  vector<Type> logit_prevalence_pixel_field(pixn);
-  logit_prevalence_pixel_field = Apixel * nodemean;
-  
-  vector<Type> pixel_linear_pred(pixn);
-  pixel_linear_pred = intercept + x*slope +
-    logit_prevalence_pixel_field.array();
-  
-  REPORT(pixel_linear_pred);
-  
-  // recalculate startendindices to be in the form start, n
-  startendindex.col(1) = startendindex.col(1) - startendindex.col(0) + 1;
-  
-  
-  vector<Type> inshape_prev;
-  vector<Type> inshape_incidencerate;
-  vector<Type> inshape_incidence;
-  vector<Type> inshape_pop;
-  Type shapeincidence = 0.0;
-  Type shapepop = 0.0;
-  
-  vector<Type> reportinc(n);
-  vector<Type> reportnll(n);
-  vector<Type> reportinccount(n);
-  vector<Type> reportpop(n);
-  //vector<Type> reportpopprev(n);
-  vector<Type> reportprev(n);
-  vector<Type> min_inshape_prev(n);
-  
-  //For each shape use startendindex to find sum of pixel incidence rates
-  for (int s = 0; s < n; s++) {
-    // Sum pixel risks (raster + field 
-  
-    // Create logit prevalence
-    inshape_prev = pixel_linear_pred.segment(startendindex(s, 0), startendindex(s, 1)).array();
-    inshape_prev = invlogit(inshape_prev);
-    reportprev[s] = sum(inshape_prev) / inshape_prev.size();
-    min_inshape_prev[s] = min(inshape_prev);
-      
-      
-    // Push through ewans prevalence to incidence rate model
-    inshape_incidencerate = inshape_prev * prev_inc_par[0] +
-                            inshape_prev.pow(2) * prev_inc_par[1] +
-                            inshape_prev.pow(3) * prev_inc_par[2];
+
+// Calculate field for pixel data
+vector<Type> logit_prevalence_pixel_field(pixn);
+logit_prevalence_pixel_field = Apixel * nodemean;
+
+vector<Type> pixel_linear_pred(pixn);
+pixel_linear_pred = intercept + x*slope +
+  logit_prevalence_pixel_field.array();
+
+REPORT(pixel_linear_pred);
+
+// recalculate startendindices to be in the form start, n
+startendindex.col(1) = startendindex.col(1) - startendindex.col(0) + 1;
+
+
+vector<Type> inshape_prev;
+vector<Type> inshape_incidencerate;
+vector<Type> inshape_incidence;
+vector<Type> inshape_pop;
+Type shapeincidence = 0.0;
+Type shapepop = 0.0;
+
+vector<Type> reportinc(n);
+vector<Type> reportnll(n);
+vector<Type> reportinccount(n);
+vector<Type> reportpop(n);
+//vector<Type> reportpopprev(n);
+vector<Type> reportprev(n);
+vector<Type> min_inshape_prev(n);
+
+//For each shape use startendindex to find sum of pixel incidence rates
+for (int s = 0; s < n; s++) {
+  // Sum pixel risks (raster + field 
+
+  // Create logit prevalence
+  inshape_prev = pixel_linear_pred.segment(startendindex(s, 0), startendindex(s, 1)).array();
+  inshape_prev = invlogit(inshape_prev);
+  reportprev[s] = sum(inshape_prev) / inshape_prev.size();
+  min_inshape_prev[s] = min(inshape_prev);
     
-    // Calculate pixel incidence and then polyogn incidence
-    inshape_incidence = (inshape_incidencerate * xpop.segment(startendindex(s, 0), startendindex(s, 1)).array());
-    shapeincidence = sum(inshape_incidence);
-  
-    // extract pixel pop and then sum to polygon population
-    inshape_pop = xpop.segment(startendindex(s, 0), startendindex(s, 1));
-    shapepop = sum(inshape_pop);
-  
-    reportinccount[s] = shapeincidence;
-    reportinc[s] = 1000 * shapeincidence / shapepop;
-    reportpop[s] = shapepop;
-  
     
-   
-      nll -= dpois(polygon_cases[s], shapeincidence, true); 
-      reportnll[s] = -dpois(polygon_cases[s], shapeincidence, true); 
-  }
-  REPORT(reportinc);
-  REPORT(reportinccount);
-  REPORT(reportpop);
-  REPORT(reportprev);
-  REPORT(polygon_cases);
-  REPORT(min_inshape_prev);
-  REPORT(reportnll);
+  // Push through ewans prevalence to incidence rate model
+  inshape_incidencerate = inshape_prev * prev_inc_par[0] +
+                          inshape_prev.pow(2) * prev_inc_par[1] +
+                          inshape_prev.pow(3) * prev_inc_par[2];
+  
+  // Calculate pixel incidence and then polyogn incidence
+  inshape_incidence = (inshape_incidencerate * xpop.segment(startendindex(s, 0), startendindex(s, 1)).array());
+  shapeincidence = sum(inshape_incidence);
+
+  // extract pixel pop and then sum to polygon population
+  inshape_pop = xpop.segment(startendindex(s, 0), startendindex(s, 1));
+  shapepop = sum(inshape_pop);
+
+  reportinccount[s] = shapeincidence;
+  reportinc[s] = 1000 * shapeincidence / shapepop;
+  reportpop[s] = shapepop;
+
+  
+ 
+  nll -= polygon_weight * dpois(polygon_cases[s], shapeincidence, true); 
+  reportnll[s] = - polygon_weight * dpois(polygon_cases[s], shapeincidence, true); 
 }
+REPORT(reportinc);
+REPORT(reportinccount);
+REPORT(reportpop);
+REPORT(reportprev);
+REPORT(polygon_cases);
+REPORT(min_inshape_prev);
+REPORT(reportnll);
+
 
 Type nll3 = nll;
 REPORT(nll1);
+REPORT(nll2);
 REPORT(nll3);
 
 
