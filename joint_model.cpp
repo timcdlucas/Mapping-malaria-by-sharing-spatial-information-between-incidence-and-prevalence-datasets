@@ -196,8 +196,8 @@ point_linear_pred = invlogit(point_linear_pred);
 vector<Type> reportnllpoint(pointn);
 
 for(int q = 0; q < pointn; q++){
-  nll -= point_weight * dnbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
-  reportnllpoint[q] = -point_weight * dnbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
+  nll -= point_weight * dbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
+  reportnllpoint[q] = -point_weight * dbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
 }
 REPORT(reportnllpoint);
 Type nll2 = nll;
