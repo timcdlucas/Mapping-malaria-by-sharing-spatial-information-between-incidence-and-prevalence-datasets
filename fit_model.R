@@ -1,7 +1,7 @@
 
 
 
-fit_model <- function(data, mesh, its = 10, model.args = NULL){
+fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95){
 
   
   startendindex <- make_startend_index(data)
@@ -86,14 +86,88 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
   opt <- nlminb(obj$par, obj$fn, obj$gr, 
                 control = list(iter.max = its, eval.max = 2*its, trace = 0))
 
-  sd_out <- sdreport(obj)
+  sd_out <- sdreport(obj, getJointPrecision = TRUE)
 
-  predictions <- predict_model(pars = opt$par, data, mesh)
+  predictions <- predict_model(pars = obj$env$last.par.best, data, mesh)
+  uncertainty <- predict_uncertainty(pars = obj$env$last.par.best, 
+                                     joint_pred = sd_out$jointPrecision,
+                                     data, 
+                                     mesh,
+                                     N = 100,
+                                     CI)
+  
+  # todo to get CIs for aggregated polygons... probably need to do it on every layer.
+  
+  predictions <- c(predictions, uncertainty)
   
   out <- list(model = list(opt, obj),
-           predictions = predictions)
+              predictions = predictions)
   class(out) <- c('ppj_model', 'list')
   return(out)
+}
+
+
+predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
+  
+  # Get raster coords
+  raster_pts <- rasterToPoints(data$pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
+  coords <- raster_pts@coords
+  
+  
+  
+  # Get random field predicted
+  spde <- (inla.spde2.matern(mesh, alpha = 2)$param.inla)[c("M0", "M1", "M2")]	
+  n_s <- nrow(spde$M0)						
+  
+  Amatrix <- inla.mesh.project(mesh, loc = as.matrix(coords))$A
+  
+  # Get par draws
+  ch <- Cholesky(joint_pred)
+  par_draws <- sparseMVN::rmvn.sparse(N, pars, ch, prec = TRUE)
+                    
+  prevalence <- list()
+  api <- list()
+  #incidence_count <- list()
+  
+  for(r in seq_len(N)){
+    
+    
+    # Split up parameters
+    p <- split(par_draws[r, ], names(pars))
+    
+    field <- MakeField(Amatrix, p)
+    field_ras <- rasterFromXYZ(cbind(coords, field))
+    
+    # Create linear predictor.
+    covs_by_betas <- list()
+    for(i in seq_len(nlayers(data$cov_rasters))){
+      covs_by_betas[[i]] <- p$slope[i] * data$cov_rasters[[i]]
+    }
+    
+    cov_by_betas <- stack(covs_by_betas)
+    cov_contribution <- sum(cov_by_betas) + p$intercept
+    
+    linear_pred <- cov_contribution + field_ras
+    
+    prevalence[[r]] <- 1 / (1 + exp(-1 * linear_pred))
+    
+    #incidence_count[[i]] <- api * data$pop_raster / 1000
+    
+  }
+  
+  prevalence <- do.call(stack, prevalence)
+  
+  probs <- c((1 - CI) / 2, 1 - (1 - CI) / 2)
+  
+  quant <- function(x) quantile(x, probs = probs, na.rm = TRUE)
+  
+  prevalence_ci <- calc(prevalence, fun = quant)
+  api_ci <- 1000 * PrevIncConversion(prevalence_ci)
+  
+  predictions <- list(api_ci = api_ci, 
+                      prevalence_ci = prevalence_ci)
+  class(predictions) <- c('ppj_preds_ci', 'list')
+  return(predictions)
 }
 
 
@@ -141,6 +215,10 @@ predict_model <- function(pars, data, mesh){
   class(predictions) <- c('ppj_preds', 'list')
   return(predictions)
 }
+
+
+
+
 
 
 
