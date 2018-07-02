@@ -80,13 +80,13 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL){
   obj <- MakeADFun(
     data = input_data, 
     parameters = parameters,
-    #random = 'nodemean',
+    random = 'nodemean',
     DLL = "joint_model")
   
   opt <- nlminb(obj$par, obj$fn, obj$gr, 
                 control = list(iter.max = its, eval.max = 2*its, trace = 0))
 
-  # sd_out <- sdreport(obj)
+  sd_out <- sdreport(obj)
 
   predictions <- predict_model(pars = opt$par, data, mesh)
   
