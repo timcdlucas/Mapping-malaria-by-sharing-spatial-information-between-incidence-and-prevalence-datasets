@@ -33,6 +33,7 @@ library(maptools)
 library(dplyr)
 library(readr)
 library(magrittr)
+library(tidyr)
 
 ## For standardising prevalence
 library(malariaAtlas)
@@ -56,6 +57,7 @@ if(Sys.info()["sysname"] != 'Windows'){
   message('Not using INLA unix workaround. Expect you are using winows.')
 }
 library(INLAutils)
+library(sparseMVN)
 
 
 # Parallel processing
@@ -123,18 +125,20 @@ autoplot(data_cv1_idn, jitter = 0.7)
 # run models
 # Run full model to get a handle on things.
 
-arg_list <- list(priormean_log_kappa = -3,
-                 priorsd_log_kappa = 0.3,
+log_kappa_mean <- find_max_logkappa(data_idn$cov_rasters)
+arg_list <- list(priormean_log_kappa = log_kappa_mean,
+                 priorsd_log_kappa = 0.1,
                  priormean_log_tau = 6.5,
-                 priorsd_log_tau = 0.2,
+                 priorsd_log_tau = 0.05,
                  priormean_intercept = -2,
                  priorsd_intercept = 3,
                  priormean_slope = 0,
                  priorsd_slope = 0.5,
-                 use_polygons = 1,
+                 use_polygons = 0,
+                 # use_polygons = 1,
                  use_points = 1)
 
-full_model <- fit_model(data_idn, mesh_idn, its = 200, model.args = arg_list)
+full_model <- fit_model(data_idn, mesh_idn, its = 300, model.args = arg_list)
 autoplot(full_model)
 plot(full_model, layer = 'api')
 
@@ -188,6 +192,156 @@ cv1_output3$summary$pr_metrics
 
 
 #cv2_output <- run_cv(data_cv2_idn, mesh, model.args = arg_list)
+
+
+
+
+
+# Choose best hyperpar for each model, for each CV and collate.
+
+
+
+
+
+
+
+
+
+# create temp figures
+
+
+
+
+# Write out data needed for final figures.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# load all data
+# Perhaps read all raster years and have a step in process data to choose the right one? Or something. Kinda annoying.
+data <- load_data(PR_path, 
+                  API_path, 
+                  pop_path, 
+                  cov_raster_paths, 
+                  shapefile_path, 
+                  shapefile_pattern = '.shp$', 
+                  useiso3 = 'MDG', 
+                  admin_unit_level = 'ADMIN1',
+                  pr_year = 2013,
+                  api_year = 2013)
+
+
+# indonesia
+
+# pre analysis
+
+data_mdg <- process_data(
+  binomial_positive = data$pr$positive,
+  binomial_n = data$pr$examined,
+  coords = data$pr[, c('longitude', 'latitude')],
+  polygon_response = data$api$api_mean,
+  polygon_population = data$api$population,
+  shapefile_id = data$api$shapefile_id,
+  shps_id_column = 'area_id',
+  shapefiles = data$shapefiles,
+  pop_raster = data$pop,
+  cov_rasters = data$covs,
+  transform = 4:5)
+autoplot(data_mdg)
+
+mesh_mdg <- build_mesh(data_mdg, mesh.args = list(max.edge = c(0.3, 5), cut = 0.3))
+
+data_cv1_mdg <- cv_folds(data_mdg, k = 3)
+autoplot(data_cv1_mdg, jitter = 0.2)
+
+
+# run models
+# Run full model to get a handle on things.
+
+log_kappa_mean <- find_max_logkappa(data_mdg$cov_rasters)
+arg_list <- list(priormean_log_kappa = log_kappa_mean,
+                 priorsd_log_kappa = 0.5,
+                 priormean_log_tau = 6.5,
+                 priorsd_log_tau = 0.5,
+                 priormean_intercept = -2,
+                 priorsd_intercept = 3,
+                 priormean_slope = 0,
+                 priorsd_slope = 0.5,
+                 use_polygons = 0,
+                 # use_polygons = 1,
+                 use_points = 1)
+
+full_model <- fit_model(data_mdg, mesh_mdg, its = 200, model.args = arg_list)
+autoplot(full_model)
+plot(full_model, layer = 'api')
+
+in_sample <- cv_performance(predictions = full_model$predictions, 
+                            holdout = data_mdg)
+autoplot(in_sample)
+autoplot(in_sample, trans = 'log1p')
+
+
+# Run 3 x models with 3 x hyperpars on cv1.
+arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
+cv1_output1 <- run_cv(data_cv1_mdg, mesh_mdg, its = 200, model.args = arg_list)
+obspred_map(data_cv1_mdg, cv1_output1, column = FALSE)
+obspred_map(data_cv1_mdg, cv1_output1, trans = 'log10', column = FALSE)
+
+arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
+cv1_output2 <- run_cv(data_cv1_mdg, mesh_mdg, its = 200, model.args = arg_list)
+obspred_map(data_cv1_mdg, cv1_output2, column = FALSE)
+obspred_map(data_cv1_mdg, cv1_output2, trans = 'log10', column = FALSE)
+
+
+arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
+cv1_output3 <- run_cv(data_cv1_mdg, mesh_mdg, its = 200, model.args = arg_list)
+obspred_map(data_cv1_mdg, cv1_output3, column = FALSE)
+obspred_map(data_cv1_mdg, cv1_output3, trans = 'log10', column = FALSE)
+
+save(cv1_output1, file = 'model_outputs/mdg_points_cv_1.RData')
+save(cv1_output2, file = 'model_outputs/mdg_polygon_cv_1.RData')
+save(cv1_output3, file = 'model_outputs/mdg_join_cv_1.RData')
+
+cv1_output1$summary$polygon_metrics
+cv1_output2$summary$polygon_metrics
+cv1_output3$summary$polygon_metrics
+
+cv1_output1$summary$pr_metrics
+cv1_output2$summary$pr_metrics
+cv1_output3$summary$pr_metrics
+
+
+
+# Run 3 x models with 3 x hyperpars on cv2
+
+
+#data_cv2_mdg <- cv_spat_folds(data_mdg)
+
+# cv1_model <- fit_model(data_cv1_mdg[[1]]$train, mesh_mdg, model.args = arg_list)
+# cv1_test <- cv_performance(predictions = cv1_model$predictions, 
+#                             holdout = data_cv1_mdg[[1]]$test)
+
+
+
+
+#cv2_output <- run_cv(data_cv2_mdg, mesh, model.args = arg_list)
 
 
 

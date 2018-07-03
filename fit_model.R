@@ -164,8 +164,14 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
   prevalence_ci <- calc(prevalence, fun = quant)
   api_ci <- 1000 * PrevIncConversion(prevalence_ci)
   
+  api <- 1000 * PrevIncConversion(prevalence)
+  incidence_count <- api * data$pop_raster / 1000
+  
   predictions <- list(api_ci = api_ci, 
-                      prevalence_ci = prevalence_ci)
+                      prevalence_ci = prevalence_ci,
+                      api_realisations = api,
+                      prevalence_realisations = prevalence,
+                      incidence_count_realisations = incidence_count)
   class(predictions) <- c('ppj_preds_ci', 'list')
   return(predictions)
 }
@@ -222,7 +228,7 @@ predict_model <- function(pars, data, mesh){
 
 
 
-cv_performance <- function(predictions, holdout){
+cv_performance <- function(predictions, holdout, CI = 0.95){
 
   # Extract raster data
   rasters <- stack(predictions$pop, predictions$incidence_count)
@@ -254,7 +260,7 @@ cv_performance <- function(predictions, holdout){
   
   # Extract PR
   pr_coords <- SpatialPoints(holdout$pr[, c('longitude', 'latitude')])
-  pr_preds <- extract(predictions$prevalence, pr_coords)
+  pr_preds <- raster::extract(predictions$prevalence, pr_coords)
   pr_pred_obs <- cbind(holdout$pr, pred_prev= pr_preds) %>% 
                    mutate(prevalence = positive / examined)
   
@@ -266,6 +272,62 @@ cv_performance <- function(predictions, holdout){
               pearson = cor(pred_prev, prevalence, method = 'pearson'),
               spearman = cor(pred_prev, prevalence, method = 'spearman'),
               log_pearson = cor(log1p(pred_prev), log1p(prevalence), method = 'pearson'))
+  
+  
+  # Uncertainty metrics
+  
+  # Todo. Think about MAP estimate for metrics vs mean of realisations.
+  #   For polygons this is particularly important.
+  #   Currently MAP estimate is NOT the mean of the realisaitons.
+  
+  rasters_real <- stack(predictions$pop, predictions$incidence_count_realisations)
+  names(rasters_real)[1] <- 'population'
+  
+  extracted_reals <- parallelExtract(rasters_real, 
+                               holdout$shapefiles, fun = NULL, id = 'area_id')
+  
+  #extracted_reals[, -c(1:3)] <- as.matrix(extracted_reals[, -c(1:3)]) * extracted_reals$population
+  
+  extract_reals_tidy <- gather(extracted_reals, key = layer, value = incidence_count, -cellid, -area_id, -population)
+  
+  # Calc pred incidence and API
+  probs <- c((1 - CI) / 2, 1 - (1 - CI) / 2)
+  
+  aggregated_reals <- extract_reals_tidy %>% 
+    na.omit %>% 
+    group_by(area_id, layer) %>% 
+    summarise(pred_incidence_count = sum(incidence_count),
+              pred_pop = sum(population),
+              pred_api = 1000 * sum(incidence_count) / sum(population)) %>% 
+    group_by(area_id) %>% 
+    summarise(pred_incidence_count_lower = quantile(pred_incidence_count, probs[1]),
+              pred_incidence_count_upper = quantile(pred_incidence_count, probs[2]),
+              pred_api_lower = quantile(pred_api, probs[1]),
+              pred_api_upper = quantile(pred_api, probs[2])) %>% 
+    left_join(holdout$polygon, by = c('area_id' = 'shapefile_id')) %>% 
+    mutate(incidence_count = response * population / 1000) 
+  
+  polygon_metrics_unc <- aggregated_reals %>% 
+                           mutate(inCI = response > pred_api_lower & response < pred_api_upper) %>% 
+                           summarise(coverage = mean(inCI))
+  
+  
+  polygon_metrics <- cbind(polygon_metrics, polygon_metrics_unc)
+  
+  pr_preds_reals <- raster::extract(predictions$prevalence_realisations, pr_coords)
+  pr_pred_obs <- cbind(holdout$pr, pred_prev= pr_preds) %>% 
+    mutate(prevalence = positive / examined)
+  
+  pr_pred_obs <- na.omit(pr_pred_obs)
+  
+  pr_metrics <- pr_pred_obs %>% 
+    summarise(RMSE = sqrt(mean((pred_prev - prevalence) ^ 2)),
+              MAE = mean(abs(pred_prev - prevalence)),
+              pearson = cor(pred_prev, prevalence, method = 'pearson'),
+              spearman = cor(pred_prev, prevalence, method = 'spearman'),
+              log_pearson = cor(log1p(pred_prev), log1p(prevalence), method = 'pearson'))
+  
+  
   
   
   out <- list(polygon_pred_obs = aggregated,
@@ -329,5 +391,23 @@ kt2rsd <- function(kappa, tau){
   return(list(rho = rho, sigma = sigma))
 }
 
+
+find_max_rho <- function(raster){
+  xrange <- raster@extent[2] - raster@extent[1]
+  yrange <- raster@extent[4] - raster@extent[3]
+  
+  rho <- sqrt(yrange^2 + xrange^2)
+  
+}
+
+find_max_kappa <- function(raster){
+  rho <- find_max_rho(raster)
+  kappa <- r2k(rho)
+}
+
+find_max_logkappa <- function(raster){
+  kappa <- find_max_kappa(raster)
+  log_kappa <- log(kappa)
+}
 
 
