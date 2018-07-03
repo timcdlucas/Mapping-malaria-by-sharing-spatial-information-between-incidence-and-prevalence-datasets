@@ -53,6 +53,7 @@ load_data <- function(PR_path,
                       pr_age_low = 'lower_age',
                       pr_age_high = 'upper_age',
                       shapefile_column = 'shapefile_id',
+                      admin_unit_level = 'ADMIN2',
                       shps_id_name = 'area_id'){
   
   check_inputs_load_data(PR_path, API_path, pop_path, cov_raster_paths)
@@ -63,7 +64,7 @@ load_data <- function(PR_path,
   api_full <- readr::read_csv(API_path, guess_max  = 1e5)
   api <- api_full %>% filter(year %in% api_year, 
                              iso3 %in% useiso3,
-                             admin_unit_level == 'ADMIN2')
+                             admin_unit_level == admin_unit_level)
   api <- cbind(api_mean = pull(api, api_column),
                population = pull(api, pop_column),
                shapefile_id = pull(api, shapefile_column)) %>% as.data.frame

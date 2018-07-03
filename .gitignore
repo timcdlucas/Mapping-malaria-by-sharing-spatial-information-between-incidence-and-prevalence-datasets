@@ -2,3 +2,5 @@
 *.o
 *.so
 figs/*
+todo.md
+model_outputs/*

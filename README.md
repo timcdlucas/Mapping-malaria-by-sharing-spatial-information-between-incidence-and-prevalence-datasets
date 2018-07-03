@@ -17,3 +17,7 @@ title: A comparison of models for polygon data, point data or both for malaria m
 10. gives country X model X CV X metric X prevalence vs incidence.
 
 
+The script `run_analysis.R` is the main script that runs the full analysis.
+The other scripts contain function definitions used by `run_analysis.R`.
+Currently I am reading data directly from Z, mostly from the GBD2017 folder.
+
