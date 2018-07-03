@@ -115,18 +115,22 @@ autoplot.ppj_model <- function(object, skip_node_mean = TRUE, ...){
 #   Plot obs vs pred for both data
 #   Plot performance metrics against each other?
 
-autoplot.ppj_cv_performance <- function(object, trans = 'identity', ...){
+autoplot.ppj_cv_performance <- function(object, trans = 'identity', CI = FALSE, ...){
   
   pr <- object$pr_pred_obs
   polygon <- object$polygon_pred_obs
   
   polygon_clean <- data_frame(data_type = 'polygon', 
                               predicted = polygon$pred_api,
-                              observed = polygon$response)
+                              observed = polygon$response,
+                              lower = polygon$pred_api_lower,
+                              upper = polygon$pred_api_upper)
   
   pr_clean = data_frame(data_type = 'point',
                         predicted = pr$pred_prev, 
-                        observed = pr$prevalence)
+                        observed = pr$prevalence,
+                        lower = pr$prevalence_lower,
+                        upper = pr$prevalence_upper)
   
   d <- rbind(polygon_clean, pr_clean)
   
@@ -137,6 +141,9 @@ autoplot.ppj_cv_performance <- function(object, trans = 'identity', ...){
          facet_wrap(~ data_type, scale = 'free') + 
          scale_x_continuous(trans = trans) +
          scale_y_continuous(trans = trans)
+  
+  if(CI) p <- p + geom_errorbar(aes(ymin = lower, ymax = upper), alpha = 0.3)
+  
   print(p)
   return(p)
 }
