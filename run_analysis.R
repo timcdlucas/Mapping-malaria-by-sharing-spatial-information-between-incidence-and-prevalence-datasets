@@ -277,9 +277,9 @@ autoplot(data_cv1_mdg, jitter = 0.2)
 
 log_kappa_mean <- find_max_logkappa(data_mdg$cov_rasters)
 arg_list <- list(priormean_log_kappa = log_kappa_mean,
-                 priorsd_log_kappa = 0.5,
+                 priorsd_log_kappa = 1,
                  priormean_log_tau = 6.5,
-                 priorsd_log_tau = 0.5,
+                 priorsd_log_tau = 1,
                  priormean_intercept = -2,
                  priorsd_intercept = 3,
                  priormean_slope = 0,

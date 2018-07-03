@@ -258,21 +258,6 @@ cv_performance <- function(predictions, holdout, CI = 0.95){
                                  total_cases = sum(incidence_count - pred_incidence_count))
   
   
-  # Extract PR
-  pr_coords <- SpatialPoints(holdout$pr[, c('longitude', 'latitude')])
-  pr_preds <- raster::extract(predictions$prevalence, pr_coords)
-  pr_pred_obs <- cbind(holdout$pr, pred_prev= pr_preds) %>% 
-                   mutate(prevalence = positive / examined)
-  
-  pr_pred_obs <- na.omit(pr_pred_obs)
-  
-  pr_metrics <- pr_pred_obs %>% 
-    summarise(RMSE = sqrt(mean((pred_prev - prevalence) ^ 2)),
-              MAE = mean(abs(pred_prev - prevalence)),
-              pearson = cor(pred_prev, prevalence, method = 'pearson'),
-              spearman = cor(pred_prev, prevalence, method = 'spearman'),
-              log_pearson = cor(log1p(pred_prev), log1p(prevalence), method = 'pearson'))
-  
   
   # Uncertainty metrics
   
@@ -304,8 +289,7 @@ cv_performance <- function(predictions, holdout, CI = 0.95){
               pred_incidence_count_upper = quantile(pred_incidence_count, probs[2]),
               pred_api_lower = quantile(pred_api, probs[1]),
               pred_api_upper = quantile(pred_api, probs[2])) %>% 
-    left_join(holdout$polygon, by = c('area_id' = 'shapefile_id')) %>% 
-    mutate(incidence_count = response * population / 1000) 
+    left_join(aggregated, by = c('area_id'))
   
   polygon_metrics_unc <- aggregated_reals %>% 
                            mutate(inCI = response > pred_api_lower & response < pred_api_upper) %>% 
@@ -314,23 +298,37 @@ cv_performance <- function(predictions, holdout, CI = 0.95){
   
   polygon_metrics <- cbind(polygon_metrics, polygon_metrics_unc)
   
-  pr_preds_reals <- raster::extract(predictions$prevalence_realisations, pr_coords)
+  
+  
+  
+  # Extract PR
+  pr_coords <- SpatialPoints(holdout$pr[, c('longitude', 'latitude')])
+  pr_preds <- raster::extract(predictions$prevalence, pr_coords)
   pr_pred_obs <- cbind(holdout$pr, pred_prev= pr_preds) %>% 
     mutate(prevalence = positive / examined)
+  
+  
+  pr_preds_reals <- raster::extract(predictions$prevalence_realisations, pr_coords)
+  pr_conf <- apply(pr_preds_reals, 1, function(x) quantile(x, probs = probs, na.rm = TRUE))
+  
+  pr_pred_obs <- cbind(pr_pred_obs, t(pr_conf))
+  names(pr_pred_obs)[7:8] <- c('prevalence_lower', 'prevalence_upper')
   
   pr_pred_obs <- na.omit(pr_pred_obs)
   
   pr_metrics <- pr_pred_obs %>% 
+    mutate(inCI = prevalence > prevalence_lower & prevalence < prevalence_upper) %>% 
     summarise(RMSE = sqrt(mean((pred_prev - prevalence) ^ 2)),
               MAE = mean(abs(pred_prev - prevalence)),
               pearson = cor(pred_prev, prevalence, method = 'pearson'),
               spearman = cor(pred_prev, prevalence, method = 'spearman'),
-              log_pearson = cor(log1p(pred_prev), log1p(prevalence), method = 'pearson'))
+              log_pearson = cor(log1p(pred_prev), log1p(prevalence), method = 'pearson'),
+              coverage = mean(inCI))
   
   
   
   
-  out <- list(polygon_pred_obs = aggregated,
+  out <- list(polygon_pred_obs = aggregated_reals,
               pr_pred_obs = pr_pred_obs,
               polygon_metrics = polygon_metrics,
               pr_metrics = pr_metrics)
