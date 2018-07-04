@@ -94,9 +94,11 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95){
     }
   )
   
-  if(opt == 'error') opt <- nlminb(obj$env$last.par.best[names(obj$env$last.par.best) != 'nodemean'], obj$fn, obj$gr, 
+  if(inherits(opt, 'character') && opt == 'error'){
+    # Second try...
+    opt <- nlminb(obj$env$last.par.best[names(obj$env$last.par.best) != 'nodemean'], obj$fn, obj$gr, 
                                    control = list(iter.max = its, eval.max = 2*its, trace = 0))
-  
+  }
   
   sd_out <- sdreport(obj, getJointPrecision = TRUE)
 
