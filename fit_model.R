@@ -83,9 +83,21 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95){
     random = 'nodemean',
     DLL = "joint_model")
   
-  opt <- nlminb(obj$par, obj$fn, obj$gr, 
-                control = list(iter.max = its, eval.max = 2*its, trace = 0))
-
+  
+  opt <- tryCatch({
+    nlminb(obj$par, obj$fn, obj$gr, 
+           control = list(iter.max = its, eval.max = 2*its, trace = 0))
+    },
+    error = function(e) {
+      cat('error')
+      return('error')
+    }
+  )
+  
+  if(opt == 'error') opt <- nlminb(obj$env$last.par.best[names(obj$env$last.par.best) != 'nodemean'], obj$fn, obj$gr, 
+                                   control = list(iter.max = its, eval.max = 2*its, trace = 0))
+  
+  
   sd_out <- sdreport(obj, getJointPrecision = TRUE)
 
   predictions <- predict_model(pars = obj$env$last.par.best, data, mesh)
