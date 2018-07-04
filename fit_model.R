@@ -89,7 +89,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95){
            control = list(iter.max = its, eval.max = 2*its, trace = 0))
     },
     error = function(e) {
-      cat('error')
+      cat(paste('Error in model, trying again.'))
       return('error')
     }
   )
