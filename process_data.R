@@ -96,7 +96,7 @@ process_data <- function(binomial_positive,
     extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
   }
   
-  pr_extracted <- extract(cov_rasters, SpatialPoints(coords))
+  pr_extracted <- raster::extract(cov_rasters, SpatialPoints(coords))
   
   # Handle covariate NAs.
   
