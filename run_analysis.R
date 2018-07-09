@@ -302,11 +302,13 @@ autoplot(in_sample, trans = 'log1p')
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv1_output1 <- run_cv(data_cv1_mdg, mesh_mdg, its = 200, model.args = arg_list)
 obspred_map(data_cv1_mdg, cv1_output1, column = FALSE)
+ggsave('figs/mdg_points_only.png')
 obspred_map(data_cv1_mdg, cv1_output1, trans = 'log10', column = FALSE)
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_mdg, mesh_mdg, its = 200, model.args = arg_list)
 obspred_map(data_cv1_mdg, cv1_output2, column = FALSE)
+ggsave('figs/mdg_polygons_only.png')
 obspred_map(data_cv1_mdg, cv1_output2, trans = 'log10', column = FALSE)
 
 

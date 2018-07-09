@@ -22,7 +22,7 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, parallel_delay = 
   return(out)
 }
 
-
+# Current summary IS correct. Maps don't reflect the PR at all.
 
 summarise_cv_results <- function(results){
   
