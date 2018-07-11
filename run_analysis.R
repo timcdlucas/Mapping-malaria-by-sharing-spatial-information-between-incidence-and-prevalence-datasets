@@ -113,13 +113,16 @@ data_idn <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs,
   transform = 4:5)
-autoplot(data_idn)
+autoplot(data_idn, pr_limits = c(0, 0.3))
+ggsave('figs/idn_input_data.png')
 
 mesh_idn <- build_mesh(data_idn, mesh.args = list(max.edge = c(0.8, 5), cut = 0.8))
 autoplot(mesh_idn)
 
 data_cv1_idn <- cv_folds(data_idn, k = 3)
 autoplot(data_cv1_idn, jitter = 0.7)
+autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
+ggsave('figs/idn_cv_random.png')
 
 
 # run models
