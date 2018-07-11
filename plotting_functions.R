@@ -10,7 +10,8 @@
 #  Plot polygon data
 #  Plot combined data.
 
-autoplot.ppj_data <- function(object, type = 'both', trans = 'identity', limits = c(NA, NA), ...){
+autoplot.ppj_data <- function(object, type = 'both', trans = 'identity', limits = c(NA, NA), 
+                              pr_limits = c(NA, NA), ...){
   
   df <- ggplot2::fortify(object$shapefiles, region = 'area_id')
   
@@ -27,9 +28,13 @@ autoplot.ppj_data <- function(object, type = 'both', trans = 'identity', limits 
   
   
   if(type == 'both'){
-    p <- p + geom_point(data = object$pr, 
-                        aes(longitude, latitude, fill = positive / examined, group = NULL), 
-                        shape = 21, colour = 'lightgrey', alpha = 0.8) 
+    p <- p + 
+           geom_point(data = object$pr, 
+                        aes(longitude, latitude, colour = positive / examined, 
+                            fill = NULL, group = NULL), 
+                        alpha = 0.8) +
+           scale_colour_viridis_c(trans = trans, limits = pr_limits, oob = scales::squish)
+    
   }
   print(p)
   return(p)
