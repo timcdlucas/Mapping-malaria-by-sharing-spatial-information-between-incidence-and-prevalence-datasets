@@ -154,7 +154,7 @@ autoplot(in_sample, trans = 'log1p')
 
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
-cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 200, model.args = arg_list)
+cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 50, model.args = arg_list)
 obspred_map(data_cv1_idn, cv1_output1)
 obspred_map(data_cv1_idn, cv1_output1, trans = 'log10')
 
