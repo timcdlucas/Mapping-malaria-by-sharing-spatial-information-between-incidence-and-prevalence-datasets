@@ -121,8 +121,9 @@ autoplot(mesh_idn)
 
 data_cv1_idn <- cv_folds(data_idn, k = 3)
 autoplot(data_cv1_idn, jitter = 0.7)
-autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 ggsave('figs/idn_cv_random.png')
+
+autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 
 
 # run models
