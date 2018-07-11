@@ -1,6 +1,6 @@
 
 
-run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, parallel_delay = 0){
+run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, parallel_delay = 0, cores = 5){
 
   stopifnot(inherits(cv_data, 'ppj_cv'))
 
@@ -14,8 +14,9 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, parallel_delay = 
     fit_model(cv_data[[i]]$train, mesh, its, model.args)
   }
   
-  models <- mclapply(1:3, par_fun, mc.cores = 5)
+  models <- mclapply(1:3, par_fun, mc.cores = cores)
 
+  for(i in seq_along(cv_data)){
     results[[i]] <- cv_performance(models[[i]]$predictions, cv_data[[i]]$test)
   }
   
