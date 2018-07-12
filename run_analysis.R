@@ -155,6 +155,8 @@ autoplot(in_sample, trans = 'log1p')
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 50, model.args = arg_list)
+
+autoplot(cv1_output1, type = 'obs_preds', trans = 'log1p')
 obspred_map(data_cv1_idn, cv1_output1)
 obspred_map(data_cv1_idn, cv1_output1, trans = 'log10')
 
@@ -252,7 +254,7 @@ data <- load_data(PR_path,
                   api_year = 2013)
 
 
-# indonesia
+# madagascar
 
 # pre analysis
 
