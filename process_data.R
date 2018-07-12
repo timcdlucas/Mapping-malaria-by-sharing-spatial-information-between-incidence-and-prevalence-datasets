@@ -87,7 +87,7 @@ process_data <- function(binomial_positive,
   cov_rasters <- transform_rasters(cov_rasters, transform)
   cov_rasters <- scale(cov_rasters)
   
-  #plot_raster_histograms(cov_rasters)
+  plot_raster_histograms(cov_rasters)
   
   # Extract covariates
   extracted <- NULL

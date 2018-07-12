@@ -118,7 +118,7 @@ data_idn <- process_data(
   shapefiles = data$shapefiles,
   pop_raster = data$pop,
   cov_rasters = data$covs,
-  transform = c(4:6, 8:9))
+  transform = c(4:7))
 
 autoplot(data_idn, pr_limits = c(0, 0.3))
 ggsave('figs/idn_input_data.png')
