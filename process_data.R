@@ -80,15 +80,14 @@ process_data <- function(binomial_positive,
   # Make pop raster that will be raster template.
   pop_raster <- crop(pop_raster, extent(shapefiles))
   cov_rasters <- crop(cov_rasters, extent(pop_raster))
-  
+  cov_rasters <- mask(cov_rasters, cov_rasters[[1]])
   
   
   # Scale rasters
   cov_rasters <- transform_rasters(cov_rasters, transform)
   cov_rasters <- scale(cov_rasters)
   
-  plot_raster_histograms(cov_rasters)
-  
+  #plot_raster_histograms(cov_rasters)
   
   # Extract covariates
   extracted <- NULL
@@ -96,7 +95,15 @@ process_data <- function(binomial_positive,
     extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
   }
   
+  cor_matrix <- cor(na.omit(extracted[, -c(1:3)]))
+  col <- colorRampPalette(c("red","white","blue"))(20)
+  heatmap(x = cor_matrix, col = col, symm = TRUE, margins = c(20, 20))
+  diag(cor_matrix) <- NA
+  message('Range of correlations: ', paste0(round(range(cor_matrix, na.rm = TRUE), 2), collapse = ', '))
+              
+  
   pr_extracted <- raster::extract(cov_rasters, SpatialPoints(coords))
+  
   
   # Handle covariate NAs.
   
@@ -106,6 +113,8 @@ process_data <- function(binomial_positive,
   covs <- extracted[, -3]
   pop <- extracted[, 3]
   pop[is.na(pop)] <- 0
+  
+              
   
   # Deal with NAs in covariates! TODO
   
