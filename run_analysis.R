@@ -28,6 +28,7 @@ cov_raster_paths <- c(
 ## Spatial packages
 library(raster)
 library(maptools)
+library(rgeos)
 
 ## dataframe packages
 library(dplyr)
@@ -182,6 +183,14 @@ cv1_output3$summary$polygon_metrics
 cv1_output1$summary$pr_metrics
 cv1_output2$summary$pr_metrics
 cv1_output3$summary$pr_metrics
+
+
+
+data_cv1_idn <- cv_spatial_folds(data_idn, k = 7)
+autoplot(data_cv1_idn, jitter = 0.7)
+ggsave('figs/idn_cv_spatial.png')
+
+
 
 
 

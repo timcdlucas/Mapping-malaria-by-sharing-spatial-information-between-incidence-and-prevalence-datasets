@@ -6,34 +6,34 @@
 cv_spatial_folds <- function(data, k = 5){
   
   # Polygons to points
-  centroids <- sapply(seq_len(nrow(data$shapefiles)), 
-                      function(x) rgeos::gCentroid(data$shapefiles[x, ])@coords)
+  # Sort shapefiles to match order of polygon dataframe
+  
+  sorted_shapes <- data$shapefiles[match(data$polygon$shapefile_id, data$shapefiles$area_id), ]
+  
+  centroids <- sapply(seq_len(nrow(sorted_shapes)), 
+                      function(x) rgeos::gCentroid(sorted_shapes[x, ])@coords)
   
   centroids <- t(centroids)
   colnames(centroids) <- c('longitude', 'latitude')
   
-  all_coords <- rbind(centroids, data$pr[, c('longitude', 'latitude')])
+  all_coords <- rbind(cbind(centroids, id = 1), 
+                      cbind(data$pr[, c('longitude', 'latitude')], id = 0))
   
   # Do k means
-  
-  
-  
-  # reindex polygons.
-  
-  
-  
+  folds <- kmeans(all_coords[, 1:2], k, algorithm = 'MacQueen', iter.max = 1000)
+  folds <- folds$cluster
   
   
   # fold is length nrow(polygons), foldspr is length nrow(points)
   #   Should be values 1 to k.
-  folds <- f[s]
-  foldspr <- fpr[spr]
+  polygon_folds <- folds[seq_len(nrow(data$polygon))]
+  foldspr <- folds[(nrow(data$polygon) + 1):length(folds)]
   
   data_cv <- list()
   class(data_cv) <- c('ppj_cv', 'list')
   
   for(i in 1:k){
-    data_cv[[i]] <- subset_data_cv(data, folds, foldspr, i)
+    data_cv[[i]] <- subset_data_cv(data, polygon_folds, foldspr, i)
   }
   
   return(data_cv)
