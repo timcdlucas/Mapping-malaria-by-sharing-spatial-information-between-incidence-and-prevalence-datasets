@@ -136,7 +136,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   
   predictions <- c(predictions, uncertainty)
   
-  out <- list(model = list(opt, obj),
+  out <- list(model = list(opt = opt, obj = obj, sd_report = sd_out),
               predictions = predictions)
   class(out) <- c('ppj_model', 'list')
   return(out)
