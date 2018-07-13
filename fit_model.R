@@ -260,7 +260,10 @@ predict_model <- function(pars, data, mesh){
   predictions <- list(api = api, 
                       prevalence = prevalence, 
                       incidence_count = incidence_count,
-                      pop = data$pop_raster)
+                      pop = data$pop_raster,
+                      field = field_ras,
+                      covariates = cov_contribution
+                      )
   class(predictions) <- c('ppj_preds', 'list')
   return(predictions)
 }
