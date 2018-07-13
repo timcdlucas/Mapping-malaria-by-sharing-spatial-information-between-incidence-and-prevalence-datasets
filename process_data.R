@@ -46,6 +46,8 @@ process_data <- function(binomial_positive,
     if(finalrows < newrows) message(newrows - finalrows, 'rows with missing polygons omitted from polygon data')
   }
   
+  shapefiles@data[, shps_id_column] <- as.numeric(shapefiles@data[, shps_id_column])
+  
   shapefiles@data <- shapefiles@data %>% 
                        left_join(polygon, by = c('area_id' = 'shapefile_id'))
   
