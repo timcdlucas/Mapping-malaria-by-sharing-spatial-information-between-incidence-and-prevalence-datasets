@@ -14,12 +14,21 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, parallel_delay = 
     fit_model(cv_data[[i]]$train, mesh, its, model.args)
   }
   
-  # https://stackoverflow.com/questions/17196261/understanding-the-differences-between-mclapply-and-parlapply-in-r
-  # If we want this to paralellise on windows would need to:
-  #   Do an if statement and use parLapply if windows.
-  #   parLapply is much more annoying. Have to load package etc. And is slower.
-  #   Given that we'll ultimately run on blades, I'm tempted to leave as is.
-  models <- mclapply(seq_along(cv_data), par_fun, mc.cores = cores)
+
+  if(Sys.info()["sysname"] != 'Windows'){
+    models <- mclapply(seq_along(cv_data), par_fun, mc.cores = cores)
+  } else {
+    cl <- makePSOCKcluster(cores, outfile = "")
+    setDefaultCluster(cl)
+    clusterExport(cl, c('par_fun','fit_model','make_startend_index','mesh_idn','arg_list','predict_model','MakeField','PrevIncConversion','predict_uncertainty'))
+    clusterEvalQ(NULL, library(magrittr))
+    clusterEvalQ(NULL, library(INLA))
+    clusterEvalQ(NULL, library(TMB))
+    clusterEvalQ(NULL, library(raster))
+    models <- parLapply(cl, seq_along(cv_data), par_fun)
+    stopCluster(cl)
+  }
+  
 
   for(i in seq_along(cv_data)){
     results[[i]] <- cv_performance(models[[i]]$predictions, cv_data[[i]]$test)
