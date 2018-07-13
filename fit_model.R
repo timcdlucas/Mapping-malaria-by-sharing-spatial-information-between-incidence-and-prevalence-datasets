@@ -1,7 +1,29 @@
 
+#'@param data An object of class ppj_data.
+#'@param mesh An INLA mesh
+#'@param its Maximum iterations for the model optimisation.
+#'@param model.args Names list of non-default model arguments. See below.
+#'@param CI What confidence interval to return for raster realisations
+#'@param N How many realisations to make.
+
+#'
+#' Mode defaults are this. 
+#'   Any of these can be set manually with model.args
+#' priormean_log_kappa = -3
+#' priorsd_log_kappa = 0.3
+#' priormean_log_tau = 8
+#' priorsd_log_tau = 0.2
+#'
+#' priormean_intercept = -2
+#' priorsd_intercept = 3
+#' priormean_slope = 0
+#' priorsd_slope = 0.5
+#' 
+#' use_polygons = 1
+#' use_points = 1
 
 
-fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95){
+fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 100){
 
   
   startendindex <- make_startend_index(data)
@@ -107,7 +129,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95){
                                      joint_pred = sd_out$jointPrecision,
                                      data, 
                                      mesh,
-                                     N = 100,
+                                     N = N,
                                      CI)
   
   # todo to get CIs for aggregated polygons... probably need to do it on every layer.
