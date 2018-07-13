@@ -116,6 +116,9 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
     }
   )
   
+  # Soft check.
+  if(opt$convergence != 0) warning('Model did not converge.')
+  
   if(inherits(opt, 'character') && opt == 'error'){
     # Second try...
     opt <- nlminb(obj$env$last.par.best[names(obj$env$last.par.best) != 'nodemean'], obj$fn, obj$gr, 
@@ -123,7 +126,11 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   }
   
   sd_out <- sdreport(obj, getJointPrecision = TRUE)
-
+  
+  # Check sdreport worked.
+  if(anyNA(sd_out$cov.fixed) | anyNA(sd_out$jointPrecision)) stop('sdreport failed. NAs in fixed SDs or joinPrecision')
+  
+  
   predictions <- predict_model(pars = obj$env$last.par.best, data, mesh)
   uncertainty <- predict_uncertainty(pars = obj$env$last.par.best, 
                                      joint_pred = sd_out$jointPrecision,
