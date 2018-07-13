@@ -4,3 +4,5 @@
 figs/*
 todo.md
 model_outputs/*
+*.dll
+*.stackdump
