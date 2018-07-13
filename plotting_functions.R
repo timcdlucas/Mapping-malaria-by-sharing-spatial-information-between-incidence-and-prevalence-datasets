@@ -282,7 +282,11 @@ obspred_map <- function(cv_data,
 
   # Find limits
   if(is.null(lims)){
-    min <- min(min(r_df$z), min(df$response))
+    if(trans %in% c('log', 'log10')){
+      min <- min(min(r_df$z[r_df$z != 0]), min(df$response[df$response != 0]))
+    } else {
+      min <- min(min(r_df$z), min(df$response))
+    }
     max <- max(max(r_df$z), max(df$response))
     lims <- c(min, max) 
   }
@@ -292,9 +296,9 @@ obspred_map <- function(cv_data,
   
   
   p <- ggplot(df, aes(long, lat, group = group, fill = response)) + 
-    geom_polygon() +
-    coord_equal() + 
-    scale_fill_viridis_c(trans = trans, limits = lims)
+         geom_polygon() +
+         coord_equal() + 
+         scale_fill_viridis_c(trans = trans, limits = lims)
   
   p2 <- ggplot(r_df, aes(x, y, fill = z)) + 
           geom_raster() +
