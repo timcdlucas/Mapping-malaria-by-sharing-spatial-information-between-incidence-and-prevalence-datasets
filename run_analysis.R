@@ -165,18 +165,18 @@ cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 50, model.args = arg_list)
 
 autoplot(cv1_output1, type = 'obs_preds', trans = 'log1p')
 obspred_map(data_cv1_idn, cv1_output1)
-obspred_map(data_cv1_idn, cv1_output1, trans = 'log10')
+obspred_map(data_cv1_idn, cv1_output1, trans = 'log10', lims = c(1e-5, 620))
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_idn, mesh_idn, its = 200, model.args = arg_list)
 obspred_map(data_cv1_idn, cv1_output2)
-obspred_map(data_cv1_idn, cv1_output2, trans = 'log10')
+obspred_map(data_cv1_idn, cv1_output2, trans = 'log10', lims = c(1e-5, 620))
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv1_output3 <- run_cv(data_cv1_idn, mesh_idn, its = 200, model.args = arg_list)
 obspred_map(data_cv1_idn, cv1_output3)
-obspred_map(data_cv1_idn, cv1_output3, trans = 'log10')
+obspred_map(data_cv1_idn, cv1_output3, trans = 'log10', lims = c(1e-5, 620))
 
 save(cv1_output1, file = 'model_outputs/points_cv_1.RData')
 save(cv1_output2, file = 'model_outputs/polygon_cv_1.RData')

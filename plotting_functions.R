@@ -298,11 +298,11 @@ obspred_map <- function(cv_data,
   p <- ggplot(df, aes(long, lat, group = group, fill = response)) + 
          geom_polygon() +
          coord_equal() + 
-         scale_fill_viridis_c(trans = trans, limits = lims)
+         scale_fill_viridis_c(trans = trans, limits = lims, oob = scales::squish)
   
   p2 <- ggplot(r_df, aes(x, y, fill = z)) + 
           geom_raster() +
-          scale_fill_viridis_c(trans = trans, limits = lims) +
+          scale_fill_viridis_c(trans = trans, limits = lims, oob = scales::squish) +
           coord_equal()
   
   
