@@ -83,6 +83,7 @@ source('build_inla_meshes.R')
 source('fit_model.R')
 source('run_cv.R')
 source('random_crossvalidation_setup.R')
+source('spatial_crossvalidation_setup.R')
 source('plotting_functions.R')
 
 # Compile the model
