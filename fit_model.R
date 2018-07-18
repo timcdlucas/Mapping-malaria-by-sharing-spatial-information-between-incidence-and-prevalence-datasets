@@ -53,6 +53,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   priormean_slope = 0
   priorsd_slope = 0.5
   
+  priorsd_iideffect = 2
+  
   use_polygons = 1
   use_points = 1
   
@@ -62,6 +64,13 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
     list2env(model.args, here)
   }
 
+  # Construct vector of length PR data where each value is the element of polygon enclosing that point
+  overlap <- unique(c(data$polygon$shapefile_id,data$pr$shapefile_id))
+  if(length(overlap) > length(data$polygon$shapefile_id)) {
+    extra <- length(overlap) - length(data$polygon$shapefile_id)
+    message(paste("There are", extra, "shapefiles that contain point data but not polygon data"))
+  }
+  pointtopolygonmap <- match(data_idn$pr$shapefile_id,overlap)
   
 
   # Compile and load the model
@@ -72,6 +81,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   
   parameters <- list(intercept = -5,
                      slope = rep(0, nlayers(data$cov_rasters)),
+                     iideffect = rep(0, nrow(data$overlap)),
                      log_tau = priormean_log_tau,
                      log_kappa = priormean_log_kappa,
                      nodemean = rep(0, n_s))
@@ -86,11 +96,13 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      spde = spde,
                      startendindex = startendindex,
                      polygon_cases = data$polygon$response * data$polygon$population / 1000,
+                     pointtopolygonmap = pointtopolygonmap,
                      prev_inc_par = c(2.616, -3.596, 1.594),
                      priormean_intercept = priormean_intercept,
                      priorsd_intercept = priorsd_intercept,
                      priormean_slope = priormean_slope,
                      priorsd_slope = priorsd_slope,
+                     priorsd_iideffect = priorsd_iideffect,
                      priormean_log_kappa = priormean_log_kappa,
                      priorsd_log_kappa = priorsd_log_kappa,
                      priormean_log_tau = priormean_log_tau,
@@ -102,7 +114,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   obj <- MakeADFun(
     data = input_data, 
     parameters = parameters,
-    random = 'nodemean',
+    random = c('nodemean','iideffect'),
     DLL = "joint_model")
   
   
