@@ -164,49 +164,29 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
 
 predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
   
-  # Get raster coords
-  raster_pts <- rasterToPoints(data$pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
-  coords <- raster_pts@coords
-  
-  
-  
-  # Get random field predicted
-  spde <- (inla.spde2.matern(mesh, alpha = 2)$param.inla)[c("M0", "M1", "M2")]	
-  n_s <- nrow(spde$M0)						
-  
-  Amatrix <- inla.mesh.project(mesh, loc = as.matrix(coords))$A
-  
+  # Extract the Amatrix and coords of the field
+  field_properties <- extractFieldProperties(data, mesh)
+
   # Get par draws
   ch <- Cholesky(joint_pred)
   par_draws <- sparseMVN::rmvn.sparse(N, pars, ch, prec = TRUE)
                     
   prevalence <- list()
   api <- list()
-  #incidence_count <- list()
   
   for(r in seq_len(N)){
-    
     
     # Split up parameters
     p <- split(par_draws[r, ], names(pars))
     
-    field <- MakeField(Amatrix, p)
-    field_ras <- rasterFromXYZ(cbind(coords, field))
+    # Extract field values
+    field <- MakeField(field_properties$Amatrix, p)
+    field_ras <- rasterFromXYZ(cbind(field_properties$coords, field))
     
-    # Create linear predictor.
-    covs_by_betas <- list()
-    for(i in seq_len(nlayers(data$cov_rasters))){
-      covs_by_betas[[i]] <- p$slope[i] * data$cov_rasters[[i]]
-    }
-    
-    cov_by_betas <- stack(covs_by_betas)
-    cov_contribution <- sum(cov_by_betas) + p$intercept
-    
-    linear_pred <- cov_contribution + field_ras
-    
+    linear_pred_result <- makeLinearPredictor(p, data, field_ras)
+    linear_pred <- linear_pred_result$linear_pred
+
     prevalence[[r]] <- 1 / (1 + exp(-1 * linear_pred))
-    
-    #incidence_count[[i]] <- api * data$pop_raster / 1000
     
   }
   
@@ -236,33 +216,19 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
 
 predict_model <- function(pars, data, mesh){
   
-  # Get raster coords
-  raster_pts <- rasterToPoints(data$pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
-  coords <- raster_pts@coords
+  # Extract the Amatrix and coords of the field
+  field_properties <- extractFieldProperties(data, mesh)
   
   # Split up parameters
   pars <- split(pars, names(pars))
   
+  # Extract field values
+  field <- MakeField(field_properties$Amatrix, pars)
+  field_ras <- rasterFromXYZ(cbind(field_properties$coords, field))
   
-  # Get random field predicted
-  spde <- (inla.spde2.matern(mesh, alpha = 2)$param.inla)[c("M0", "M1", "M2")]	
-  n_s <- nrow(spde$M0)						
-  
-  Amatrix <- inla.mesh.project(mesh, loc = as.matrix(coords))$A
-  
-  field <- MakeField(Amatrix, pars)
-  field_ras <- rasterFromXYZ(cbind(coords, field))
-
-  # Create linear predictor.
-  covs_by_betas <- list()
-  for(i in seq_len(nlayers(data$cov_rasters))){
-    covs_by_betas[[i]] <- pars$slope[i] * data$cov_rasters[[i]]
-  }
-  
-  cov_by_betas <- stack(covs_by_betas)
-  cov_contribution <- sum(cov_by_betas) + pars$intercept
-  
-  linear_pred <- cov_contribution + field_ras
+  # Create linear predictor
+  linear_pred_result <- makeLinearPredictor(pars, data, field_ras)
+  linear_pred <- linear_pred_result$linear_pred
   
   prevalence <- 1 / (1 + exp(-1 * linear_pred))
   api <- 1000 * PrevIncConversion(prevalence)
@@ -274,16 +240,44 @@ predict_model <- function(pars, data, mesh){
                       incidence_count = incidence_count,
                       pop = data$pop_raster,
                       field = field_ras,
-                      covariates = cov_contribution
+                      covariates = linear_pred_result$covariates
                       )
   class(predictions) <- c('ppj_preds', 'list')
   return(predictions)
 }
 
 
+extractFieldProperties <- function(data, mesh) {
+  
+  # Get raster coords
+  raster_pts <- rasterToPoints(data$pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
+  coords <- raster_pts@coords
+  
+  # Get random field predicted
+  spde <- (inla.spde2.matern(mesh, alpha = 2)$param.inla)[c("M0", "M1", "M2")]	
+  n_s <- nrow(spde$M0)						
+  
+  Amatrix <- inla.mesh.project(mesh, loc = as.matrix(coords))$A
+  
+  return(list(Amatrix = Amatrix, 
+              coords = coords))
+}
 
-
-
+makeLinearPredictor <- function(pars, data, field_ras) {
+  
+  covs_by_betas <- list()
+  for(i in seq_len(nlayers(data$cov_rasters))){
+    covs_by_betas[[i]] <- pars$slope[i] * data$cov_rasters[[i]]
+  }
+  
+  cov_by_betas <- stack(covs_by_betas)
+  cov_contribution <- sum(cov_by_betas) + pars$intercept
+  
+  linear_pred <- cov_contribution + field_ras
+  
+  return(list(linear_pred = linear_pred, 
+              covariates = cov_contribution))
+}
 
 
 cv_performance <- function(predictions, holdout, CI = 0.95){
