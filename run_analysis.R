@@ -138,11 +138,11 @@ autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 # Run full model to get a handle on things.
 
 log_kappa_mean <- find_max_logkappa(data_idn$cov_rasters)
-arg_list <- list(priormean_log_kappa = log_kappa_mean,
+arg_list <- list(priormean_log_kappa = -1.96,
                  priorsd_log_kappa = 0.1,
-                 priormean_log_tau = 6.5,
+                 priormean_log_tau = 5.3,
                  priorsd_log_tau = 0.05,
-                 priorsd_iideffect = 2,
+                 priorsd_iideffect = 0.02,
                  priormean_intercept = -2,
                  priorsd_intercept = 3,
                  priormean_slope = 0,

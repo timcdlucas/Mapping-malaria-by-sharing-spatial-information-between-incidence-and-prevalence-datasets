@@ -142,6 +142,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   # Check sdreport worked.
   if(anyNA(sd_out$cov.fixed) | anyNA(sd_out$jointPrecision)) stop('sdreport failed. NAs in fixed SDs or joinPrecision')
   
+  cat("Optimisation has finished. Now moving onto prediction.")
   
   predictions <- predict_model(pars = obj$env$last.par.best, data, mesh)
   uncertainty <- predict_uncertainty(pars = obj$env$last.par.best, 
@@ -167,6 +168,10 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
   # Extract the Amatrix and coords of the field
   field_properties <- extractFieldProperties(data, mesh)
 
+  # Initialise iid raster with values of polygon indices - rasterize is very slow, cannot be done each realisation
+  iid_ras <- raster(ncols = ncol(data$cov_rasters), nrows = nrow(data$cov_rasters), ext = extent(data$cov_rasters))
+  iid_ras <- rasterize(data$shapefiles, iid_ras, seq(1:nrow(data$polygon)))
+
   # Get par draws
   ch <- Cholesky(joint_pred)
   par_draws <- sparseMVN::rmvn.sparse(N, pars, ch, prec = TRUE)
@@ -183,7 +188,7 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
     field <- MakeField(field_properties$Amatrix, p)
     field_ras <- rasterFromXYZ(cbind(field_properties$coords, field))
     
-    linear_pred_result <- makeLinearPredictor(p, data, field_ras)
+    linear_pred_result <- makeLinearPredictor(p, data, field_ras, iid_ras)
     linear_pred <- linear_pred_result$linear_pred
 
     prevalence[[r]] <- 1 / (1 + exp(-1 * linear_pred))
@@ -219,6 +224,10 @@ predict_model <- function(pars, data, mesh){
   # Extract the Amatrix and coords of the field
   field_properties <- extractFieldProperties(data, mesh)
   
+  # Initialise iid raster with values of polygon indices
+  iid_ras <- raster(ncols = ncol(data$cov_rasters), nrows = nrow(data$cov_rasters), ext = extent(data$cov_rasters))
+  iid_ras <- rasterize(data$shapefiles, iid_ras, seq(1:nrow(data$polygon)))
+  
   # Split up parameters
   pars <- split(pars, names(pars))
   
@@ -227,7 +236,7 @@ predict_model <- function(pars, data, mesh){
   field_ras <- rasterFromXYZ(cbind(field_properties$coords, field))
   
   # Create linear predictor
-  linear_pred_result <- makeLinearPredictor(pars, data, field_ras)
+  linear_pred_result <- makeLinearPredictor(pars, data, field_ras, iid_ras)
   linear_pred <- linear_pred_result$linear_pred
   
   prevalence <- 1 / (1 + exp(-1 * linear_pred))
@@ -240,7 +249,8 @@ predict_model <- function(pars, data, mesh){
                       incidence_count = incidence_count,
                       pop = data$pop_raster,
                       field = field_ras,
-                      covariates = linear_pred_result$covariates
+                      covariates = linear_pred_result$covariates,
+                      iid = linear_pred_result$iid
                       )
   class(predictions) <- c('ppj_preds', 'list')
   return(predictions)
@@ -263,7 +273,7 @@ extractFieldProperties <- function(data, mesh) {
               coords = coords))
 }
 
-makeLinearPredictor <- function(pars, data, field_ras) {
+makeLinearPredictor <- function(pars, data, field_ras, iid_ras) {
   
   covs_by_betas <- list()
   for(i in seq_len(nlayers(data$cov_rasters))){
@@ -273,10 +283,17 @@ makeLinearPredictor <- function(pars, data, field_ras) {
   cov_by_betas <- stack(covs_by_betas)
   cov_contribution <- sum(cov_by_betas) + pars$intercept
   
-  linear_pred <- cov_contribution + field_ras
+  # Replace raster values with correct values from pars$iideffect
+  # Need to make sure the indexing is correct!!!
+  for(i in seq_len((length(pars$iideffect)))) {
+    iid_ras@data@values[which(iid_ras@data@values %in% i)] <- pars$iideffect[i]
+  }
+
+  linear_pred <- cov_contribution + field_ras + iid_ras
   
   return(list(linear_pred = linear_pred, 
-              covariates = cov_contribution))
+              covariates = cov_contribution,
+              iid = iid_ras))
 }
 
 
