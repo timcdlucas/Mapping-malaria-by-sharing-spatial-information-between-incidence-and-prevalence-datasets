@@ -139,15 +139,15 @@ autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 log_kappa_mean <- find_max_logkappa(data_idn$cov_rasters)
 arg_list <- list(priormean_log_kappa = log_kappa_mean,
                  priorsd_log_kappa = 0.1,
-                 priormean_log_tau = 6.5,
+                 priormean_log_tau = 7,
                  priorsd_log_tau = 0.05,
                  priormean_intercept = -2,
                  priorsd_intercept = 3,
                  priormean_slope = 0,
                  priorsd_slope = 0.5,
-                 use_polygons = 0,
+                 use_polygons = 1,
                  # use_polygons = 1,
-                 use_points = 1)
+                 use_points = 0)
 
 full_model <- fit_model(data_idn, mesh_idn, its = 300, model.args = arg_list)
 autoplot(full_model)
@@ -161,7 +161,7 @@ autoplot(in_sample, trans = 'log1p')
 
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
-cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 50, model.args = arg_list)
+cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 200, model.args = arg_list)
 
 autoplot(cv1_output1, type = 'obs_preds', trans = 'log1p')
 obspred_map(data_cv1_idn, cv1_output1)
