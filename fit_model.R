@@ -53,6 +53,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   priormean_slope = 0
   priorsd_slope = 0.5
   
+  priorsd_iideffect = 2
+  
   use_polygons = 1
   use_points = 1
   
@@ -62,6 +64,13 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
     list2env(model.args, here)
   }
 
+  # Construct vector of length PR data where each value is the element of polygon enclosing that point
+  overlap <- unique(c(data$polygon$shapefile_id,data$pr$shapefile_id))
+  if(length(overlap) > length(data$polygon$shapefile_id)) {
+    extra <- length(overlap) - length(data$polygon$shapefile_id)
+    message(paste("There are", extra, "shapefiles that contain point data but not polygon data"))
+  }
+  pointtopolygonmap <- match(data_idn$pr$shapefile_id,overlap)
   
 
   # Compile and load the model
@@ -72,6 +81,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   
   parameters <- list(intercept = -5,
                      slope = rep(0, nlayers(data$cov_rasters)),
+                     iideffect = rep(0, length(overlap)),
                      log_tau = priormean_log_tau,
                      log_kappa = priormean_log_kappa,
                      nodemean = rep(0, n_s))
@@ -86,11 +96,13 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      spde = spde,
                      startendindex = startendindex,
                      polygon_cases = data$polygon$response * data$polygon$population / 1000,
+                     pointtopolygonmap = pointtopolygonmap,
                      prev_inc_par = c(2.616, -3.596, 1.594),
                      priormean_intercept = priormean_intercept,
                      priorsd_intercept = priorsd_intercept,
                      priormean_slope = priormean_slope,
                      priorsd_slope = priorsd_slope,
+                     priorsd_iideffect = priorsd_iideffect,
                      priormean_log_kappa = priormean_log_kappa,
                      priorsd_log_kappa = priorsd_log_kappa,
                      priormean_log_tau = priormean_log_tau,
@@ -102,7 +114,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   obj <- MakeADFun(
     data = input_data, 
     parameters = parameters,
-    random = 'nodemean',
+    random = c('nodemean','iideffect'),
     DLL = "joint_model")
   
   
@@ -130,6 +142,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   # Check sdreport worked.
   if(anyNA(sd_out$cov.fixed) | anyNA(sd_out$jointPrecision)) stop('sdreport failed. NAs in fixed SDs or joinPrecision')
   
+  cat("Optimisation has finished. Now moving onto prediction.")
   
   predictions <- predict_model(pars = obj$env$last.par.best, data, mesh)
   uncertainty <- predict_uncertainty(pars = obj$env$last.par.best, 
@@ -152,49 +165,33 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
 
 predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
   
-  # Get raster coords
-  raster_pts <- rasterToPoints(data$pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
-  coords <- raster_pts@coords
-  
-  
-  
-  # Get random field predicted
-  spde <- (inla.spde2.matern(mesh, alpha = 2)$param.inla)[c("M0", "M1", "M2")]	
-  n_s <- nrow(spde$M0)						
-  
-  Amatrix <- inla.mesh.project(mesh, loc = as.matrix(coords))$A
-  
+  # Extract the Amatrix and coords of the field
+  field_properties <- extractFieldProperties(data, mesh)
+
+  # Initialise iid raster with values of polygon indices - rasterize is very slow, cannot be done each realisation
+  iid_ras <- raster(ncols = ncol(data$cov_rasters), nrows = nrow(data$cov_rasters), ext = extent(data$cov_rasters))
+  iid_ras <- rasterize(data$shapefiles, iid_ras, seq(1:nrow(data$polygon)))
+
   # Get par draws
   ch <- Cholesky(joint_pred)
   par_draws <- sparseMVN::rmvn.sparse(N, pars, ch, prec = TRUE)
                     
   prevalence <- list()
   api <- list()
-  #incidence_count <- list()
   
   for(r in seq_len(N)){
-    
     
     # Split up parameters
     p <- split(par_draws[r, ], names(pars))
     
-    field <- MakeField(Amatrix, p)
-    field_ras <- rasterFromXYZ(cbind(coords, field))
+    # Extract field values
+    field <- MakeField(field_properties$Amatrix, p)
+    field_ras <- rasterFromXYZ(cbind(field_properties$coords, field))
     
-    # Create linear predictor.
-    covs_by_betas <- list()
-    for(i in seq_len(nlayers(data$cov_rasters))){
-      covs_by_betas[[i]] <- p$slope[i] * data$cov_rasters[[i]]
-    }
-    
-    cov_by_betas <- stack(covs_by_betas)
-    cov_contribution <- sum(cov_by_betas) + p$intercept
-    
-    linear_pred <- cov_contribution + field_ras
-    
+    linear_pred_result <- makeLinearPredictor(p, data, field_ras, iid_ras)
+    linear_pred <- linear_pred_result$linear_pred
+
     prevalence[[r]] <- 1 / (1 + exp(-1 * linear_pred))
-    
-    #incidence_count[[i]] <- api * data$pop_raster / 1000
     
   }
   
@@ -224,33 +221,23 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
 
 predict_model <- function(pars, data, mesh){
   
-  # Get raster coords
-  raster_pts <- rasterToPoints(data$pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
-  coords <- raster_pts@coords
+  # Extract the Amatrix and coords of the field
+  field_properties <- extractFieldProperties(data, mesh)
+  
+  # Initialise iid raster with values of polygon indices
+  iid_ras <- raster(ncols = ncol(data$cov_rasters), nrows = nrow(data$cov_rasters), ext = extent(data$cov_rasters))
+  iid_ras <- rasterize(data$shapefiles, iid_ras, seq(1:nrow(data$polygon)))
   
   # Split up parameters
   pars <- split(pars, names(pars))
   
+  # Extract field values
+  field <- MakeField(field_properties$Amatrix, pars)
+  field_ras <- rasterFromXYZ(cbind(field_properties$coords, field))
   
-  # Get random field predicted
-  spde <- (inla.spde2.matern(mesh, alpha = 2)$param.inla)[c("M0", "M1", "M2")]	
-  n_s <- nrow(spde$M0)						
-  
-  Amatrix <- inla.mesh.project(mesh, loc = as.matrix(coords))$A
-  
-  field <- MakeField(Amatrix, pars)
-  field_ras <- rasterFromXYZ(cbind(coords, field))
-
-  # Create linear predictor.
-  covs_by_betas <- list()
-  for(i in seq_len(nlayers(data$cov_rasters))){
-    covs_by_betas[[i]] <- pars$slope[i] * data$cov_rasters[[i]]
-  }
-  
-  cov_by_betas <- stack(covs_by_betas)
-  cov_contribution <- sum(cov_by_betas) + pars$intercept
-  
-  linear_pred <- cov_contribution + field_ras
+  # Create linear predictor
+  linear_pred_result <- makeLinearPredictor(pars, data, field_ras, iid_ras)
+  linear_pred <- linear_pred_result$linear_pred
   
   prevalence <- 1 / (1 + exp(-1 * linear_pred))
   api <- 1000 * PrevIncConversion(prevalence)
@@ -262,16 +249,52 @@ predict_model <- function(pars, data, mesh){
                       incidence_count = incidence_count,
                       pop = data$pop_raster,
                       field = field_ras,
-                      covariates = cov_contribution
+                      covariates = linear_pred_result$covariates,
+                      iid = linear_pred_result$iid
                       )
   class(predictions) <- c('ppj_preds', 'list')
   return(predictions)
 }
 
 
+extractFieldProperties <- function(data, mesh) {
+  
+  # Get raster coords
+  raster_pts <- rasterToPoints(data$pop_raster %>% inset(is.na(.), value = -9999), spatial = TRUE)
+  coords <- raster_pts@coords
+  
+  # Get random field predicted
+  spde <- (inla.spde2.matern(mesh, alpha = 2)$param.inla)[c("M0", "M1", "M2")]	
+  n_s <- nrow(spde$M0)						
+  
+  Amatrix <- inla.mesh.project(mesh, loc = as.matrix(coords))$A
+  
+  return(list(Amatrix = Amatrix, 
+              coords = coords))
+}
 
+makeLinearPredictor <- function(pars, data, field_ras, iid_ras) {
+  
+  covs_by_betas <- list()
+  for(i in seq_len(nlayers(data$cov_rasters))){
+    covs_by_betas[[i]] <- pars$slope[i] * data$cov_rasters[[i]]
+  }
+  
+  cov_by_betas <- stack(covs_by_betas)
+  cov_contribution <- sum(cov_by_betas) + pars$intercept
+  
+  # Replace raster values with correct values from pars$iideffect
+  # Need to make sure the indexing is correct!!!
+  for(i in seq_len((length(pars$iideffect)))) {
+    iid_ras@data@values[which(iid_ras@data@values %in% i)] <- pars$iideffect[i]
+  }
 
-
+  linear_pred <- cov_contribution + field_ras + iid_ras
+  
+  return(list(linear_pred = linear_pred, 
+              covariates = cov_contribution,
+              iid = iid_ras))
+}
 
 
 cv_performance <- function(predictions, holdout, CI = 0.95){
@@ -358,7 +381,8 @@ cv_performance <- function(predictions, holdout, CI = 0.95){
   pr_conf <- apply(pr_preds_reals, 1, function(x) quantile(x, probs = probs, na.rm = TRUE))
   
   pr_pred_obs <- cbind(pr_pred_obs, t(pr_conf))
-  names(pr_pred_obs)[7:8] <- c('prevalence_lower', 'prevalence_upper')
+  names(pr_pred_obs)[names(pr_pred_obs) == '2.5%'] <- 'prevalence_lower'
+  names(pr_pred_obs)[names(pr_pred_obs) == '97.5%'] <- 'prevalence_upper'
   
   pr_pred_obs <- na.omit(pr_pred_obs)
   

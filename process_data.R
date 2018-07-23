@@ -70,6 +70,12 @@ process_data <- function(binomial_positive,
     if(rows > newrows) message(rows-newrows, ' rows with NAs omitted from pr data')
   }
   
+  # Get shapefile IDs for PR data
+  sp_latlong <- SpatialPoints(pr[,3:4])
+  projection(sp_latlong) <- projection(shapefiles)
+  prShapefiles <- over(sp_latlong,shapefiles)
+  pr <- cbind(pr, shapefile_id = prShapefiles$area_id)
+  
   message('PR data rows: ', nrow(pr))
   
   # Test PR data.

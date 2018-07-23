@@ -63,6 +63,10 @@ DATA_IARRAY(startendindex);
 // Shape data. Cases and region id.
 DATA_VECTOR(polygon_cases);
 
+// Pixel i (containing PR data) is in polygon j
+// Length of PR data and same order as pointcases
+// Values correspond to elements of polygon data in the same order as polygon_cases
+DATA_IVECTOR(pointtopolygonmap);
 
 
 // ------------------------------------------------------------------------ //
@@ -91,6 +95,13 @@ DATA_SCALAR(priormean_intercept); // = -4.0;
 DATA_SCALAR(priorsd_intercept);// = 2.0
 DATA_SCALAR(priormean_slope); // = 0.0;
 DATA_SCALAR(priorsd_slope); // = 1.0;
+
+
+// Priors on iid random effect for polygons
+PARAMETER_VECTOR(iideffect);
+DATA_SCALAR(priorsd_iideffect);
+
+Type priormean_iideffect = 0.0;
 
 // spde hyperparameters
 // tau defines strength of random field. 
@@ -149,6 +160,10 @@ for(int s = 0; s < slope.size(); s++){
   nll -= dnorm(slope[s], priormean_slope, priorsd_slope, true);
 }
 
+// Likelihood of random effect for polygons
+for(int p = 0; p < iideffect.size(); p++) {
+  nll -= dnorm(iideffect[p], priormean_iideffect, priorsd_iideffect, true);
+}
 
 
 // Likelihood of hyperparameters for field
@@ -190,12 +205,13 @@ logit_prevalence_point_field = Apoint * nodemean;
 vector<Type> point_linear_pred(pointn);
 point_linear_pred = intercept + pointx*slope +
   logit_prevalence_point_field.array();
-point_linear_pred = invlogit(point_linear_pred);
 
 // Hopefully vectorised dbinom.
 vector<Type> reportnllpoint(pointn);
 
 for(int q = 0; q < pointn; q++){
+  point_linear_pred[q] = point_linear_pred[q] + iideffect[pointtopolygonmap[q] - 1]; // Check index of array
+  point_linear_pred[q] = invlogit(point_linear_pred[q]);
   nll -= point_weight * dbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
   reportnllpoint[q] = -point_weight * dbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
 }
@@ -251,7 +267,7 @@ for (int s = 0; s < n; s++) {
   // Sum pixel risks (raster + field 
 
   // Create logit prevalence
-  inshape_prev = pixel_linear_pred.segment(startendindex(s, 0), startendindex(s, 1)).array();
+  inshape_prev = pixel_linear_pred.segment(startendindex(s, 0), startendindex(s, 1)).array() + iideffect[s]; // Check about elementwise addition
   inshape_prev = invlogit(inshape_prev);
   reportprev[s] = sum(inshape_prev) / inshape_prev.size();
   min_inshape_prev[s] = min(inshape_prev);

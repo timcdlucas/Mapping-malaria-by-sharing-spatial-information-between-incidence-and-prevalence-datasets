@@ -83,6 +83,7 @@ source('build_inla_meshes.R')
 source('fit_model.R')
 source('run_cv.R')
 source('random_crossvalidation_setup.R')
+source('spatial_crossvalidation_setup.R')
 source('plotting_functions.R')
 
 # Compile the model
@@ -137,10 +138,15 @@ autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 # Run full model to get a handle on things.
 
 log_kappa_mean <- find_max_logkappa(data_idn$cov_rasters)
-arg_list <- list(priormean_log_kappa = log_kappa_mean,
+arg_list <- list(priormean_log_kappa = -1.96,
                  priorsd_log_kappa = 0.1,
+<<<<<<< HEAD
                  priormean_log_tau = 7,
+=======
+                 priormean_log_tau = 5.3,
+>>>>>>> 815c9baa1c139cb28b709fd24a85259e0e73c03d
                  priorsd_log_tau = 0.05,
+                 priorsd_iideffect = 0.02,
                  priormean_intercept = -2,
                  priorsd_intercept = 3,
                  priormean_slope = 0,
