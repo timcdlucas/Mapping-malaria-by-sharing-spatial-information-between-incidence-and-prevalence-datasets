@@ -97,11 +97,16 @@ DATA_SCALAR(priormean_slope); // = 0.0;
 DATA_SCALAR(priorsd_slope); // = 1.0;
 
 
-// Priors on iid random effect for polygons
-PARAMETER_VECTOR(iideffect);
-DATA_SCALAR(priorsd_iideffect);
 
-Type priormean_iideffect = 0.0;
+// iid effect
+PARAMETER_VECTOR(iideffect);
+PARAMETER_SCALAR(iideffect_sd);
+
+Type iideffect_mean = 0.0;
+
+// Priors on iid random effect for polygons
+DATA_SCALAR(prior_iideffect_sd_shape);
+DATA_SCALAR(prior_iideffect__sd_scale);
 
 // spde hyperparameters
 // tau defines strength of random field. 
@@ -160,9 +165,13 @@ for(int s = 0; s < slope.size(); s++){
   nll -= dnorm(slope[s], priormean_slope, priorsd_slope, true);
 }
 
+
+// Likelihood of hyperparameter of iid random effect.
+nll -= dgamma(iideffect_sd, prior_iideffect_sd_shape, prior_iideffect_sd_scale, true);
+
 // Likelihood of random effect for polygons
 for(int p = 0; p < iideffect.size(); p++) {
-  nll -= dnorm(iideffect[p], priormean_iideffect, priorsd_iideffect, true);
+  nll -= dnorm(iideffect[p], iideffect_mean, iideffect_sd, true);
 }
 
 
