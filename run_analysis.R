@@ -100,8 +100,10 @@ data <- load_data(PR_path,
                   shapefile_path, 
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'IDN', 
-                  pr_year = 2008,
-                  api_year = 2012)
+                  pr_year = 2007,
+                  api_year = 2011)
+                  # pr_year = 2008,
+                  # api_year = 2012)
 
 
 # indonesia
