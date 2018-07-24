@@ -138,19 +138,19 @@ autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 # Run full model to get a handle on things.
 
 log_kappa_mean <- find_max_logkappa(data_idn$cov_rasters)
-arg_list <- list(priormean_log_kappa = -1.96,
-                 priorsd_log_kappa = 0.1,
-<<<<<<< HEAD
-                 priormean_log_tau = 7,
-=======
-                 priormean_log_tau = 5.3,
->>>>>>> 815c9baa1c139cb28b709fd24a85259e0e73c03d
-                 priorsd_log_tau = 0.05,
-                 priorsd_iideffect = 0.02,
+arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho = 27, log_kappa = -2.446
+                 prior_rho_prob = 0.00001, # Want p(rho < 3) = 0.0001 -> p(log_kappa < -0.058) = 0.0001
+                 prior_sigma_max = 1, # Want p(sd > 1) = 0.0001 (would explain most of prev).  Wnat mean(sd) = 0.001. Do at large rho (50).
+                 prior_sigma_prob = 0.00001,
+                 prior_iideffect_sd_max = 0.05, 
+                 # The difference between m_low_pf and LCI(pois(m_mean_pf)), then converted to inc rate, then to prev ranges around 0-0.025. 
+                 # The 0.975 quantile of that (two sided) distribution is 0.005 prevalence. 
+                 # To explain 0.005 prevalence, we need a norm of 0.05. Fin.
+                 prior_iideffect_sd_prob = 0.00001,
                  priormean_intercept = -2,
-                 priorsd_intercept = 3,
-                 priormean_slope = 0,
-                 priorsd_slope = 0.5,
+                 priorsd_intercept = 2,  # Indonesia has prev lowish. But want intercept to take whatever value it likes.
+                 priormean_slope = 0, 
+                 priorsd_slope = 0.4, # Explains between 0.004 and 0.27 prevalence. 1 covariate shouldn't explain between 0 and 0.6 (range of prev).
                  use_polygons = 1,
                  # use_polygons = 1,
                  use_points = 0)
