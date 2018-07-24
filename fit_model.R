@@ -42,22 +42,20 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   cov_matrix <- as.matrix(data$covs[, -c(1:2)])
   
   
-  # Define prior defaults
-  priormean_log_kappa = -3
-  priorsd_log_kappa = 0.3
-  priormean_log_tau = 8
-  priorsd_log_tau = 0.2
   
-  priormean_intercept = -2
-  priorsd_intercept = 3
-  priormean_slope = 0
-  priorsd_slope = 0.5
+   prior_rho_min = 3
+   prior_rho_prob = 0.00001
+   prior_sigma_max = 1
+   prior_sigma_prob = 0.00001
+   prior_iideffect_sd_max = 0.05
+   prior_iideffect_sd_prob = 0.00001
+   priormean_intercept = -2
+   priorsd_intercept = 2
+   priormean_slope = 0 
+   priorsd_slope = 0.4
+   use_polygons = 0
+   use_points = 1
   
-  prior_iideffect_sd_shape = 1
-  prior_iideffect_sd_scale = 1
-  
-  use_polygons = 1
-  use_points = 1
   
   # Replace defaults with anything given in model.args
   if(!is.null(model.args)){
@@ -100,17 +98,16 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      polygon_cases = data$polygon$response * data$polygon$population / 1000,
                      pointtopolygonmap = pointtopolygonmap,
                      prev_inc_par = c(2.616, -3.596, 1.594),
+                     prior_rho_min = prior_rho_min,
+                     prior_rho_prob = prior_rho_prob,
+                     prior_sigma_max = prior_sigma_max,
+                     prior_sigma_prob = prior_sigma_prob,
+                     prior_iideffect_sd_max = prior_iideffect_sd_max,
+                     prior_iideffect_sd_prob = prior_iideffect_sd_prob,
                      priormean_intercept = priormean_intercept,
                      priorsd_intercept = priorsd_intercept,
-                     priormean_slope = priormean_slope,
+                     priormean_slope = priormean_slope, 
                      priorsd_slope = priorsd_slope,
-                     priorsd_iideffect = priorsd_iideffect,
-                     priormean_log_kappa = priormean_log_kappa,
-                     priorsd_log_kappa = priorsd_log_kappa,
-                     priormean_log_tau = priormean_log_tau,
-                     priorsd_log_tau = priorsd_log_tau,
-                     prior_iideffect_sd_shape = prior_iideffect_sd_shape,
-                     prior_iideffect_sd_scale = prior_iideffect_sd_scale,
                      use_polygons = use_polygons,
                      use_points = use_points)
   
