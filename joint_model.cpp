@@ -100,19 +100,26 @@ DATA_SCALAR(priorsd_slope); // = 1.0;
 
 // iid effect
 PARAMETER_VECTOR(iideffect);
-PARAMETER_SCALAR(iideffect_sd);
+PARAMETER(iideffect_log_tau);
+Type iideffect_tau = exp(iideffect_log_tau);
+Type iideffect_sd = 1 / sqrt(iideffect_tau);
 
 Type iideffect_mean = 0.0;
 
 // Priors on iid random effect for polygons
-DATA_SCALAR(prior_iideffect_sd_shape);
-DATA_SCALAR(prior_iideffect__sd_scale);
+DATA_SCALAR(prior_iideffect_sd_max);
+DATA_SCALAR(prior_iideffect_sd_prob);
+
 
 // spde hyperparameters
-// tau defines strength of random field. 
-// kappa defines distance within which points in field affect each other. 
-PARAMETER(log_tau);
-PARAMETER(log_kappa);
+// sigma defines strength of random field. 
+// rho defines range (corr = 0.1 after rho space). 
+//   Might need to switch to log.
+PARAMETER(log_sigma);
+PARAMETER(log_rho);
+Type sigma = exp(log_sigma);
+Type rho = exp(log_rho);
+
 
 // Priors on spde hyperparameters
 //   kappa -- i.e. exp(priormean_log_kappa) -- set as approximately the width of the region being studied.
@@ -122,14 +129,20 @@ PARAMETER(log_kappa);
 //Type priorsd_log_kappa   = 0.5;
 //Type priormean_log_tau   = -0.50;
 //Type priorsd_log_tau     = 2.0;
-DATA_SCALAR(priormean_log_kappa);
-DATA_SCALAR(priorsd_log_kappa);
-DATA_SCALAR(priormean_log_tau);
-DATA_SCALAR(priorsd_log_tau);
+DATA_SCALAR(prior_rho_min);
+DATA_SCALAR(prior_rho_prob);
+DATA_SCALAR(prior_sigma_max);
+DATA_SCALAR(prior_sigma_prob);
 
 // Convert hyperparameters to natural scale
-Type tau = exp(log_tau);
-Type kappa = exp(log_kappa);
+// todo
+Type kappa = sqrt(8) / rho;
+Type nu = 1;
+// nu = 1
+// gamma(nu + d / 2) = gamma(2) = 1
+// gamma(nu) = 1
+// So gamma(nu + d / 2)(4pi)^{d/2) / gamma(nu) is just 4 * pi
+Type tau = sigma * pow(kappa, nu) * sqrt(4 * M_PI);
 
 
 // Space-time random effect parameters
@@ -167,7 +180,10 @@ for(int s = 0; s < slope.size(); s++){
 
 
 // Likelihood of hyperparameter of iid random effect.
-nll -= dgamma(iideffect_sd, prior_iideffect_sd_shape, prior_iideffect_sd_scale, true);
+//nll -= dgamma(iideffect_sd, prior_iideffect_sd_shape, prior_iideffect_sd_scale, true);
+Type lambda = -log(prior_iideffect_sd_prob) / prior_iideffect_sd_max;
+Type pcdensityiid = lambda / 2 * pow(iideffect_tau, -3/2) * exp( - lambda * pow(iideffect_tau, -1/2));
+nll -= log(pcdensityiid);
 
 // Likelihood of random effect for polygons
 for(int p = 0; p < iideffect.size(); p++) {
@@ -176,8 +192,14 @@ for(int p = 0; p < iideffect.size(); p++) {
 
 
 // Likelihood of hyperparameters for field
-nll -= dnorm(log_kappa, priormean_log_kappa, priorsd_log_kappa, true);
-nll -= dnorm(log_tau, priormean_log_tau, priorsd_log_tau, true);
+
+Type lambdatilde1 = -log(prior_rho_prob) * prior_rho_min;
+
+Type lambdatilde2 = -log(prior_sigma_prob) / prior_sigma_max;
+
+Type pcdensity = lambdatilde1 * lambdatilde2 * pow(rho, -2) * exp(-lambdatilde1 * pow(rho, -1) - lambdatilde2 * sigma);
+
+nll -= log(pcdensity);
 
 
 // Build spde matrix
