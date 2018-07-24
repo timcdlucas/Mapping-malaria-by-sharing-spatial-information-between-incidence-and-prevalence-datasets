@@ -53,7 +53,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   priormean_slope = 0
   priorsd_slope = 0.5
   
-  priorsd_iideffect = 2
+  prior_iideffect_sd_shape = 1
+  prior_iideffect_sd_scale = 1
   
   use_polygons = 1
   use_points = 1
@@ -82,6 +83,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   parameters <- list(intercept = -5,
                      slope = rep(0, nlayers(data$cov_rasters)),
                      iideffect = rep(0, length(overlap)),
+                     iideffect_sd = 0.1,
                      log_tau = priormean_log_tau,
                      log_kappa = priormean_log_kappa,
                      nodemean = rep(0, n_s))
@@ -107,6 +109,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      priorsd_log_kappa = priorsd_log_kappa,
                      priormean_log_tau = priormean_log_tau,
                      priorsd_log_tau = priorsd_log_tau,
+                     prior_iideffect_sd_shape = prior_iideffect_sd_shape,
+                     prior_iideffect_sd_scale = prior_iideffect_sd_scale,
                      use_polygons = use_polygons,
                      use_points = use_points)
   
@@ -465,7 +469,7 @@ find_max_rho <- function(raster){
   yrange <- raster@extent[4] - raster@extent[3]
   
   rho <- sqrt(yrange^2 + xrange^2)
-  
+  rho * 2/3
 }
 
 find_max_kappa <- function(raster){
