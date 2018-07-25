@@ -64,13 +64,15 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   }
 
   # Construct vector of length PR data where each value is the element of polygon enclosing that point
-  overlap <- unique(c(data$polygon$shapefile_id,data$pr$shapefile_id))
+  overlap <- unique(c(data$polygon$shapefile_id, data$pr$shapefile_id))
   if(length(overlap) > length(data$polygon$shapefile_id)) {
     extra <- length(overlap) - length(data$polygon$shapefile_id)
     message(paste("There are", extra, "shapefiles that contain point data but not polygon data"))
   }
-  pointtopolygonmap <- match(data_idn$pr$shapefile_id,overlap)
-  
+  pointtopolygonmap <- match(data_idn$pr$shapefile_id, overlap)
+  rastertopolygonmap <- data$shapefile_raster
+  values(rastertopolygonmap) <- match(getValues(data$shapefile_raster), overlap)
+  #rastertopolygonmap[is.na(rastertopolygonmap) & !is.na(data$shapefile
 
   # Compile and load the model
 
@@ -145,11 +147,12 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   
   cat("Optimisation has finished. Now moving onto prediction.")
   
-  predictions <- predict_model(pars = obj$env$last.par.best, data, mesh)
+  predictions <- predict_model(pars = obj$env$last.par.best, data, mesh, overlap)
   uncertainty <- predict_uncertainty(pars = obj$env$last.par.best, 
                                      joint_pred = sd_out$jointPrecision,
                                      data, 
                                      mesh,
+                                     overlap,
                                      N = N,
                                      CI)
   
@@ -170,8 +173,8 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
   field_properties <- extractFieldProperties(data, mesh)
 
   # Initialise iid raster with values of polygon indices - rasterize is very slow, cannot be done each realisation
-  iid_ras <- raster(ncols = ncol(data$cov_rasters), nrows = nrow(data$cov_rasters), ext = extent(data$cov_rasters))
-  iid_ras <- rasterize(data$shapefiles, iid_ras, seq(1:nrow(data$polygon)))
+  # iid_ras <- raster(ncols = ncol(data$cov_rasters), nrows = nrow(data$cov_rasters), ext = extent(data$cov_rasters))
+  # iid_ras <- rasterize(data$shapefiles, iid_ras, seq(1:nrow(data$polygon)))
 
   # Get par draws
   ch <- Cholesky(joint_pred)
@@ -189,7 +192,7 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
     field <- MakeField(field_properties$Amatrix, p)
     field_ras <- rasterFromXYZ(cbind(field_properties$coords, field))
     
-    linear_pred_result <- makeLinearPredictor(p, data, field_ras, iid_ras)
+    linear_pred_result <- makeLinearPredictor(p, data, field_ras, data$shapefile_raster, overlap)
     linear_pred <- linear_pred_result$linear_pred
 
     prevalence[[r]] <- 1 / (1 + exp(-1 * linear_pred))
@@ -227,8 +230,8 @@ predict_model <- function(pars, data, mesh){
   
   # Initialise iid raster with values of polygon indices
   # We do the rasterise thing at least twice. Here and in unc. Maybe pull out.
-  iid_ras <- raster(ncols = ncol(data$cov_rasters), nrows = nrow(data$cov_rasters), ext = extent(data$cov_rasters))
-  iid_ras <- rasterize(data$shapefiles, iid_ras, seq_len(nrow(data$polygon)))
+  # iid_ras <- raster(ncols = ncol(data$cov_rasters), nrows = nrow(data$cov_rasters), ext = extent(data$cov_rasters))
+  # iid_ras <- rasterize(data$shapefiles, iid_ras, seq_len(nrow(data$polygon)))
   
   # Split up parameters
   pars <- split(pars, names(pars))
@@ -236,9 +239,10 @@ predict_model <- function(pars, data, mesh){
   # Extract field values
   field <- MakeField(field_properties$Amatrix, pars)
   field_ras <- rasterFromXYZ(cbind(field_properties$coords, field))
-  
+ 
+
   # Create linear predictor
-  linear_pred_result <- makeLinearPredictor(pars, data, field_ras, iid_ras)
+  linear_pred_result <- makeLinearPredictor(pars, data, field_ras, data$iid_ras)
   linear_pred <- linear_pred_result$linear_pred
   
   prevalence <- 1 / (1 + exp(-1 * linear_pred))
@@ -275,7 +279,7 @@ extractFieldProperties <- function(data, mesh) {
               coords = coords))
 }
 
-makeLinearPredictor <- function(pars, data, field_ras, iid_ras) {
+makeLinearPredictor <- function(pars, data, field_ras, shapefile_ras, shapefile_ids) {
   
   covs_by_betas <- list()
   for(i in seq_len(nlayers(data$cov_rasters))){
@@ -287,10 +291,14 @@ makeLinearPredictor <- function(pars, data, field_ras, iid_ras) {
   
   # Replace raster values with correct values from pars$iideffect
   # Need to make sure the indexing is correct!!!
+
+  iid_ras <- shapefile_ras
   for(i in seq_along(pars$iideffect)) {
     #iid_ras[iid_ras == i] <- pars$iideffect[i] # perhaps neater but below is faster. 
-    iid_ras@data@values[which(iid_ras@data@values %in% i)] <- pars$iideffect[i]
+    iid_ras@data@values[which(shapefile_ras@data@values == shapefile_ids[i])] <- pars$iideffect[i]
   }
+  iid_ras[!shapefile_ras %in% shapefile_ids & !is.na(iid_ras)] <- 0
+  
 
   linear_pred <- cov_contribution + field_ras + iid_ras
   
