@@ -139,7 +139,6 @@ autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 # run models
 # Run full model to get a handle on things.
 
-log_kappa_mean <- find_max_logkappa(data_idn$cov_rasters)
 arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho = 27, log_kappa = -2.446
                  prior_rho_prob = 0.00001, # Want p(rho < 3) = 0.0001 -> p(log_kappa < -0.058) = 0.0001
                  prior_sigma_max = 1, # Want p(sd > 1) = 0.0001 (would explain most of prev).  Wnat mean(sd) = 0.001. Do at large rho (50).
@@ -148,7 +147,7 @@ arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho 
                  # The difference between m_low_pf and LCI(pois(m_mean_pf)), then converted to inc rate, then to prev ranges around 0-0.025. 
                  # The 0.975 quantile of that (two sided) distribution is 0.005 prevalence. 
                  # To explain 0.005 prevalence, we need a norm of 0.05. Fin.
-                 prior_iideffect_sd_prob = 0.00001,
+                 prior_iideffect_sd_prob = 0.000001, # Made this stronger because too much iid.
                  priormean_intercept = -2,
                  priorsd_intercept = 2,  # Indonesia has prev lowish. But want intercept to take whatever value it likes.
                  priormean_slope = 0, 
