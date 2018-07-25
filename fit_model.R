@@ -226,8 +226,9 @@ predict_model <- function(pars, data, mesh){
   field_properties <- extractFieldProperties(data, mesh)
   
   # Initialise iid raster with values of polygon indices
+  # We do the rasterise thing at least twice. Here and in unc. Maybe pull out.
   iid_ras <- raster(ncols = ncol(data$cov_rasters), nrows = nrow(data$cov_rasters), ext = extent(data$cov_rasters))
-  iid_ras <- rasterize(data$shapefiles, iid_ras, seq(1:nrow(data$polygon)))
+  iid_ras <- rasterize(data$shapefiles, iid_ras, seq_len(nrow(data$polygon)))
   
   # Split up parameters
   pars <- split(pars, names(pars))
@@ -286,7 +287,8 @@ makeLinearPredictor <- function(pars, data, field_ras, iid_ras) {
   
   # Replace raster values with correct values from pars$iideffect
   # Need to make sure the indexing is correct!!!
-  for(i in seq_len((length(pars$iideffect)))) {
+  for(i in seq_along(pars$iideffect)) {
+    #iid_ras[iid_ras == i] <- pars$iideffect[i] # perhaps neater but below is faster. 
     iid_ras@data@values[which(iid_ras@data@values %in% i)] <- pars$iideffect[i]
   }
 
