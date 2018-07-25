@@ -228,7 +228,7 @@ iidDraw <- function(linear_pred, pars, shapefile_raster, shapefile_ids){
   unique_shapefile_ids <- unique(shapefile_raster)
   oos_shapefile_ids <- unique_shapefile_ids[!unique_shapefile_ids %in% shapefile_ids]
 
-  iid_samples <- rnorm(length(oos_shapefile_ids), 0, 1 / sqrt(pars$iideffect_log_tau))
+  iid_samples <- rnorm(length(oos_shapefile_ids), 0, 1 / sqrt(exp(pars$iideffect_log_tau)))
   iid_ras <- shapefile_raster
   for(i in seq_along(iid_samples)) {
     iid_ras@data@values[which(shapefile_raster@data@values == oos_shapefile_ids[i])] <- iid_samples[i]
