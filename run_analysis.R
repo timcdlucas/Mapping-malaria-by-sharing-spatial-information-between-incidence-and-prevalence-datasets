@@ -152,11 +152,11 @@ arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho 
                  priorsd_intercept = 2,  # Indonesia has prev lowish. But want intercept to take whatever value it likes.
                  priormean_slope = 0, 
                  priorsd_slope = 0.4, # Explains between 0.004 and 0.27 prevalence. 1 covariate shouldn't explain between 0 and 0.6 (range of prev).
-                 use_polygons = 1,
+                 use_polygons = 0,
                  # use_polygons = 1,
-                 use_points = 0)
+                 use_points = 1)
 
-full_model <- fit_model(data_idn, mesh_idn, its = 300, model.args = arg_list)
+full_model <- fit_model(data_idn, mesh_idn, its = 500, model.args = arg_list)
 autoplot(full_model)
 plot(full_model, layer = 'api')
 

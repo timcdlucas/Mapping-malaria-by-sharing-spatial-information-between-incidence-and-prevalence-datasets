@@ -167,7 +167,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
 }
 
 
-predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
+predict_uncertainty <- function(pars, joint_pred, data, mesh, shapefile_ids, N, CI = 0.95){
   
   # Extract the Amatrix and coords of the field
   field_properties <- extractFieldProperties(data, mesh)
@@ -192,8 +192,10 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
     field <- MakeField(field_properties$Amatrix, p)
     field_ras <- rasterFromXYZ(cbind(field_properties$coords, field))
     
-    linear_pred_result <- makeLinearPredictor(p, data, field_ras, data$shapefile_raster, overlap)
+    linear_pred_result <- makeLinearPredictor(p, data, field_ras, data$shapefile_raster, shapefile_ids)
     linear_pred <- linear_pred_result$linear_pred
+
+    linear_pred <- iidDraw(linear_pred, p, data$shapefile_raster, shapefile_ids)
 
     prevalence[[r]] <- 1 / (1 + exp(-1 * linear_pred))
     
@@ -221,9 +223,24 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, N, CI = 0.95){
 }
 
 
+iidDraw <- function(linear_pred, pars, shapefile_raster, shapefile_ids){
 
+  unique_shapefile_ids <- unique(shapefile_raster)
+  oos_shapefile_ids <- unique_shapefile_ids[!unique_shapefile_ids %in% shapefile_ids]
 
-predict_model <- function(pars, data, mesh){
+  iid_samples <- rnorm(length(oos_shapefile_ids), 0, 1 / sqrt(pars$iideffect_log_tau))
+  iid_ras <- shapefile_raster
+  for(i in seq_along(iid_samples)) {
+    iid_ras@data@values[which(shapefile_raster@data@values == oos_shapefile_ids[i])] <- iid_samples[i]
+  }
+  iid_ras[!shapefile_ras %in% oos_shapefile_ids & !is.na(iid_ras)] <- 0
+
+  linear_pred <- linear_pred + iid_ras
+
+  return(linear_pred)
+}
+
+predict_model <- function(pars, data, mesh, shapefile_ids){
   
   # Extract the Amatrix and coords of the field
   field_properties <- extractFieldProperties(data, mesh)
@@ -242,7 +259,7 @@ predict_model <- function(pars, data, mesh){
  
 
   # Create linear predictor
-  linear_pred_result <- makeLinearPredictor(pars, data, field_ras, data$iid_ras)
+  linear_pred_result <- makeLinearPredictor(pars, data, field_ras, data$shapefile_raster, shapefile_ids)
   linear_pred <- linear_pred_result$linear_pred
   
   prevalence <- 1 / (1 + exp(-1 * linear_pred))

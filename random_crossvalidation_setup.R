@@ -44,7 +44,8 @@ subset_data_cv <- function(data, polygon_folds, pr_folds, k){
   data_fold$train$cov_rasters <- data$cov_rasters
   data_fold$train$pop_raster <- data$pop_raster
   data_fold$train$shapefiles <- data$shapefiles[data$shapefiles$area_id %in% data_fold$train$covs$area_id, ]
-  
+  data_fold$train$iid_raster <- data$iid_raster  
+  data_fold$train$shapefile_raster <- data$shapefile_raster  
   
   data_fold$test$pr <- data$pr[pr_folds == k, ]
   data_fold$test$pr_covs <- data$pr_covs[pr_folds == k, ] # this shouldn't ever be used as far as I can see.
@@ -56,7 +57,9 @@ subset_data_cv <- function(data, polygon_folds, pr_folds, k){
   data_fold$test$cov_rasters <- data$cov_rasters
   data_fold$test$pop_raster <- data$pop_raster
   data_fold$test$shapefiles <- data$shapefiles[!(data$shapefiles$area_id %in% data_fold$train$covs$area_id), ]
-  
+  data_fold$test$iid_raster <- data$iid_raster  
+  data_fold$test$shapefile_raster <- data$shapefile_raster  
+
   class(data_fold$test) <- 'ppj_data'
   class(data_fold$train) <- 'ppj_data'
   

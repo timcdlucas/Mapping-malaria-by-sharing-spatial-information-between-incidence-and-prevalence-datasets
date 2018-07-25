@@ -123,7 +123,15 @@ process_data <- function(binomial_positive,
   pop[is.na(pop)] <- 0
   
               
-  
+  # Initialise iid raster with values of polygon indices - rasterize is very slow, cannot be done each realisation
+  iid_ras <- raster(ncols = ncol(cov_rasters), nrows = nrow(cov_rasters), ext = extent(cov_rasters))
+  iid_ras <- rasterize(shapefiles, iid_ras, seq(1:nrow(polygon)))
+  iid_ras[is.na(iid_ras) & !is.na(cov_rasters[[1]])] <- nrow(polygon) + 1
+
+  shapefile_raster <- iid_ras
+  values(shapefile_raster) <- shapefiles$area_id[getValues(iid_ras)]
+  shapefile_raster[is.na(shapefile_raster) & !is.na(cov_rasters[[1]])] <- maxValue(shapefile_raster) + 1
+
   # Deal with NAs in covariates! TODO
   
   data <- list(pr = pr, 
@@ -134,7 +142,9 @@ process_data <- function(binomial_positive,
                coords = coords,
                cov_rasters = cov_rasters, 
                shapefiles = shapefiles,
-               pop_raster = pop_raster)
+               pop_raster = pop_raster,
+               iid_raster = iid_ras,
+               shapefile_raster = shapefile_raster)
   class(data) <- c('ppj_data', 'list')
   
   
