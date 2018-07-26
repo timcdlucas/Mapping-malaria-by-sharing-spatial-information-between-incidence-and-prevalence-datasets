@@ -233,7 +233,7 @@ iidDraw <- function(linear_pred, pars, shapefile_raster, shapefile_ids){
   for(i in seq_along(iid_samples)) {
     iid_ras@data@values[which(shapefile_raster@data@values == oos_shapefile_ids[i])] <- iid_samples[i]
   }
-  iid_ras[!shapefile_ras %in% oos_shapefile_ids & !is.na(iid_ras)] <- 0
+  iid_ras[!shapefile_raster %in% oos_shapefile_ids & !is.na(iid_ras)] <- 0
 
   linear_pred <- linear_pred + iid_ras
 
