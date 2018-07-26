@@ -100,9 +100,9 @@ data <- load_data(PR_path,
                   shapefile_path, 
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'IDN', 
-                  pr_year = 2007,
+                  pr_year = 2008,
                   api_year = 2011)
-                  # pr_year = 2008,
+                  # pr_year = 2010,
                   # api_year = 2012)
 
 
@@ -133,7 +133,7 @@ data_cv1_idn <- cv_folds(data_idn, k = 3)
 autoplot(data_cv1_idn, jitter = 0.7)
 ggsave('figs/idn_cv_random.png')
 
-autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
+#autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 
 
 # run models
@@ -162,7 +162,7 @@ plot(full_model, layer = 'api')
 
 in_sample <- cv_performance(predictions = full_model$predictions, 
                             holdout = data_idn)
-autoplot(in_sample)
+autoplot(in_sample, CI = TRUE)
 autoplot(in_sample, trans = 'log1p')
 
 
