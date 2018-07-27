@@ -69,11 +69,10 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
     extra <- length(overlap) - length(data$polygon$shapefile_id)
     message(paste("There are", extra, "shapefiles that contain point data but not polygon data"))
   }
+  # For each PR point (ordered), the map gives the corresponding index in overlap
+  # map is length of PR data. Ordering of polygon data shapefile_id
   pointtopolygonmap <- match(data_idn$pr$shapefile_id, overlap)
-  rastertopolygonmap <- data$shapefile_raster
-  values(rastertopolygonmap) <- match(getValues(data$shapefile_raster), overlap)
-  #rastertopolygonmap[is.na(rastertopolygonmap) & !is.na(data$shapefile
-
+  
   # Compile and load the model
 
   #dyn.unload(dynlib("joint_model"))
@@ -133,13 +132,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   
   # Soft check.
   if(opt$convergence != 0) warning('Model did not converge.')
-  
-  if(inherits(opt, 'character') && opt == 'error'){
-    # Second try...
-    opt <- nlminb(obj$env$last.par.best[names(obj$env$last.par.best) != 'nodemean'], obj$fn, obj$gr, 
-                                   control = list(iter.max = its, eval.max = 2*its, trace = 0))
-  }
-  
+
   sd_out <- sdreport(obj, getJointPrecision = TRUE)
   
   # Check sdreport worked.
