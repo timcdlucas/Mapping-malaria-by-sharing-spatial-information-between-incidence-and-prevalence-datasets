@@ -100,9 +100,9 @@ data <- load_data(PR_path,
                   shapefile_path, 
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'IDN', 
-                  pr_year = 2007,
+                  pr_year = 2008,
                   api_year = 2011)
-                  # pr_year = 2008,
+                  # pr_year = 2010,
                   # api_year = 2012)
 
 
@@ -148,6 +148,8 @@ arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho 
                  # The 0.975 quantile of that (two sided) distribution is 0.005 prevalence. 
                  # To explain 0.005 prevalence, we need a norm of 0.05. Fin.
                  prior_iideffect_sd_prob = 0.000001, # Made this stronger because too much iid.
+                 prior_iideffect_pr_sd_max = 0.05,
+                 prior_iideffect_pr_sd_prob = 0.000001,
                  priormean_intercept = -2,
                  priorsd_intercept = 2,  # Indonesia has prev lowish. But want intercept to take whatever value it likes.
                  priormean_slope = 0, 
@@ -161,7 +163,8 @@ autoplot(full_model)
 plot(full_model, layer = 'api')
 
 in_sample <- cv_performance(predictions = full_model$predictions, 
-                            holdout = data_idn)
+                            holdout = data_idn,
+                            model_params = full_model$model)
 autoplot(in_sample)
 autoplot(in_sample, trans = 'log1p')
 

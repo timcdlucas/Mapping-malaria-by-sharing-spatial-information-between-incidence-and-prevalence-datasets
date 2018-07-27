@@ -98,7 +98,7 @@ DATA_SCALAR(priorsd_slope); // = 1.0;
 
 
 
-// iid effect
+// polygon iid effect
 PARAMETER_VECTOR(iideffect);
 PARAMETER(iideffect_log_tau);
 Type iideffect_tau = exp(iideffect_log_tau);
@@ -109,6 +109,18 @@ Type iideffect_mean = 0.0;
 // Priors on iid random effect for polygons
 DATA_SCALAR(prior_iideffect_sd_max);
 DATA_SCALAR(prior_iideffect_sd_prob);
+
+// point iid effect
+PARAMETER_VECTOR(iideffect_pr);
+PARAMETER(iideffect_pr_log_tau);
+Type iideffect_pr_tau = exp(iideffect_pr_log_tau);
+Type iideffect_pr_sd = 1 / sqrt(iideffect_pr_tau);
+
+Type iideffect_pr_mean = 0.0;
+
+// Priors on iid random effect for points
+DATA_SCALAR(prior_iideffect_pr_sd_max);
+DATA_SCALAR(prior_iideffect_pr_sd_prob);
 
 
 // spde hyperparameters
@@ -179,7 +191,7 @@ for(int s = 0; s < slope.size(); s++){
 }
 
 
-// Likelihood of hyperparameter of iid random effect.
+// Likelihood of hyperparameter of polygon iid random effect.
 //nll -= dgamma(iideffect_sd, prior_iideffect_sd_shape, prior_iideffect_sd_scale, true);
 Type lambda = -log(prior_iideffect_sd_prob) / prior_iideffect_sd_max;
 Type pcdensityiid = lambda / 2 * pow(iideffect_tau, -3/2) * exp( - lambda * pow(iideffect_tau, -1/2));
@@ -190,6 +202,15 @@ for(int p = 0; p < iideffect.size(); p++) {
   nll -= dnorm(iideffect[p], iideffect_mean, iideffect_sd, true);
 }
 
+// Likelihood of hyperparameter of point iid random effect.
+Type lambda_pr = -log(prior_iideffect_pr_sd_prob) / prior_iideffect_pr_sd_max;
+Type pcdensityiid_pr = lambda_pr / 2 * pow(iideffect_pr_tau, -3/2) * exp( - lambda_pr * pow(iideffect_pr_tau, -1/2));
+nll -= log(pcdensityiid_pr);
+
+// Likelihood of random effect for points
+for(int p = 0; p < iideffect_pr.size(); p++) {
+  nll -= dnorm(iideffect_pr[p], iideffect_pr_mean, iideffect_pr_sd, true);
+}
 
 // Likelihood of hyperparameters for field
 
@@ -241,7 +262,7 @@ point_linear_pred = intercept + pointx*slope +
 vector<Type> reportnllpoint(pointn);
 
 for(int q = 0; q < pointn; q++){
-  point_linear_pred[q] = point_linear_pred[q] + iideffect[pointtopolygonmap[q] - 1]; // Check index of array
+  point_linear_pred[q] = point_linear_pred[q] + iideffect[pointtopolygonmap[q] - 1] + iideffect_pr[q]; // Check index of array
   point_linear_pred[q] = invlogit(point_linear_pred[q]);
   nll -= point_weight * dbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
   reportnllpoint[q] = -point_weight * dbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
