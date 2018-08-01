@@ -424,9 +424,15 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95){
   
   # TODO calulate additional uncertainty from binomial noise
   
+  #positive_reals <- pr_reals_prev * pr_pred_obs$examined
+    
+  positive_reals_noise <- sapply(seq_len(nrow(pr_pred_obs)), 
+                                 function(i) 
+                                   rbinom(ncol(pr_reals_prev), pr_pred_obs$examined[i], pr_reals_prev[i, ])
+                                 )
+  pr_reals_prev_noise <- t(positive_reals_noise) / pr_pred_obs$examined
   
-  
-  pr_conf <- apply(pr_reals_prev, 1, function(x) quantile(x, probs = probs, na.rm = TRUE))
+  pr_conf <- apply(pr_reals_prev_noise, 1, function(x) quantile(x, probs = probs, na.rm = TRUE))
   
   pr_pred_obs <- cbind(pr_pred_obs, t(pr_conf))
   names(pr_pred_obs)[c(8, 9)] <- c('prevalence_lower',  'prevalence_upper')
