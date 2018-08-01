@@ -49,6 +49,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
    prior_sigma_prob = 0.00001
    prior_iideffect_sd_max = 0.05
    prior_iideffect_sd_prob = 0.00001
+   prior_iideffect_pr_sd_max = 0.05
+   prior_iideffect_pr_sd_prob = 0.00001
    priormean_intercept = -2
    priorsd_intercept = 2
    priormean_slope = 0 
@@ -69,11 +71,10 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
     extra <- length(overlap) - length(data$polygon$shapefile_id)
     message(paste("There are", extra, "shapefiles that contain point data but not polygon data"))
   }
-  pointtopolygonmap <- match(data_idn$pr$shapefile_id, overlap)
-  rastertopolygonmap <- data$shapefile_raster
-  values(rastertopolygonmap) <- match(getValues(data$shapefile_raster), overlap)
-  #rastertopolygonmap[is.na(rastertopolygonmap) & !is.na(data$shapefile
-
+  # For each PR point (ordered), the map gives the corresponding index in overlap
+  # map is length of PR data. Ordering of polygon data shapefile_id
+  pointtopolygonmap <- match(data$pr$shapefile_id, overlap)
+  
   # Compile and load the model
 
   #dyn.unload(dynlib("joint_model"))
@@ -84,6 +85,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      slope = rep(0, nlayers(data$cov_rasters)),
                      iideffect = rep(0, length(overlap)),
                      iideffect_log_tau = 1,
+                     iideffect_pr = rep(0, nrow(data$pr)),
+                     iideffect_pr_log_tau = 1,
                      log_sigma = 0,
                      log_rho = 4,
                      nodemean = rep(0, n_s))
@@ -106,6 +109,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      prior_sigma_prob = prior_sigma_prob,
                      prior_iideffect_sd_max = prior_iideffect_sd_max,
                      prior_iideffect_sd_prob = prior_iideffect_sd_prob,
+                     prior_iideffect_pr_sd_max = prior_iideffect_pr_sd_max,
+                     prior_iideffect_pr_sd_prob = prior_iideffect_pr_sd_prob,
                      priormean_intercept = priormean_intercept,
                      priorsd_intercept = priorsd_intercept,
                      priormean_slope = priormean_slope, 
@@ -117,7 +122,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   obj <- MakeADFun(
     data = input_data, 
     parameters = parameters,
-    random = c('nodemean','iideffect'),
+    random = c('nodemean','iideffect','iideffect_pr'),
     DLL = "joint_model")
   
   
@@ -133,13 +138,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   
   # Soft check.
   if(opt$convergence != 0) warning('Model did not converge.')
-  
-  if(inherits(opt, 'character') && opt == 'error'){
-    # Second try...
-    opt <- nlminb(obj$env$last.par.best[names(obj$env$last.par.best) != 'nodemean'], obj$fn, obj$gr, 
-                                   control = list(iter.max = its, eval.max = 2*its, trace = 0))
-  }
-  
+
   sd_out <- sdreport(obj, getJointPrecision = TRUE)
   
   # Check sdreport worked.
@@ -217,7 +216,8 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, shapefile_ids, N, 
                       prevalence_ci = prevalence_ci,
                       api_realisations = api,
                       prevalence_realisations = prevalence,
-                      incidence_count_realisations = incidence_count)
+                      incidence_count_realisations = incidence_count,
+                      par_draws = par_draws)
   class(predictions) <- c('ppj_preds_ci', 'list')
   return(predictions)
 }
@@ -325,7 +325,7 @@ makeLinearPredictor <- function(pars, data, field_ras, shapefile_ras, shapefile_
 }
 
 
-cv_performance <- function(predictions, holdout, CI = 0.95){
+cv_performance <- function(predictions, holdout, model_params, CI = 0.95){
 
   # Extract raster data
   rasters <- stack(predictions$pop, predictions$incidence_count)
@@ -406,7 +406,27 @@ cv_performance <- function(predictions, holdout, CI = 0.95){
   
   
   pr_preds_reals <- raster::extract(predictions$prevalence_realisations, pr_coords)
-  pr_conf <- apply(pr_preds_reals, 1, function(x) quantile(x, probs = probs, na.rm = TRUE))
+  
+  # Convert prev to linear predictor, sum with iid and then convert back
+  pr_preds_reals_lp <- log(pr_preds_reals/(1 - pr_preds_reals))
+  
+  # Calculate additional uncertainty from point iid effect
+  iid_par_index <- which(names(model_params$obj$env$last.par.best) == 'iideffect_pr_log_tau')
+  pr_iid_log_tau_reals <- predictions$par_draws[, iid_par_index] # vector of N realisations
+  pr_iid_sd_reals <- 1/sqrt(exp(pr_iid_log_tau_reals)) # vector of N realisations
+  
+  pr_iid_reals <- sapply(pr_iid_sd_reals, function(x) rnorm(length(pr_coords), 0, x)) # matrix of n(pr) by N
+  
+  # Total uncertainty in linear predictor
+  pr_reals_lp <- pr_preds_reals_lp + pr_iid_reals
+  # Transform back to prevelance
+  pr_reals_prev <- 1 / (1 + exp(-1 * pr_reals_lp))
+  
+  # TODO calulate additional uncertainty from binomial noise
+  
+  
+  
+  pr_conf <- apply(pr_reals_prev, 1, function(x) quantile(x, probs = probs, na.rm = TRUE))
   
   pr_pred_obs <- cbind(pr_pred_obs, t(pr_conf))
   names(pr_pred_obs)[names(pr_pred_obs) == '2.5%'] <- 'prevalence_lower'

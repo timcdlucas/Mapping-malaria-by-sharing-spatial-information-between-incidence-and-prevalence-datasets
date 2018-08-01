@@ -20,7 +20,7 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, parallel_delay = 
   } else {
     cl <- makePSOCKcluster(cores, outfile = "")
     setDefaultCluster(cl)
-    clusterExport(cl, c('par_fun','fit_model','data_idn','mesh_idn','arg_list','predict_model','predict_uncertainty','make_startend_index','MakeField','PrevIncConversion','extractFieldProperties','makeLinearPredictor'))
+    clusterExport(cl, c('par_fun','fit_model','cv_data','mesh','model.args','predict_model','predict_uncertainty','make_startend_index','MakeField','PrevIncConversion','extractFieldProperties','makeLinearPredictor'))
     clusterEvalQ(NULL, library(magrittr))
     clusterEvalQ(NULL, library(INLA))
     clusterEvalQ(NULL, library(TMB))
@@ -31,7 +31,7 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, parallel_delay = 
   
 
   for(i in seq_along(cv_data)){
-    results[[i]] <- cv_performance(models[[i]]$predictions, cv_data[[i]]$test)
+    results[[i]] <- cv_performance(models[[i]]$predictions, cv_data[[i]]$test, models[[i]]$model)
   }
   
   summary <- summarise_cv_results(results)
