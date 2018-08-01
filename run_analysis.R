@@ -147,9 +147,9 @@ arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho 
                  # The difference between m_low_pf and LCI(pois(m_mean_pf)), then converted to inc rate, then to prev ranges around 0-0.025. 
                  # The 0.975 quantile of that (two sided) distribution is 0.005 prevalence. 
                  # To explain 0.005 prevalence, we need a norm of 0.05. Fin.
-                 prior_iideffect_sd_prob = 0.000001, # Made this stronger because too much iid.
-                 prior_iideffect_pr_sd_max = 0.05,
-                 prior_iideffect_pr_sd_prob = 0.000001,
+                 prior_iideffect_sd_prob = 0.0000001, # Made this stronger because too much iid.
+                 prior_iideffect_pr_sd_max = 0.3, # Max difference between PR points within a cell (with n > 500)
+                 prior_iideffect_pr_sd_prob = 0.0000001,
                  priormean_intercept = -2,
                  priorsd_intercept = 2,  # Indonesia has prev lowish. But want intercept to take whatever value it likes.
                  priormean_slope = 0, 
@@ -165,8 +165,8 @@ plot(full_model, layer = 'api')
 in_sample <- cv_performance(predictions = full_model$predictions, 
                             holdout = data_idn,
                             model_params = full_model$model)
-autoplot(in_sample, CI)
-autoplot(in_sample, trans = 'log1p')
+autoplot(in_sample, CI = TRUE)
+autoplot(in_sample, trans = 'log1p', CI = TRUE)
 
 
 # Run 3 x models with 3 x hyperpars on cv1.
