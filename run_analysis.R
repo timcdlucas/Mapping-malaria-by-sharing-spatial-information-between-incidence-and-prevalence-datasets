@@ -164,7 +164,8 @@ plot(full_model, layer = 'api')
 
 in_sample <- cv_performance(predictions = full_model$predictions, 
                             holdout = data_idn,
-                            model_params = full_model$model)
+                            model_params = full_model$model, 
+                            CI = 0.8)
 autoplot(in_sample, CI = TRUE)
 autoplot(in_sample, trans = 'log1p', CI = TRUE)
 
