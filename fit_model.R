@@ -429,9 +429,8 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95){
   pr_conf <- apply(pr_reals_prev, 1, function(x) quantile(x, probs = probs, na.rm = TRUE))
   
   pr_pred_obs <- cbind(pr_pred_obs, t(pr_conf))
-  names(pr_pred_obs)[names(pr_pred_obs) == '2.5%'] <- 'prevalence_lower'
-  names(pr_pred_obs)[names(pr_pred_obs) == '97.5%'] <- 'prevalence_upper'
-  
+  names(pr_pred_obs)[c(8, 9)] <- c('prevalence_lower',  'prevalence_upper')
+
   pr_pred_obs <- na.omit(pr_pred_obs)
   
   pr_metrics <- pr_pred_obs %>% 
