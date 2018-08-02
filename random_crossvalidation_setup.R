@@ -3,7 +3,7 @@
 #'@return a 'ppj_cv' object. Which is a list of paired train/test 'ppf_data' objects
 #'
 
-cv_folds <- function(data, k = 5){
+cv_random_folds <- function(data, k = 5){
   
   # To make sure theres's nearly exactly n / k in each fold
   f <- rep(1:k, ceiling(nrow(data$polygon) / k))

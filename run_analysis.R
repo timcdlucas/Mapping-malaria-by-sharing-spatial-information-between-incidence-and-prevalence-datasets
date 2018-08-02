@@ -126,10 +126,10 @@ data_idn <- process_data(
 autoplot(data_idn, pr_limits = c(0, 0.3))
 ggsave('figs/idn_input_data.png')
 
-mesh_idn <- build_mesh(data_idn, mesh.args = list(max.edge = c(0.8, 5), cut = 0.8))
+mesh_idn <- build_mesh(data_idn, mesh.args = list(max.edge = c(0.5, 5), cut = 0.5))
 autoplot(mesh_idn)
 
-data_cv1_idn <- cv_folds(data_idn, k = 3)
+data_cv1_idn <- cv_random_folds(data_idn, k = 10)
 autoplot(data_cv1_idn, jitter = 0.7)
 ggsave('figs/idn_cv_random.png')
 
