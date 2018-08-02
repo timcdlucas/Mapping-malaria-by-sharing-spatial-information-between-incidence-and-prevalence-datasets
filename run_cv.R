@@ -50,6 +50,7 @@ summarise_cv_results <- function(results){
       do.call(rbind, .)
   
   polygon_metrics <- combined_aggregated %>% 
+    mutate(inCI = response > pred_api_lower & response < pred_api_upper) %>% 
     summarise(RMSE = sqrt(mean((pred_api - response) ^ 2)),
               MAE = mean(abs(pred_api - response)),
               pearson = cor(pred_api, response, method = 'pearson'),
@@ -57,8 +58,10 @@ summarise_cv_results <- function(results){
               log_pearson = cor(log1p(pred_api), log1p(response), method = 'pearson'),
               RMSE_cases = sqrt(mean((incidence_count - pred_incidence_count) ^ 2)),
               MAE_cases = mean(abs(incidence_count - pred_incidence_count)),
-              total_cases = sum(incidence_count - pred_incidence_count))
+              total_cases = sum(incidence_count - pred_incidence_count),
+              coverage = mean(inCI))
   
+
   combined_summaries <- 
     lapply(seq_along(results), function(x) cbind(results[[x]]$polygon_metrics, fold = x)) %>% 
     do.call(rbind, .)
@@ -70,11 +73,13 @@ summarise_cv_results <- function(results){
     do.call(rbind, .)
   
   pr_metrics <- combined_pr %>% 
+    mutate(inCI = prevalence > prevalence_lower & prevalence < prevalence_upper) %>% 
     summarise(RMSE = sqrt(mean((pred_prev - prevalence) ^ 2)),
               MAE = mean(abs(pred_prev - prevalence)),
               pearson = cor(pred_prev, prevalence, method = 'pearson'),
               spearman = cor(pred_prev, prevalence, method = 'spearman'),
-              log_pearson = cor(log1p(pred_prev), log1p(prevalence), method = 'pearson'))
+              log_pearson = cor(log1p(pred_prev), log1p(prevalence), method = 'pearson'),
+              coverage = mean(inCI))
   
   combined_pr_summaries <- 
     lapply(seq_along(results), function(x) cbind(results[[x]]$pr_metrics, fold = x)) %>% 
