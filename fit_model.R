@@ -42,23 +42,23 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   cov_matrix <- as.matrix(data$covs[, -c(1:2)])
   
   
-  
-   prior_rho_min = 3
-   prior_rho_prob = 0.00001
-   prior_sigma_max = 1
-   prior_sigma_prob = 0.00001
-   prior_iideffect_sd_max = 0.05
-   prior_iideffect_sd_prob = 0.00001
-   prior_iideffect_pr_sd_max = 0.05
-   prior_iideffect_pr_sd_prob = 0.00001
-   priormean_intercept = -2
-   priorsd_intercept = 2
-   priormean_slope = 0 
-   priorsd_slope = 0.4
-   use_polygons = 0
-   use_points = 1
-  
-  
+
+  prior_rho_min = 3
+  prior_rho_prob = 0.00001
+  prior_sigma_max = 1
+  prior_sigma_prob = 0.00001
+  prior_iideffect_sd_max = 0.05
+  prior_iideffect_sd_prob = 0.00001
+  prior_iideffect_pr_sd_max = 0.05
+  prior_iideffect_pr_sd_prob = 0.00001
+  priormean_intercept = -2
+  priorsd_intercept = 2
+  priormean_slope = 0 
+  priorsd_slope = 0.4
+  use_polygons = 0
+  use_points = 1
+
+
   # Replace defaults with anything given in model.args
   if(!is.null(model.args)){
     here <- environment()
@@ -118,11 +118,19 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      use_polygons = use_polygons,
                      use_points = use_points)
   
+  if(!use_points){
+    fix <- list(iideffect_pr_log_tau = factor(NA), 
+                iideffect_pr = factor(rep(NA, nrow(data$pr))))
+    parameters$iideffect_pr_log_tau <- -100
+  } else {
+    fix <- list()
+  }
 
   obj <- MakeADFun(
     data = input_data, 
     parameters = parameters,
-    random = c('nodemean','iideffect','iideffect_pr'),
+    random = c('nodemean', 'iideffect', 'iideffect_pr'),
+    map = fix,
     DLL = "joint_model")
   
   
@@ -131,7 +139,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
            control = list(iter.max = its, eval.max = 2*its, trace = 0))
     },
     error = function(e) {
-      cat(paste('Error in model, trying again.'))
+      cat(paste('Error in model. Stopping'))
       return('error')
     }
   )
@@ -379,13 +387,15 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95){
     na.omit %>% 
     group_by(area_id, layer) %>% 
     summarise(pred_incidence_count = sum(incidence_count),
+              pred_incidence_count_noise = rpois(length(pred_incidence_count), pred_incidence_count),
               pred_pop = sum(population),
-              pred_api = 1000 * sum(incidence_count) / sum(population)) %>% 
+              pred_api = 1000 * sum(pred_incidence_count) / sum(population),
+              pred_api_noise = 1000 * sum(pred_incidence_count_noise) / sum(population)) %>% 
     group_by(area_id) %>% 
-    summarise(pred_incidence_count_lower = quantile(pred_incidence_count, probs[1]),
-              pred_incidence_count_upper = quantile(pred_incidence_count, probs[2]),
-              pred_api_lower = quantile(pred_api, probs[1]),
-              pred_api_upper = quantile(pred_api, probs[2])) %>% 
+    summarise(pred_incidence_count_lower = quantile(pred_incidence_count_noise, probs[1]),
+              pred_incidence_count_upper = quantile(pred_incidence_count_noise, probs[2]),
+              pred_api_lower = quantile(pred_api_noise, probs[1]),
+              pred_api_upper = quantile(pred_api_noise, probs[2])) %>% 
     left_join(aggregated, by = c('area_id'))
   
   polygon_metrics_unc <- aggregated_reals %>% 
