@@ -135,7 +135,8 @@ ggsave('figs/idn_cv_random.png')
 
 #autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 
-
+use_points = 0;
+use_polygons = 1;
 # run models
 # Run full model to get a handle on things.
 
@@ -154,9 +155,8 @@ arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho 
                  priorsd_intercept = 2,  # Indonesia has prev lowish. But want intercept to take whatever value it likes.
                  priormean_slope = 0, 
                  priorsd_slope = 0.4, # Explains between 0.004 and 0.27 prevalence. 1 covariate shouldn't explain between 0 and 0.6 (range of prev).
-                 use_polygons = 0,
-                 # use_polygons = 1,
-                 use_points = 1)
+                 use_polygons = use_polygons,
+                 use_points = use_points)
 
 full_model <- fit_model(data_idn, mesh_idn, its = 500, model.args = arg_list)
 autoplot(full_model)
@@ -165,7 +165,8 @@ plot(full_model, layer = 'api')
 in_sample <- cv_performance(predictions = full_model$predictions, 
                             holdout = data_idn,
                             model_params = full_model$model, 
-                            CI = 0.8)
+                            CI = 0.8,
+                            use_points = use_points)
 autoplot(in_sample, CI = TRUE)
 autoplot(in_sample, trans = 'log1p', CI = TRUE)
 
