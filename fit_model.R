@@ -333,7 +333,7 @@ makeLinearPredictor <- function(pars, data, field_ras, shapefile_ras, shapefile_
 }
 
 
-cv_performance <- function(predictions, holdout, model_params, CI = 0.95){
+cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_points){
 
   # Extract raster data
   rasters <- stack(predictions$pop, predictions$incidence_count)
@@ -419,23 +419,23 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95){
   
   # Convert prev to linear predictor, sum with iid and then convert back
   pr_preds_reals_lp <- log(pr_preds_reals/(1 - pr_preds_reals))
+  pr_reals_lp <- pr_preds_reals_lp
   
   # Calculate additional uncertainty from point iid effect
-  iid_par_index <- which(names(model_params$obj$env$last.par.best) == 'iideffect_pr_log_tau')
-  pr_iid_log_tau_reals <- predictions$par_draws[, iid_par_index] # vector of N realisations
-  pr_iid_sd_reals <- 1/sqrt(exp(pr_iid_log_tau_reals)) # vector of N realisations
+  if(use_points) { 
+    iid_par_index <- which(names(model_params$obj$env$last.par.best) == 'iideffect_pr_log_tau')
+    pr_iid_log_tau_reals <- predictions$par_draws[, iid_par_index] # vector of N realisations
+    pr_iid_sd_reals <- 1/sqrt(exp(pr_iid_log_tau_reals)) # vector of N realisations
+    
+    pr_iid_reals <- sapply(pr_iid_sd_reals, function(x) rnorm(length(pr_coords), 0, x)) # matrix of n(pr) by N
+    
+    # Total uncertainty in linear predictor
+    pr_reals_lp <- pr_preds_reals_lp + pr_iid_reals
+  }
   
-  pr_iid_reals <- sapply(pr_iid_sd_reals, function(x) rnorm(length(pr_coords), 0, x)) # matrix of n(pr) by N
-  
-  # Total uncertainty in linear predictor
-  pr_reals_lp <- pr_preds_reals_lp + pr_iid_reals
   # Transform back to prevelance
   pr_reals_prev <- 1 / (1 + exp(-1 * pr_reals_lp))
   
-  # TODO calulate additional uncertainty from binomial noise
-  
-  #positive_reals <- pr_reals_prev * pr_pred_obs$examined
-    
   positive_reals_noise <- sapply(seq_len(nrow(pr_pred_obs)), 
                                  function(i) 
                                    rbinom(ncol(pr_reals_prev), pr_pred_obs$examined[i], pr_reals_prev[i, ])
