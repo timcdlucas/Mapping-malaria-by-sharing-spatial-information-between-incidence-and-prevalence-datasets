@@ -25,7 +25,7 @@ build_mesh <- function(data, mesh.args = NULL){
     coords[[i]] <- outline@polygons[[1]]@Polygons[[i]]@coords
   }
   coords <- do.call(rbind, coords)
-
+  coords <- rbind(coords, as.matrix(data$pr[, c('longitude', 'latitude')]))
     
   # Find a nonconvex hull around points.
   outline.hull <- inla.nonconvex.hull(coords, 
