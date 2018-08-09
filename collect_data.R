@@ -61,10 +61,11 @@ load_data <- function(PR_path,
   
   
   # Read API data
+  admin_unit_level_char <- admin_unit_level 
   api_full <- readr::read_csv(API_path, guess_max  = 1e5)
   api <- api_full %>% filter(year %in% api_year, 
                              iso3 %in% useiso3,
-                             admin_unit_level == admin_unit_level)
+                             admin_unit_level == admin_unit_level_char)
   api <- cbind(api_mean = pull(api, api_column),
                population = pull(api, pop_column),
                shapefile_id = pull(api, shapefile_column)) %>% as.data.frame
