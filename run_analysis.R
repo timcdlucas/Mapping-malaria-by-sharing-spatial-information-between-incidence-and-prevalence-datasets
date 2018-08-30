@@ -121,6 +121,7 @@ data_idn <- process_data(
   shapefiles = data$shapefiles,
   pop_raster = data$pop,
   cov_rasters = data$covs,
+  useiso3 = 'IDN',
   transform = c(4:7))
 
 autoplot(data_idn, pr_limits = c(0, 0.3))

@@ -10,6 +10,7 @@ process_data <- function(binomial_positive,
                          shps_id_column = 'area_id',
                          pop_raster,
                          cov_rasters,
+                         useiso3,
                          na.rm = FALSE,
                          transform = NULL,
                          skip_extract = FALSE){
@@ -33,6 +34,8 @@ process_data <- function(binomial_positive,
   
   
   
+  # Get shapefiles in Indonesia before removing those with no data (use as cov raster extent)
+  shapefiles_idn <- shapefiles[shapefiles@data$iso3 == useiso3, ]
   
   shapefiles@data <- shapefiles@data[, shps_id_column, drop = FALSE]
   
@@ -86,7 +89,7 @@ process_data <- function(binomial_positive,
   # Crop rasters
   
   # Make pop raster that will be raster template.
-  pop_raster <- crop(pop_raster, extent(shapefiles))
+  pop_raster <- crop(pop_raster, extent(shapefiles_idn))
   cov_rasters <- crop(cov_rasters, extent(pop_raster))
   cov_rasters <- mask(cov_rasters, cov_rasters[[1]])
   
