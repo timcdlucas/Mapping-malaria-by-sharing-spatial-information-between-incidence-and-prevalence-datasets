@@ -158,7 +158,7 @@ arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho 
                  use_polygons = use_polygons,
                  use_points = use_points)
 
-full_model <- fit_model(data_idn, mesh_idn, its = 1200, model.args = arg_list)
+full_model <- fit_model(data_idn, mesh_idn, its = 700, model.args = arg_list)
 autoplot(full_model)
 plot(full_model, layer = 'api')
 
@@ -176,7 +176,7 @@ save(full_model, file = 'model_outputs/full_model_idn.RData')
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
-points_model <- fit_model(data_idn, mesh_idn, its = 1200, model.args = arg_list)
+points_model <- fit_model(data_idn, mesh_idn, its = 700, model.args = arg_list)
 autoplot(points_model)
 plot(points_model, layer = 'api')
 
@@ -197,7 +197,7 @@ save(points_model, file = 'model_outputs/points_model_idn.RData')
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
-polygons_model <- fit_model(data_idn, mesh_idn, its = 1200, model.args = arg_list)
+polygons_model <- fit_model(data_idn, mesh_idn, its = 700, model.args = arg_list)
 autoplot(polygons_model)
 plot(polygons_model, layer = 'api')
 
@@ -205,7 +205,7 @@ polygons_in_sample <- cv_performance(predictions = polygons_model$predictions,
                                    holdout = data_idn,
                                    model_params = polygons_model$model, 
                                    CI = 0.8,
-                                   use_points = use_points)
+                                   use_points = FALSE)
 autoplot(polygons_in_sample, CI = TRUE)
 autoplot(polygons_in_sample, trans = 'log1p', CI = TRUE)
 ggsave('figs/idn_polygon_model_in_sample.png')
@@ -219,7 +219,7 @@ save(polygons_model, file = 'model_outputs/polygons_model_idn.RData')
 
 # Run 3 x models on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
-cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 1200, model.args = arg_list)
+cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 700, model.args = arg_list)
 
 autoplot(cv1_output1, type = 'obs_preds', trans = 'log1p', CI = TRUE)
 autoplot(cv1_output1, type = 'obs_preds', trans = 'identity')
@@ -228,13 +228,13 @@ obspred_map(data_cv1_idn, cv1_output1)
 obspred_map(data_cv1_idn, cv1_output1, trans = 'log10', lims = c(1e-5, 620))
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
-cv1_output2 <- run_cv(data_cv1_idn, mesh_idn, its = 1200, model.args = arg_list)
+cv1_output2 <- run_cv(data_cv1_idn, mesh_idn, its = 700, model.args = arg_list)
 obspred_map(data_cv1_idn, cv1_output2)
 obspred_map(data_cv1_idn, cv1_output2, trans = 'log10', lims = c(1e-5, 620))
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
-cv1_output3 <- run_cv(data_cv1_idn, mesh_idn, its = 1200, model.args = arg_list)
+cv1_output3 <- run_cv(data_cv1_idn, mesh_idn, its = 700, model.args = arg_list)
 obspred_map(data_cv1_idn, cv1_output3)
 obspred_map(data_cv1_idn, cv1_output3, trans = 'log10', lims = c(1e-5, 620))
 
