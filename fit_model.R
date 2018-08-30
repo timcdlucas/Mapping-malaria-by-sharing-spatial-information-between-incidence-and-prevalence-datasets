@@ -325,7 +325,7 @@ makeLinearPredictor <- function(pars, data, field_ras, shapefile_ras, shapefile_
   iid_ras[!shapefile_ras %in% shapefile_ids & !is.na(iid_ras)] <- 0
   
 
-  linear_pred <- cov_contribution + field_ras + iid_ras
+  linear_pred <- cov_contribution + field_ras #+ iid_ras
   
   return(list(linear_pred = linear_pred, 
               covariates = cov_contribution,
@@ -383,19 +383,28 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_po
   # Calc pred incidence and API
   probs <- c((1 - CI) / 2, 1 - (1 - CI) / 2)
   
-  aggregated_reals <- extract_reals_tidy %>% 
-    na.omit %>% 
-    group_by(area_id, layer) %>% 
+  aggregated_reals <- extract_reals_tidy %>%
+    na.omit %>%
+    group_by(area_id, layer) %>%
     summarise(pred_incidence_count = sum(incidence_count),
-              pred_incidence_count_noise = rpois(length(pred_incidence_count), pred_incidence_count),
               pred_pop = sum(population),
-              pred_api = 1000 * sum(pred_incidence_count) / sum(population),
-              pred_api_noise = 1000 * sum(pred_incidence_count_noise) / sum(population)) %>% 
-    group_by(area_id) %>% 
+              pred_api = 1000 * sum(pred_incidence_count) / sum(population))
+  
+  #pred_incidence_count_noise <- sapply(aggregated_reals$pred_incidence_count, function(x) rpois(1, x))
+  pred_incidence_count_noise <- rpois(rep(1, nrow(aggregated_reals)), aggregated_reals$pred_incidence_count)
+    #rpois(length(aggregated_reals$pred_incidence_count), aggregated_reals$pred_incidence_count)
+  pred_api_noise <- 1000 * pred_incidence_count_noise / aggregated_reals$pred_pop
+  
+  aggregated_reals <- cbind(aggregated_reals, 
+                            pred_incidence_count_noise = pred_incidence_count_noise,
+                            pred_api_noise = pred_api_noise)
+  
+  aggregated_reals <- aggregated_reals %>%
+    group_by(area_id) %>%
     summarise(pred_incidence_count_lower = quantile(pred_incidence_count_noise, probs[1]),
               pred_incidence_count_upper = quantile(pred_incidence_count_noise, probs[2]),
               pred_api_lower = quantile(pred_api_noise, probs[1]),
-              pred_api_upper = quantile(pred_api_noise, probs[2])) %>% 
+              pred_api_upper = quantile(pred_api_noise, probs[2])) %>%
     left_join(aggregated, by = c('area_id'))
   
   polygon_metrics_unc <- aggregated_reals %>% 
