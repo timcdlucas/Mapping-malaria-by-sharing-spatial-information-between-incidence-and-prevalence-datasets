@@ -32,7 +32,10 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, parallel_delay = 
   
 
   for(i in seq_along(cv_data)){
-    results[[i]] <- cv_performance(models[[i]]$predictions, cv_data[[i]]$test, models[[i]]$model)
+    results[[i]] <- cv_performance(models[[i]]$predictions, 
+                                   cv_data[[i]]$test, 
+                                   models[[i]]$model,
+                                   use_points = model.args$use_points )
   }
   
   summary <- summarise_cv_results(results)
