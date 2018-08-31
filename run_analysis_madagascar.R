@@ -171,22 +171,33 @@ autoplot(in_sample, trans = 'log1p')
 
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
-cv1_output1 <- run_cv(data_cv1_mdg, mesh_mdg, its = 200, model.args = arg_list)
+cv1_output1 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
 obspred_map(data_cv1_mdg, cv1_output1, column = FALSE)
-ggsave('figs/mdg_points_only.png')
+ggsave('figs/mdg_points_only_obspred_map.png')
 obspred_map(data_cv1_mdg, cv1_output1, trans = 'log10', column = FALSE)
+ggsave('figs/mdg_points_only_obspred_map_log.png')
+autoplot(cv1_output1, type = 'obs_preds', CI = TRUE)
+ggsave('figs/mdg_points_only_obspred.png')
+
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
-cv1_output2 <- run_cv(data_cv1_mdg, mesh_mdg, its = 600, model.args = arg_list)
+cv1_output2 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
 obspred_map(data_cv1_mdg, cv1_output2, column = FALSE)
-ggsave('figs/mdg_polygons_only.png')
+ggsave('figs/mdg_polygons_only_obspred_map.png')
 obspred_map(data_cv1_mdg, cv1_output2, trans = 'log10', column = FALSE)
+ggsave('figs/mdg_polygons_only_obspred_map_log.png')
+autoplot(cv1_output2, type = 'obs_preds', CI = TRUE)
+ggsave('figs/mdg_polygons_only_obspred.png')
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
-cv1_output3 <- run_cv(data_cv1_mdg, mesh_mdg, its = 200, model.args = arg_list)
+cv1_output3 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
 obspred_map(data_cv1_mdg, cv1_output3, column = FALSE)
+ggsave('figs/mdg_both_obspred_map.png')
 obspred_map(data_cv1_mdg, cv1_output3, trans = 'log10', column = FALSE)
+ggsave('figs/mdg_both_obspred_map_log.png')
+autoplot(cv1_output3, type = 'obs_preds', CI = TRUE)
+ggsave('figs/mdg_both_obspred.png')
 
 save(cv1_output1, file = 'model_outputs/mdg_points_cv_1.RData')
 save(cv1_output2, file = 'model_outputs/mdg_polygon_cv_1.RData')
@@ -203,16 +214,53 @@ cv1_output3$summary$pr_metrics
 
 
 
+# Run 3 x models with 3 x hyperpars on cv2 Spatial.
 
 data_cv2_mdg <- cv_spatial_folds(data_mdg, k = 3)
 autoplot(data_cv2_mdg, jitter = 0.0)
 ggsave('figs/idn_cv_spatial.png')
 
 
+# Run 3 x models with 3 x hyperpars on cv1.
+arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
+cv2_output1 <- run_cv(data_cv2_mdg, mesh_mdg, its = 1000, model.args = arg_list, CI = 0.8)
+obspred_map(data_cv2_mdg, cv2_output1, column = FALSE)
+ggsave('figs/mdg_points_only_obspred_map.png')
+obspred_map(data_cv2_mdg, cv2_output1, trans = 'log10', column = FALSE)
+ggsave('figs/mdg_points_only_obspred_map_log.png')
+autoplot(cv2_output1, type = 'obs_preds', CI = TRUE)
+ggsave('figs/mdg_points_only_obspred.png')
 
-# create temp figures
+
+arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
+cv2_output2 <- run_cv(data_cv2_mdg, mesh_mdg, its = 1000, model.args = arg_list, CI = 0.8)
+obspred_map(data_cv2_mdg, cv2_output2, column = FALSE)
+ggsave('figs/mdg_polygons_only_obspred_map.png')
+obspred_map(data_cv2_mdg, cv2_output2, trans = 'log10', column = FALSE)
+ggsave('figs/mdg_polygons_only_obspred_map_log.png')
+autoplot(cv2_output2, type = 'obs_preds', CI = TRUE)
+ggsave('figs/mdg_polygons_only_obspred.png')
 
 
+arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
+cv2_output3 <- run_cv(data_cv2_mdg, mesh_mdg, its = 1000, model.args = arg_list, CI = 0.8)
+obspred_map(data_cv2_mdg, cv2_output3, column = FALSE)
+ggsave('figs/mdg_both_obspred_map.png')
+obspred_map(data_cv2_mdg, cv2_output3, trans = 'log10', column = FALSE)
+ggsave('figs/mdg_both_obspred_map_log.png')
+autoplot(cv2_output3, type = 'obs_preds', CI = TRUE)
+ggsave('figs/mdg_both_obspred.png')
 
+save(cv2_output1, file = 'model_outputs/mdg_points_cv_1.RData')
+save(cv2_output2, file = 'model_outputs/mdg_polygon_cv_1.RData')
+save(cv2_output3, file = 'model_outputs/mdg_join_cv_1.RData')
 
-# Write out data needed for final figures.
+cv2_output1$summary$polygon_metrics
+cv2_output2$summary$polygon_metrics
+cv2_output3$summary$polygon_metrics
+
+cv2_output1$summary$pr_metrics
+cv2_output2$summary$pr_metrics
+cv2_output3$summary$pr_metrics
+
+print('Finished')
