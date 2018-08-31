@@ -125,7 +125,6 @@ data_mdg <- process_data(
   cov_rasters = data$covs,
   useiso3 = 'MDG',
   transform = c(4:7))
-closeCluster(cl)
 
 autoplot(data_mdg)
 
