@@ -177,7 +177,7 @@ save(full_model, file = 'model_outputs/full_model_idn.RData')
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
-points_model <- fit_model(data_idn, mesh_idn, its = 700, model.args = arg_list)
+points_model <- fit_model(data_idn, mesh_idn, its = 1000, model.args = arg_list)
 autoplot(points_model)
 plot(points_model, layer = 'api')
 
@@ -198,7 +198,7 @@ save(points_model, file = 'model_outputs/points_model_idn.RData')
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
-polygons_model <- fit_model(data_idn, mesh_idn, its = 700, model.args = arg_list)
+polygons_model <- fit_model(data_idn, mesh_idn, its = 1000, model.args = arg_list)
 autoplot(polygons_model)
 plot(polygons_model, layer = 'api')
 
@@ -220,24 +220,34 @@ save(polygons_model, file = 'model_outputs/polygons_model_idn.RData')
 
 # Run 3 x models on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
-cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 700, model.args = arg_list)
+cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+obspred_map(data_cv1_idn, cv1_output1, column = FALSE)
+ggsave('figs/idn_points_only_obspred_map.png')
+obspred_map(data_cv1_idn, cv1_output1, trans = 'log10', column = FALSE)
+ggsave('figs/idn_points_only_obspred_map_log.png')
+autoplot(cv1_output1, type = 'obs_preds', CI = TRUE)
+ggsave('figs/idn_points_only_obspred.png')
 
-autoplot(cv1_output1, type = 'obs_preds', trans = 'log1p', CI = TRUE)
-autoplot(cv1_output1, type = 'obs_preds', trans = 'identity')
-
-obspred_map(data_cv1_idn, cv1_output1)
-obspred_map(data_cv1_idn, cv1_output1, trans = 'log10', lims = c(1e-5, 620))
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
-cv1_output2 <- run_cv(data_cv1_idn, mesh_idn, its = 700, model.args = arg_list)
-obspred_map(data_cv1_idn, cv1_output2)
-obspred_map(data_cv1_idn, cv1_output2, trans = 'log10', lims = c(1e-5, 620))
+cv1_output2 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+obspred_map(data_cv1_idn, cv1_output2, column = FALSE)
+ggsave('figs/idn_points_only_obspred_map.png')
+obspred_map(data_cv1_idn, cv1_output2, trans = 'log10', column = FALSE)
+ggsave('figs/idn_points_only_obspred_map_log.png')
+autoplot(cv1_output2, type = 'obs_preds', CI = TRUE)
+ggsave('figs/idn_points_only_obspred.png')
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
-cv1_output3 <- run_cv(data_cv1_idn, mesh_idn, its = 700, model.args = arg_list)
-obspred_map(data_cv1_idn, cv1_output3)
-obspred_map(data_cv1_idn, cv1_output3, trans = 'log10', lims = c(1e-5, 620))
+cv1_output3 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+obspred_map(data_cv1_idn, cv1_output3, column = FALSE)
+ggsave('figs/idn_points_only_obspred_map.png')
+obspred_map(data_cv1_idn, cv1_output3, trans = 'log10', column = FALSE)
+ggsave('figs/idn_points_only_obspred_map_log.png')
+autoplot(cv1_output3, type = 'obs_preds', CI = TRUE)
+ggsave('figs/idn_points_only_obspred.png')
+
 
 save(cv1_output1, file = 'model_outputs/points_cv_1.RData')
 save(cv1_output2, file = 'model_outputs/polygon_cv_1.RData')
@@ -253,36 +263,55 @@ cv1_output3$summary$pr_metrics
 
 
 
-data_cv1_idn <- cv_spatial_folds(data_idn, k = 7)
-autoplot(data_cv1_idn, jitter = 0.7)
-ggsave('figs/idn_cv_spatial.png')
+# Spatial
+data_cv2_idn <- cv_spatial_folds(data_idn, k = 7)
+autoplot(data_cv2_idn, jitter = 0.7)
+ggsave('figs/idn_cv_spatial2.png')
 
 
 
+# Run 3 x models on cv2.
+arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
+cv2_output1 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+obspred_map(data_cv2_idn, cv2_output1, column = FALSE)
+ggsave('figs/idn_points_only_obspred_map2.png')
+obspred_map(data_cv2_idn, cv2_output1, trans = 'log10', column = FALSE)
+ggsave('figs/idn_points_only_obspred_map_log2.png')
+autoplot(cv2_output1, type = 'obs_preds', CI = TRUE)
+ggsave('figs/idn_points_only_obspred2.png')
 
 
+arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
+cv2_output2 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+obspred_map(data_cv2_idn, cv2_output2, column = FALSE)
+ggsave('figs/idn_points_only_obspred_map2.png')
+obspred_map(data_cv2_idn, cv2_output2, trans = 'log10', column = FALSE)
+ggsave('figs/idn_points_only_obspred_map_log2.png')
+autoplot(cv2_output2, type = 'obs_preds', CI = TRUE)
+ggsave('figs/idn_points_only_obspred2.png')
 
 
+arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
+cv2_output3 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+obspred_map(data_cv2_idn, cv2_output3, column = FALSE)
+ggsave('figs/idn_points_only_obspred_map2.png')
+obspred_map(data_cv2_idn, cv2_output3, trans = 'log10', column = FALSE)
+ggsave('figs/idn_points_only_obspred_map_log2.png')
+autoplot(cv2_output3, type = 'obs_preds', CI = TRUE)
+ggsave('figs/idn_points_only_obspred2.png')
 
 
-# create temp figures
+save(cv2_output1, file = 'model_outputs/points_cv_2.RData')
+save(cv2_output2, file = 'model_outputs/polygon_cv_2.RData')
+save(cv2_output3, file = 'model_outputs/join_cv_2.RData')
 
+cv2_output1$summary$polygon_metrics
+cv2_output2$summary$polygon_metrics
+cv2_output3$summary$polygon_metrics
 
-
-
-# Write out data needed for final figures.
-
-
-
-
-
-
-
-
-
-
-
-
+cv2_output1$summary$pr_metrics
+cv2_output2$summary$pr_metrics
+cv2_output3$summary$pr_metrics
 
 
 
