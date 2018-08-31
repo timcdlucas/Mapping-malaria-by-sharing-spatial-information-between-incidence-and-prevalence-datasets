@@ -1,6 +1,6 @@
 
 
-run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, parallel_delay = 0, cores = 5){
+run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, parallel_delay = 0, cores = 5){
 
   stopifnot(inherits(cv_data, 'ppj_cv'))
 
@@ -35,7 +35,8 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, parallel_delay = 
     results[[i]] <- cv_performance(models[[i]]$predictions, 
                                    cv_data[[i]]$test, 
                                    models[[i]]$model,
-                                   use_points = model.args$use_points )
+                                   use_points = model.args$use_points,
+                                   CI = CI)
   }
   
   summary <- summarise_cv_results(results)
