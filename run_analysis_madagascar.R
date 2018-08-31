@@ -251,9 +251,9 @@ ggsave('figs/mdg_both_obspred_map_log.png')
 autoplot(cv2_output3, type = 'obs_preds', CI = TRUE)
 ggsave('figs/mdg_both_obspred.png')
 
-save(cv2_output1, file = 'model_outputs/mdg_points_cv_1.RData')
-save(cv2_output2, file = 'model_outputs/mdg_polygon_cv_1.RData')
-save(cv2_output3, file = 'model_outputs/mdg_join_cv_1.RData')
+save(cv2_output1, file = 'model_outputs/mdg_points_cv_2.RData')
+save(cv2_output2, file = 'model_outputs/mdg_polygon_cv_2.RData')
+save(cv2_output3, file = 'model_outputs/mdg_joint_cv_2.RData')
 
 cv2_output1$summary$polygon_metrics
 cv2_output2$summary$polygon_metrics
