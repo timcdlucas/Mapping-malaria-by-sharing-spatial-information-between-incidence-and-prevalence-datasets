@@ -13,7 +13,7 @@
 
 PR_path <- '~/timz/GBD2017/Processing/Stages/04b_PR_DB_Import_Export/Verified_Outputs/2018_02_15/pfpr_dump.csv'
 API_path <- '~/timz/GBD2017/Processing/Stages/04c_API_Data_Export/Checkpoint_Outputs/subnational.csv'
-pop_path <- '~/timz/GBD2017/Processing/Stages/03_Muster_Population_Figures/Verified_Outputs/Output_Pop_At_Risk_Pf_5K/ihme_corrected_frankenpop_All_Ages_3_2012_at_risk_pf.tif'
+pop_path <- '~/timz/GBD2017/Processing/Stages/03_Muster_Population_Figures/Verified_Outputs/Output_Pop_At_Risk_Pf_5K/ihme_corrected_frankenpop_All_Ages_3_2015_at_risk_pf.tif'
 shapefile_path = '~/timz/master_geometries/Admin_Units/Global/GBD/GBD2017_MAP/GBD2017_MAP_MG_5K/'
 
 cov_raster_paths <- c(
@@ -105,6 +105,8 @@ data <- load_data(PR_path,
                   pr_year = 2016,
                   api_year = 2015)
 
+#pr_year = 2013,
+#api_year = 2013)
 
 # madagascar
 
@@ -121,23 +123,24 @@ data_mdg <- process_data(
   shapefiles = data$shapefiles,
   pop_raster = data$pop,
   cov_rasters = data$covs,
+  useiso3 = 'MDG',
   transform = c(4:7))
 closeCluster(cl)
 
 autoplot(data_mdg)
 
-mesh_mdg <- build_mesh(data_mdg, mesh.args = list(max.edge = c(0.3, 5), cut = 0.3))
+mesh_mdg <- build_mesh(data_mdg, mesh.args = list(max.edge = c(0.2, 3), cut = 0.2, offset = c(2, 5)))
 
-data_cv1_mdg <- cv_folds(data_mdg, k = 3)
-autoplot(data_cv1_mdg, jitter = 0.2)
+data_cv1_mdg <- cv_random_folds(data_mdg, k = 10)
+autoplot(data_cv1_mdg, jitter = 0)
 
 
 # run models
 # Run full model to get a handle on things.
 
-arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho = 27, log_kappa = -2.446
+arg_list <- list(prior_rho_min = 1, # 
                  prior_rho_prob = 0.00001, # Want p(rho < 3) = 0.0001 -> p(log_kappa < -0.058) = 0.0001
-                 prior_sigma_max = 1, # Want p(sd > 1) = 0.0001 (would explain most of prev).  Wnat mean(sd) = 0.001. Do at large rho (50).
+                 prior_sigma_max = 1, # Want p(sd > 1) = 0.0001 (would explain most of prev).
                  prior_sigma_prob = 0.00001,
                  prior_iideffect_sd_max = 0.05, 
                  # The difference between m_low_pf and LCI(pois(m_mean_pf)), then converted to inc rate, then to prev ranges around 0-0.025. 
@@ -150,17 +153,19 @@ arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho 
                  priorsd_intercept = 2,  # Indonesia has prev lowish. But want intercept to take whatever value it likes.
                  priormean_slope = 0, 
                  priorsd_slope = 0.4, # Explains between 0.004 and 0.27 prevalence. 1 covariate shouldn't explain between 0 and 0.6 (range of prev).
-                 use_polygons = 0,
+                 use_polygons = 1,
                  # use_polygons = 1,
                  use_points = 1)
 
-full_model <- fit_model(data_mdg, mesh_mdg, its = 600, model.args = arg_list)
+full_model <- fit_model(data_mdg, mesh_mdg, its = 400, model.args = arg_list)
 autoplot(full_model)
 plot(full_model, layer = 'api')
 
 in_sample <- cv_performance(predictions = full_model$predictions, 
                             holdout = data_mdg,
-                            model_params = full_model$model)
+                            model_params = full_model$model,
+                            CI = 0.8,
+                            use_points = arg_list$use_points)
 autoplot(in_sample, CI = TRUE)
 autoplot(in_sample, trans = 'log1p')
 
@@ -199,6 +204,9 @@ cv1_output3$summary$pr_metrics
 
 
 
+data_cv2_mdg <- cv_spatial_folds(data_mdg, k = 3)
+autoplot(data_cv2_mdg, jitter = 0.0)
+ggsave('figs/idn_cv_spatial.png')
 
 
 

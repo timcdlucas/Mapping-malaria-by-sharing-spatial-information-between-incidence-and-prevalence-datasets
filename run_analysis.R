@@ -141,9 +141,9 @@ use_polygons <- 1
 # run models
 # Run full model to get a handle on things.
 
-arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho = 27, log_kappa = -2.446
-                 prior_rho_prob = 0.00001, # Want p(rho < 3) = 0.0001 -> p(log_kappa < -0.058) = 0.0001
-                 prior_sigma_max = 1, # Want p(sd > 1) = 0.0001 (would explain most of prev).  Wnat mean(sd) = 0.001. Do at large rho (50).
+arg_list <- list(prior_rho_min = 3, # 
+                 prior_rho_prob = 0.00001, # Want p(rho < 3) = 0.0001
+                 prior_sigma_max = 1, # Want p(sd > 1) = 0.0001 (would explain most of prev). 
                  prior_sigma_prob = 0.00001,
                  prior_iideffect_sd_max = 0.05, 
                  # The difference between m_low_pf and LCI(pois(m_mean_pf)), then converted to inc rate, then to prev ranges around 0-0.025. 
@@ -159,7 +159,7 @@ arg_list <- list(prior_rho_min = 3, # Mean of two thirds the spatial range. rho 
                  use_polygons = use_polygons,
                  use_points = use_points)
 
-full_model <- fit_model(data_idn, mesh_idn, its = 700, model.args = arg_list)
+full_model <- fit_model(data_idn, mesh_idn, its = 1000, model.args = arg_list)
 autoplot(full_model)
 plot(full_model, layer = 'api')
 
