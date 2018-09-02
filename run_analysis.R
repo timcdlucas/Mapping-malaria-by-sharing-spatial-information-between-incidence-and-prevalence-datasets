@@ -134,7 +134,7 @@ data_cv1_idn <- cv_random_folds(data_idn, k = 10)
 autoplot(data_cv1_idn, jitter = 0.7)
 ggsave('figs/idn_cv_random.png')
 
-save(data_cv1_idn, file = 'model_outputs_cv_1.RData')
+save(data_cv1_idn, file = 'model_outputs/cv_1.RData')
 
 #autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 
@@ -269,7 +269,7 @@ cv1_output3$summary$pr_metrics
 data_cv2_idn <- cv_spatial_folds(data_idn, k = 7)
 # autoplot(data_cv2_idn, jitter = 0.7)
 ggsave('figs/idn_cv_spatial2.png')
-save(data_cv2_idn, file = 'model_outputs_cv_2.RData')
+save(data_cv2_idn, file = 'model_outputs/cv_2.RData')
 
 
 # Run 3 x models on cv2.
