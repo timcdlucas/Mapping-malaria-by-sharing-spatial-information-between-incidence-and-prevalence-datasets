@@ -103,7 +103,10 @@ process_data <- function(binomial_positive,
   # Extract covariates
   extracted <- NULL
   if(!skip_extract){
+    cl <- makeCluster(min(detectCores() - 1, 20))
+    registerDoParallel(cl)
     extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
+    stopCluster(cl)
   }
   
   cor_matrix <- cor(na.omit(extracted[, -c(1:3)]))
