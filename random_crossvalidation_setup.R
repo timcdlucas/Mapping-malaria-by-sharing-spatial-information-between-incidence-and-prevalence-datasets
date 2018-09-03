@@ -23,9 +23,9 @@ cv_random_folds <- function(data, k = 5){
     data_cv[[i]] <- subset_data_cv(data, folds, foldspr, i)
   }
   
-  any_empty <- sapply(seq_along(data_cv), function(x) object[[x]]$test$polygon %>% nrow) %>% 
+  any_empty <- sapply(seq_along(data_cv), function(x) data_cv[[x]]$test$polygon %>% nrow) %>% 
                  equals(0) %>% any
-  any_empty_pr <- sapply(seq_along(data_cv), function(x) object[[x]]$test$pr %>% nrow) %>% 
+  any_empty_pr <- sapply(seq_along(data_cv), function(x) data_cv[[x]]$test$pr %>% nrow) %>% 
     equals(0) %>% any
   
 
