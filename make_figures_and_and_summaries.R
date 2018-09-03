@@ -341,6 +341,16 @@ print(full_obs_pred_scatter)
 dev.off()
 
 
+
+pdf('figs/random_cv_scatter.pdf', height = 15, width = 11)
+print(full_obs_pred_scatter)
+dev.off()
+
+pdf('figs/spatial_cv_scatter.pdf', height = 15, width = 11)
+print(full_obs_pred_scatter)
+dev.off()
+
+
 # Fig 4 and 6
 
 
@@ -373,9 +383,31 @@ rm(cv2_polys_mdg)
 rm(cv2_both_mdg)
 gc()
 
+
+
+
+
 # Useful summary tables
 
+s <- "Incidence & Pearson & Indonesia & %s & %s &  0.3\\\n
+&& Madagascar & 0.1 & 0.2 &  0.3\\\n
+&& Senagal & 0.1 & 0.2 &  0.3\vspace{1mm\\ \n
+& Spearman & Indonesia & 0.1 & 0.2 &  0.3\\\n
+&& Madagascar & 0.1 & 0.2 &  0.3\\\n
+&& Senagal & 0.1 & 0.2 &  0.3\vspace{3mm \\ \n
+Prevalence & Pearson & Indonesia & 0.1 & 0.2 &  0.3\\\n
+&& Madagascar & 0.1 & 0.2 &  0.3\\\n
+&& Senagal & 0.1 & 0.2 &  0.3\vspace{1mm\\ \n
+& Spearman & Indonesia & 0.1 & 0.2 &  0.3\\\n
+&& Madagascar & 0.1 & 0.2 &  0.3\\\n
+&& Senagal & 0.1 & 0.2 &  0.3\\\n"
 
+r <- c(1, 2)
+sprintf(s, r[1], r[2])
+
+table1 <- do.call(sprintf, c(s, as.list(r)))
+
+write(tabl1, 'figs/table1.txt')
 
 
 
