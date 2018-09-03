@@ -28,6 +28,7 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, parall
     clusterEvalQ(NULL, library(raster))
     models <- parLapply(cl, seq_along(cv_data), par_fun)
     stopCluster(cl)
+    registerDoSEQ()
   }
   
 

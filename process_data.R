@@ -107,6 +107,7 @@ process_data <- function(binomial_positive,
     registerDoParallel(cl)
     extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
     stopCluster(cl)
+    registerDoSEQ()
   }
   
   cor_matrix <- cor(na.omit(extracted[, -c(1:3)]))
