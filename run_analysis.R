@@ -69,8 +69,6 @@ library(sparseMVN)
 # Parallel processing
 library(foreach)
 library(doParallel)
-cl <- makeCluster(min(detectCores() - 1, 20))
-registerDoParallel(cl)
 
 
 # load functions
@@ -266,8 +264,8 @@ cv1_output3$summary$pr_metrics
 
 
 # Spatial
-data_cv2_idn <- cv_spatial_folds(data_idn, k = 7)
-# autoplot(data_cv2_idn, jitter = 0.7)
+data_cv2_idn <- cv_spatial_folds(data_idn, k = 5)
+autoplot(data_cv2_idn, jitter = 0.7)
 ggsave('figs/idn_cv_spatial2.png')
 save(data_cv2_idn, file = 'model_outputs/cv_2.RData')
 

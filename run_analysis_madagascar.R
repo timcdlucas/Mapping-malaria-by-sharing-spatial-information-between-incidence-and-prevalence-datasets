@@ -70,9 +70,6 @@ library(sparseMVN)
 # Parallel processing
 library(foreach)
 library(doParallel)
-cl <- makeCluster(min(detectCores() - 1, 20))
-registerDoParallel(cl)
-
 
 # load functions
 
@@ -132,6 +129,8 @@ mesh_mdg <- build_mesh(data_mdg, mesh.args = list(max.edge = c(0.2, 3), cut = 0.
 
 data_cv1_mdg <- cv_random_folds(data_mdg, k = 10)
 autoplot(data_cv1_mdg, jitter = 0)
+save(data_cv1_mdg, file = 'model_outputs/mdg_cv_1.RData')
+
 
 
 # run models
@@ -216,6 +215,7 @@ cv1_output3$summary$pr_metrics
 # Run 3 x models with 3 x hyperpars on cv2 Spatial.
 
 data_cv2_mdg <- cv_spatial_folds(data_mdg, k = 3)
+save(data_cv2_mdg, file = 'model_outputs/mdg_cv_2.RData')
 autoplot(data_cv2_mdg, jitter = 0.0)
 ggsave('figs/idn_cv_spatial.png')
 
