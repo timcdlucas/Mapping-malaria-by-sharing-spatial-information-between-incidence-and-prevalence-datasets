@@ -9,8 +9,23 @@ setwd('~/timz/timothy/point_polygon_joint_comparison')
 
 # Libs
 
+## Spatial packages
+library(raster)
+library(maptools)
+library(rgeos)
+
+## dataframe packages
+library(dplyr)
+library(readr)
+library(magrittr)
+library(tidyr)
+
+library(malariaAtlas)
+
 library(ggplot2)
 library(cowplot)
+theme_set(theme_minimal())
+
 source('plotting_functions.R')
 
 # Paths
@@ -29,14 +44,14 @@ data_cv2_idn_path <- 'model_outputs/cv_2.RData'
 ### CV 1 output
 
 cv1_points_idn_path <- 'model_outputs/points_cv_1.RData'
-cv1_polys_idn_path <- 'model_outputs/polygons_cv_1.RData'
+cv1_polys_idn_path <- 'model_outputs/polygon_cv_1.RData'
 cv1_both_idn_path <- 'model_outputs/join_cv_1.RData'
 
 ### CV 2 output
 
-cv1_points_idn_path <- 'model_outputs/points_cv_1.RData'
-cv1_polys_idn_path <- 'model_outputs/polygons_cv_1.RData'
-cv1_both_idn_path <- 'model_outputs/join_cv_1.RData'
+cv2_points_idn_path <- 'model_outputs/points_cv_1.RData'
+cv2_polys_idn_path <- 'model_outputs/polygon_cv_1.RData'
+cv2_both_idn_path <- 'model_outputs/join_cv_1.RData'
 
 
 ## SEN
@@ -55,15 +70,15 @@ data_cv2_sen_path <- 'model_outputs/mdg_cv_2.RData'
 ### CV 1 output
 
 cv1_points_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv1_polys_sen_path <- 'model_outputs/mdg_polygon_cv_1.RData'
-cv1_both_sen_path <- 'model_outputs/mdg_join_cv_1.RData'
+cv1_polys_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
+cv1_both_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
 
 
 ### CV 2 output
 
-cv1_points_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv1_polys_sen_path <- 'model_outputs/mdg_polygon_cv_1.RData'
-cv1_both_sen_path <- 'model_outputs/mdg_join_cv_1.RData'
+cv2_points_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
+cv2_polys_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
+cv2_both_sen_path <- 'model_outputs/mdg_points_cv_1.RData' # todo
 
 
 
@@ -85,15 +100,15 @@ data_cv2_mdg_path <- 'model_outputs/mdg_cv_2.RData'
 ### CV 1 output
 
 cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv1_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_1.RData'
-cv1_both_mdg_path <- 'model_outputs/mdg_join_cv_1.RData'
+cv1_polys_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
+cv1_both_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
 
 
 ### CV 2 output
 
 cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv1_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_1.RData'
-cv1_both_mdg_path <- 'model_outputs/mdg_join_cv_1.RData'
+cv2_polys_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
+cv2_both_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
 
 
 # figure 1.cross validation. %% Do fig 1 and 2, random and spatial cv. IDN on top, MDG and SEN below in each.
@@ -104,12 +119,21 @@ data_cv1_idn <- get(load(data_cv1_idn_path))
 data_cv1_sen <- get(load(data_cv1_sen_path))
 data_cv1_mdg <- get(load(data_cv1_mdg_path))
 
+p1 <- autoplot(data_cv1_idn) + guides(fill = FALSE)
+p2 <- autoplot(data_cv1_sen) + guides(fill = FALSE)
+p3 <- autoplot(data_cv1_mdg) + guides(fill = FALSE)
 
+bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'))
 
-rm(data_cv1_idn)
-rm(data_cv1_sen)
+full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''))
+
+png('figs/random_crossvalidation_full.png', height = 1000, width = 1000)
+print(full_plot)
+dev.off()
+
 rm(data_cv1_mdg)
 gc()
+
 
 # Fig2
 data_cv2_idn <- get(load(data_cv2_idn_path))
@@ -117,8 +141,19 @@ data_cv2_sen <- get(load(data_cv2_sen_path))
 data_cv2_mdg <- get(load(data_cv2_mdg_path))
 
 
-rm(data_cv2_idn)
-rm(data_cv2_sen)
+
+p1 <- autoplot(data_cv2_idn) + guides(fill = FALSE)
+p2 <- autoplot(data_cv2_sen) + guides(fill = FALSE)
+p3 <- autoplot(data_cv2_mdg) + guides(fill = FALSE)
+
+bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'))
+
+full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''))
+
+png('figs/spatial_crossvalidation_full.png', height = 1000, width = 1000)
+print(full_plot)
+dev.off()
+
 rm(data_cv2_mdg)
 gc()
 
@@ -126,13 +161,20 @@ gc()
 
 # figure 3 data and predicted incidence maps. Indonesia only. Data, Rand, Spatial for best model? Joint model?
 
-full_data_idn <- get(load(full_data_idn_path))
+#full_data_idn <- get(load(full_data_idn_path))
 cv1_both_idn <- get(load(cv1_both_idn_path))
 cv2_both_idn <- get(load(cv2_both_idn_path))
 
 
+p1 <- obspred_map(data_cv1_idn, cv1_both_idn, trans = 'log1p')
+p2 <- obspred_map(data_cv2_idn, cv2_both_idn, trans = 'log1p')
 
 
+idn_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 1)
+
+png('figs/idn_both_cv12_preds.png', height = 1500, width = 1200)
+print(idn_preds_plot)
+dev.off()
 
 
 rm(full_data_idn)
@@ -142,10 +184,20 @@ gc()
 
 
 # figure 4 data and predicted incidence maps. Senegal only. Data, Rand, Spatial for best model? Joint model?
-
-full_data_sen <- get(load(full_data_sen_path))
+#full_data_sen <- get(load(full_data_sen_path))
 cv1_both_sen <- get(load(cv1_both_sen_path))
-cv2_both_sen<- get(load(cv2_both_sen_path))
+cv2_both_sen <- get(load(cv2_both_sen_path))
+
+
+p1 <- obspred_map(data_cv1_sen, cv1_both_sen, trans = 'log1p')
+p2 <- obspred_map(data_cv2_sen, cv2_both_sen, trans = 'log1p')
+
+# Todo! switch back to p1
+sen_preds_plot <- plot_grid(p2[[1]], p2[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 3)
+
+png('figs/sen_both_cv12_preds.png', height = 700, width = 1200)
+print(sen_preds_plot)
+dev.off()
 
 
 rm(full_data_sen)
@@ -153,16 +205,61 @@ rm(cv1_both_sen)
 rm(cv2_both_sen)
 gc()
 
-# figure 5, Spat and random cv. PR vs Poly columns, countries as rows, model as colour?
+
+# figure 5, random cv. PR vs Poly columns, countries as rows, model as colour?
 
 
 cv1_points_idn <- get(load(cv1_points_idn_path))
 cv1_polys_idn <- get(load(cv1_polys_idn_path))
 cv1_both_idn <- get(load(cv1_both_idn_path))
 
+idn_cv1_poly_df <- rbind(cv1_points_idn$summary$combined_aggregated %>% cbind(model = 'points'),
+                         cv1_polys_idn$summary$combined_aggregated %>% cbind(model = 'polygons'),
+                         cv1_both_idn$summary$combined_aggregated %>% cbind(model = 'both'))
+idn_cv1_pr_df <-  rbind(cv1_points_idn$summary$combined_pr %>% cbind(model = 'points'),
+                        cv1_polys_idn$summary$combined_pr %>% cbind(model = 'polygons'),
+                        cv1_both_idn$summary$combined_pr %>% cbind(model = 'both'))
+
+
+idn_cv1_metrics <- list(rbind(cv1_points_idn$summary$polygon_metrics %>% cbind(model = 'points'),
+                              cv1_polys_idn$summary$polygon_metrics %>% cbind(model = 'polygons'),
+                              cv1_both_idn$summary$polygon_metrics %>% cbind(model = 'both')),
+                        rbind(cv1_points_idn$summary$pr_metrics %>% cbind(model = 'points'),
+                              cv1_polys_idn$summary$pr_metrics %>% cbind(model = 'polygons'),
+                              cv1_both_idn$summary$pr_metrics %>% cbind(model = 'both')))
+
+rm(cv1_points_idn)
+rm(cv1_polys_idn)
+rm(cv1_both_idn)
+gc()
+
+
 cv1_points_sen <- get(load(cv1_points_sen_path))
 cv1_polys_sen <- get(load(cv1_polys_sen_path))
 cv1_both_sen <- get(load(cv1_both_sen_path))
+
+
+sen_cv1_poly_df <- rbind(cv1_points_sen$summary$combined_aggregated %>% cbind(model = 'points'),
+                         cv1_polys_sen$summary$combined_aggregated %>% cbind(model = 'polygons'),
+                         cv1_both_sen$summary$combined_aggregated %>% cbind(model = 'both'))
+sen_cv1_pr_df <-  rbind(cv1_points_sen$summary$combined_pr %>% cbind(model = 'points'),
+                        cv1_polys_sen$summary$combined_pr %>% cbind(model = 'polygons'),
+                        cv1_both_sen$summary$combined_pr %>% cbind(model = 'both'))
+
+sen_cv1_metrics <- list(rbind(cv1_points_sen$summary$polygon_metrics %>% cbind(model = 'points'),
+                              cv1_polys_sen$summary$polygon_metrics %>% cbind(model = 'polygons'),
+                              cv1_both_sen$summary$polygon_metrics %>% cbind(model = 'both')),
+                        rbind(cv1_points_sen$summary$pr_metrics %>% cbind(model = 'points'),
+                              cv1_polys_sen$summary$pr_metrics %>% cbind(model = 'polygons'),
+                              cv1_both_sen$summary$pr_metrics %>% cbind(model = 'both')))
+
+
+
+rm(cv1_points_sen)
+rm(cv1_polys_sen)
+rm(cv1_both_sen)
+gc()
+
 
 cv1_points_mdg <- get(load(cv1_points_mdg_path))
 cv1_polys_mdg <- get(load(cv1_polys_mdg_path))
@@ -170,20 +267,79 @@ cv1_both_mdg <- get(load(cv1_both_mdg_path))
 
 
 
+mdg_cv1_poly_df <- rbind(cv1_points_mdg$summary$combined_aggregated %>% cbind(model = 'points'),
+                         cv1_polys_mdg$summary$combined_aggregated %>% cbind(model = 'polygons'),
+                         cv1_both_mdg$summary$combined_aggregated %>% cbind(model = 'both'))
+mdg_cv1_pr_df <-  rbind(cv1_points_mdg$summary$combined_pr %>% cbind(model = 'points'),
+                        cv1_polys_mdg$summary$combined_pr %>% cbind(model = 'polygons'),
+                        cv1_both_mdg$summary$combined_pr %>% cbind(model = 'both'))
 
 
-rm(cv1_points_idn)
-rm(cv1_polys_idn)
-rm(cv1_both_idn)
 
-rm(cv1_points_sen)
-rm(cv1_polys_sen)
-rm(cv1_both_sen)
+mdg_cv1_metrics <- list(rbind(cv1_points_mdg$summary$polygon_metrics %>% cbind(model = 'points'),
+                              cv1_polys_mdg$summary$polygon_metrics %>% cbind(model = 'polygons'),
+                              cv1_both_mdg$summary$polygon_metrics %>% cbind(model = 'both')),
+                        rbind(cv1_points_mdg$summary$pr_metrics %>% cbind(model = 'points'),
+                              cv1_polys_mdg$summary$pr_metrics %>% cbind(model = 'polygons'),
+                              cv1_both_mdg$summary$pr_metrics %>% cbind(model = 'both')))
 
 rm(cv1_points_mdg)
 rm(cv1_polys_mdg)
 rm(cv1_both_mdg)
 gc()
+
+
+
+
+
+
+idn_poly <- ggplot(idn_cv1_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point() + 
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_log10() + 
+  scale_x_log10() +
+  guides(colour = FALSE)
+idn_points <- ggplot(idn_cv1_pr_df, aes(prevalence, pred_prev, colour = model)) + 
+  geom_point() + 
+  geom_abline(slope = 1, intercept = 0)  +
+  guides(colour = FALSE)
+
+sen_poly <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_jitter(width = 0.5, height = 0.5) + #todo
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_log10() + 
+  scale_x_log10() +
+  guides(colour = FALSE)
+sen_points <- ggplot(sen_cv1_pr_df, aes(prevalence, pred_prev, colour = model)) + 
+  geom_jitter(width = 0.02, height = 0.02) + #todo
+  geom_abline(slope = 1, intercept = 0)  +
+  guides(colour = FALSE)
+
+
+mdg_poly <- ggplot(mdg_cv1_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_jitter(width = 0.5, height = 0.5) + #todo
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_log10() + 
+  scale_x_log10() +
+  guides(colour = FALSE)
+mdg_points <- ggplot(mdg_cv1_pr_df, aes(prevalence, pred_prev, colour = model)) + 
+  geom_jitter(width = 0.02, height = 0.02) + #todo
+  geom_abline(slope = 1, intercept = 0)  +
+  guides(colour = FALSE)
+
+
+scatter_list <- list(idn_poly, idn_points, sen_poly, sen_points, mdg_poly, mdg_points)
+full_obs_pred_scatter <- plot_grid(plotlist = scatter_list,
+                                   labels = LETTERS[1:6], ncol = 2)
+
+png('figs/random_cv_scatter.png', height = 1500, width = 1100)
+print(full_obs_pred_scatter)
+dev.off()
+
+png('figs/spatial_cv_scatter.png', height = 1500, width = 700)
+print(full_obs_pred_scatter)
+dev.off()
+
 
 # Fig 4 and 6
 
@@ -218,3 +374,9 @@ rm(cv2_both_mdg)
 gc()
 
 # Useful summary tables
+
+
+
+
+
+# Further SI figures.
