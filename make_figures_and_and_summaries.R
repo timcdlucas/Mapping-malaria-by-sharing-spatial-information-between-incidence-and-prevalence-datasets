@@ -160,6 +160,7 @@ gc()
 
 
 # figure 3 data and predicted incidence maps. Indonesia only. Data, Rand, Spatial for best model? Joint model?
+# todo add prevalence points
 
 #full_data_idn <- get(load(full_data_idn_path))
 cv1_both_idn <- get(load(cv1_both_idn_path))
@@ -388,27 +389,71 @@ gc()
 
 
 # Useful summary tables
+table1_skeleton <- 
+"Incidence & Pearson & Indonesia & %s & %s &  %s\\\\
+&& Senegal & %s & %s &  %s\\\\
+&& Madagascar & %s & %s &  %s\\vspace{1mm}\\\\
+& Spearman & Indonesia & %s & %s &  %s\\\\
+&& Senegal & %s & %s &  %s\\\\
+&& Madagascar & %s & %s &  %s\\vspace{3mm} \\\\
+Prevalence & Pearson & Indonesia & %s & %s &  %s\\\\
+&& Senegal & %s & %s &  %s\\\\
+&& Madagascar & %s & %s &  %s\\vspace{1mm}\\\\
+& Spearman & Indonesia & %s & %s &  %s\\\\\
+&& Senegal & %s & %s &  %s\\\\
+&& Madagascar & %s & %s &  %s\\\\"
 
-s <- "Incidence & Pearson & Indonesia & %s & %s &  0.3\\\n
-&& Madagascar & 0.1 & 0.2 &  0.3\\\n
-&& Senagal & 0.1 & 0.2 &  0.3\vspace{1mm\\ \n
-& Spearman & Indonesia & 0.1 & 0.2 &  0.3\\\n
-&& Madagascar & 0.1 & 0.2 &  0.3\\\n
-&& Senagal & 0.1 & 0.2 &  0.3\vspace{3mm \\ \n
-Prevalence & Pearson & Indonesia & 0.1 & 0.2 &  0.3\\\n
-&& Madagascar & 0.1 & 0.2 &  0.3\\\n
-&& Senagal & 0.1 & 0.2 &  0.3\vspace{1mm\\ \n
-& Spearman & Indonesia & 0.1 & 0.2 &  0.3\\\n
-&& Madagascar & 0.1 & 0.2 &  0.3\\\n
-&& Senagal & 0.1 & 0.2 &  0.3\\\n"
+r <- c(idn_cv1_metrics[[1]]$pearson, sen_cv1_metrics[[1]]$pearson, mdg_cv1_metrics[[1]]$pearson,
+       idn_cv1_metrics[[1]]$spearman, sen_cv1_metrics[[1]]$spearman, mdg_cv1_metrics[[1]]$spearman,
+       idn_cv1_metrics[[2]]$pearson, sen_cv1_metrics[[2]]$pearson, mdg_cv1_metrics[[2]]$pearson,
+        idn_cv1_metrics[[2]]$spearman, sen_cv1_metrics[[2]]$spearman, mdg_cv1_metrics[[2]]$spearman)
 
-r <- c(1, 2)
-sprintf(s, r[1], r[2])
+r <- format(round(r, 2), nsmall = 2)
 
-table1 <- do.call(sprintf, c(s, as.list(r)))
+table1 <- do.call(sprintf, c(table1_skeleton, as.list(r)))
 
-write(tabl1, 'figs/table1.txt')
+write(table1, 'figs/table1.txt')
 
+
+
+
+r_spat <- c(idn_cv1_metrics[[1]]$pearson, sen_cv1_metrics[[1]]$pearson, mdg_cv1_metrics[[1]]$pearson,
+       idn_cv1_metrics[[1]]$spearman, sen_cv1_metrics[[1]]$spearman, mdg_cv1_metrics[[1]]$spearman,
+       idn_cv1_metrics[[2]]$pearson, sen_cv1_metrics[[2]]$pearson, mdg_cv1_metrics[[2]]$pearson,
+       idn_cv1_metrics[[2]]$spearman, sen_cv1_metrics[[2]]$spearman, mdg_cv1_metrics[[2]]$spearman)
+
+r_spat <- format(round(r_spat, 2), nsmall = 2)
+
+table2 <- do.call(sprintf, c(table1_skeleton, as.list(r_spat)))
+
+write(table2, 'figs/table2.txt')
+
+
+
+coverage_skeleton <-
+"Incidence & Random & Indonesia & %s & %s &  %s\\\\
+&& Senegal & %s & %s &  %s\\\\
+&& Madagascar & %s & %s &  %s\\vspace{1mm}\\\\
+& Spatial & Indonesia & %s & %s &  %s\\\\
+&& Senegal & %s & %s &  %s\\\\
+&& Madagascar & %s & %s &  %s\\vspace{3mm} \\\\
+Prevalence & Random & Indonesia & %s & %s &  %s\\\\
+&& Senegal & %s & %s &  %s\\\\
+&& Madagascar & %s & %s &  %s\\vspace{1mm}\\\\
+& Spatial & Indonesia & %s & %s &  %s\\\\\
+&& Senegal & %s & %s &  %s\\\\
+&& Madagascar & %s & %s &  %s\\\\"
+
+cov <- c(idn_cv1_metrics[[1]]$coverage, sen_cv1_metrics[[1]]$coverage, mdg_cv1_metrics[[1]]$coverage,
+            idn_cv1_metrics[[1]]$coverage, sen_cv1_metrics[[1]]$coverage, mdg_cv1_metrics[[1]]$coverage,
+            idn_cv1_metrics[[2]]$coverage, sen_cv1_metrics[[2]]$coverage, mdg_cv1_metrics[[2]]$coverage,
+            idn_cv1_metrics[[2]]$spearman, sen_cv1_metrics[[2]]$coverage, mdg_cv1_metrics[[2]]$coverage)
+
+cov <- format(round(cov, 2), nsmall = 2)
+
+table3 <- do.call(sprintf, c(coverage_skeleton, as.list(cov)))
+
+write(table3, 'figs/table3.txt')
 
 
 # Further SI figures.
