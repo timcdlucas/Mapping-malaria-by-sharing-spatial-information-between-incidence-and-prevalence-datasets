@@ -49,9 +49,9 @@ cv1_both_idn_path <- 'model_outputs/join_cv_1.RData'
 
 ### CV 2 output
 
-cv2_points_idn_path <- 'model_outputs/points_cv_1.RData'
-cv2_polys_idn_path <- 'model_outputs/polygon_cv_1.RData'
-cv2_both_idn_path <- 'model_outputs/join_cv_1.RData'
+cv2_points_idn_path <- 'model_outputs/points_cv_2.RData'
+cv2_polys_idn_path <- 'model_outputs/polygon_cv_2.RData'
+cv2_both_idn_path <- 'model_outputs/join_cv_2.RData'
 
 
 ## SEN
@@ -70,15 +70,15 @@ data_cv2_sen_path <- 'model_outputs/mdg_cv_2.RData'
 ### CV 1 output
 
 cv1_points_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv1_polys_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv1_both_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
+cv1_polys_sen_path <- 'model_outputs/mdg_polygon_cv_1.RData'
+cv1_both_sen_path <- 'model_outputs/mdg_join_cv_1.RData'
 
 
 ### CV 2 output
 
 cv2_points_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv2_polys_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv2_both_sen_path <- 'model_outputs/mdg_points_cv_1.RData' # todo
+cv2_polys_sen_path <- 'model_outputs/mdg_polygon_cv_1.RData'
+cv2_both_sen_path <- 'model_outputs/mdg_join_cv_1.RData' # todo
 
 
 
@@ -100,8 +100,8 @@ data_cv2_mdg_path <- 'model_outputs/mdg_cv_2.RData'
 ### CV 1 output
 
 cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv1_polys_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv1_both_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
+cv1_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_1.RData'
+cv1_both_mdg_path <- 'model_outputs/mdg_join_cv_1.RData'
 
 
 ### CV 2 output
@@ -337,17 +337,9 @@ png('figs/random_cv_scatter.png', height = 1500, width = 1100)
 print(full_obs_pred_scatter)
 dev.off()
 
-png('figs/spatial_cv_scatter.png', height = 1500, width = 700)
-print(full_obs_pred_scatter)
-dev.off()
-
 
 
 pdf('figs/random_cv_scatter.pdf', height = 15, width = 11)
-print(full_obs_pred_scatter)
-dev.off()
-
-pdf('figs/spatial_cv_scatter.pdf', height = 15, width = 11)
 print(full_obs_pred_scatter)
 dev.off()
 
@@ -359,9 +351,53 @@ cv2_points_idn <- get(load(cv2_points_idn_path))
 cv2_polys_idn <- get(load(cv2_polys_idn_path))
 cv2_both_idn <- get(load(cv2_both_idn_path))
 
+idn_cv2_poly_df <- rbind(cv2_points_idn$summary$combined_aggregated %>% cbind(model = 'points'),
+                         cv2_polys_idn$summary$combined_aggregated %>% cbind(model = 'polygons'),
+                         cv2_both_idn$summary$combined_aggregated %>% cbind(model = 'both'))
+idn_cv2_pr_df <-  rbind(cv2_points_idn$summary$combined_pr %>% cbind(model = 'points'),
+                        cv2_polys_idn$summary$combined_pr %>% cbind(model = 'polygons'),
+                        cv2_both_idn$summary$combined_pr %>% cbind(model = 'both'))
+
+
+idn_cv2_metrics <- list(rbind(cv2_points_idn$summary$polygon_metrics %>% cbind(model = 'points'),
+                              cv2_polys_idn$summary$polygon_metrics %>% cbind(model = 'polygons'),
+                              cv2_both_idn$summary$polygon_metrics %>% cbind(model = 'both')),
+                        rbind(cv2_points_idn$summary$pr_metrics %>% cbind(model = 'points'),
+                              cv2_polys_idn$summary$pr_metrics %>% cbind(model = 'polygons'),
+                              cv2_both_idn$summary$pr_metrics %>% cbind(model = 'both')))
+
+rm(cv2_points_idn)
+rm(cv2_polys_idn)
+rm(cv2_both_idn)
+gc()
+
+
 cv2_points_sen <- get(load(cv2_points_sen_path))
 cv2_polys_sen <- get(load(cv2_polys_sen_path))
 cv2_both_sen <- get(load(cv2_both_sen_path))
+
+
+sen_cv2_poly_df <- rbind(cv2_points_sen$summary$combined_aggregated %>% cbind(model = 'points'),
+                         cv2_polys_sen$summary$combined_aggregated %>% cbind(model = 'polygons'),
+                         cv2_both_sen$summary$combined_aggregated %>% cbind(model = 'both'))
+sen_cv2_pr_df <-  rbind(cv2_points_sen$summary$combined_pr %>% cbind(model = 'points'),
+                        cv2_polys_sen$summary$combined_pr %>% cbind(model = 'polygons'),
+                        cv2_both_sen$summary$combined_pr %>% cbind(model = 'both'))
+
+sen_cv2_metrics <- list(rbind(cv2_points_sen$summary$polygon_metrics %>% cbind(model = 'points'),
+                              cv2_polys_sen$summary$polygon_metrics %>% cbind(model = 'polygons'),
+                              cv2_both_sen$summary$polygon_metrics %>% cbind(model = 'both')),
+                        rbind(cv2_points_sen$summary$pr_metrics %>% cbind(model = 'points'),
+                              cv2_polys_sen$summary$pr_metrics %>% cbind(model = 'polygons'),
+                              cv2_both_sen$summary$pr_metrics %>% cbind(model = 'both')))
+
+
+
+rm(cv2_points_sen)
+rm(cv2_polys_sen)
+rm(cv2_both_sen)
+gc()
+
 
 cv2_points_mdg <- get(load(cv2_points_mdg_path))
 cv2_polys_mdg <- get(load(cv2_polys_mdg_path))
@@ -369,15 +405,21 @@ cv2_both_mdg <- get(load(cv2_both_mdg_path))
 
 
 
+mdg_cv2_poly_df <- rbind(cv2_points_mdg$summary$combined_aggregated %>% cbind(model = 'points'),
+                         cv2_polys_mdg$summary$combined_aggregated %>% cbind(model = 'polygons'),
+                         cv2_both_mdg$summary$combined_aggregated %>% cbind(model = 'both'))
+mdg_cv2_pr_df <-  rbind(cv2_points_mdg$summary$combined_pr %>% cbind(model = 'points'),
+                        cv2_polys_mdg$summary$combined_pr %>% cbind(model = 'polygons'),
+                        cv2_both_mdg$summary$combined_pr %>% cbind(model = 'both'))
 
 
-rm(cv2_points_idn)
-rm(cv2_polys_idn)
-rm(cv2_both_idn)
 
-rm(cv2_points_sen)
-rm(cv2_polys_sen)
-rm(cv2_both_sen)
+mdg_cv2_metrics <- list(rbind(cv2_points_mdg$summary$polygon_metrics %>% cbind(model = 'points'),
+                              cv2_polys_mdg$summary$polygon_metrics %>% cbind(model = 'polygons'),
+                              cv2_both_mdg$summary$polygon_metrics %>% cbind(model = 'both')),
+                        rbind(cv2_points_mdg$summary$pr_metrics %>% cbind(model = 'points'),
+                              cv2_polys_mdg$summary$pr_metrics %>% cbind(model = 'polygons'),
+                              cv2_both_mdg$summary$pr_metrics %>% cbind(model = 'both')))
 
 rm(cv2_points_mdg)
 rm(cv2_polys_mdg)
@@ -385,6 +427,57 @@ rm(cv2_both_mdg)
 gc()
 
 
+
+
+
+
+idn_poly <- ggplot(idn_cv2_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point() + 
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_log10() + 
+  scale_x_log10() +
+  guides(colour = FALSE)
+idn_points <- ggplot(idn_cv2_pr_df, aes(prevalence, pred_prev, colour = model)) + 
+  geom_point() + 
+  geom_abline(slope = 1, intercept = 0)  +
+  guides(colour = FALSE)
+
+sen_poly <- ggplot(sen_cv2_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_jitter(width = 0.5, height = 0.5) + #todo
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_log10() + 
+  scale_x_log10() +
+  guides(colour = FALSE)
+sen_points <- ggplot(sen_cv2_pr_df, aes(prevalence, pred_prev, colour = model)) + 
+  geom_jitter(width = 0.02, height = 0.02) + #todo
+  geom_abline(slope = 1, intercept = 0)  +
+  guides(colour = FALSE)
+
+
+mdg_poly <- ggplot(mdg_cv2_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_jitter(width = 0.5, height = 0.5) + #todo
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_log10() + 
+  scale_x_log10() +
+  guides(colour = FALSE)
+mdg_points <- ggplot(mdg_cv2_pr_df, aes(prevalence, pred_prev, colour = model)) + 
+  geom_jitter(width = 0.02, height = 0.02) + #todo
+  geom_abline(slope = 1, intercept = 0)  +
+  guides(colour = FALSE)
+
+
+scatter_list <- list(idn_poly, idn_points, sen_poly, sen_points, mdg_poly, mdg_points)
+full_obs_pred_scatter <- plot_grid(plotlist = scatter_list,
+                                   labels = LETTERS[1:6], ncol = 2)
+
+png('figs/spatial_cv_scatter.png', height = 1500, width = 700)
+print(full_obs_pred_scatter)
+dev.off()
+
+
+pdf('figs/spatial_cv_scatter.pdf', height = 15, width = 11)
+print(full_obs_pred_scatter)
+dev.off()
 
 
 
