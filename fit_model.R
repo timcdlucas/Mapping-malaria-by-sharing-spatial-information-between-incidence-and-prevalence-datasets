@@ -144,8 +144,26 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
     }
   )
   
-  # Soft check.
-  if(opt$convergence != 0) warning('Model did not converge.')
+  # Rerun if needed.
+  if(opt$convergence != 0){ 
+    warning('Model did not converge on first try.')
+    
+    opt <- tryCatch({
+      nlminb(obj$par + rnorm(length(obj$par)), obj$fn, obj$gr, 
+             control = list(iter.max = its, eval.max = 2*its, trace = 0))
+    },
+    error = function(e) {
+      cat(paste('Error in model. Stopping'))
+      return('error')
+    }
+    )
+    
+    # Soft check
+    if(opt$convergence != 0){ 
+      warning('Model did not converge on second try.')
+    }  
+    
+  } 
 
   sd_out <- sdreport(obj, getJointPrecision = TRUE)
   
