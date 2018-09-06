@@ -172,7 +172,7 @@ autoplot(in_sample, trans = 'log1p')
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv1_output1 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = 500)
+                      cores = 10, parallel_delay = 1500)
 obspred_map(data_cv1_mdg, cv1_output1, column = FALSE)
 ggsave('figs/mdg_points_only_obspred_map.png')
 obspred_map(data_cv1_mdg, cv1_output1, trans = 'log10', column = FALSE)
@@ -184,7 +184,7 @@ ggsave('figs/mdg_points_only_obspred.png')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = 500)
+                      cores = 10, parallel_delay = 1500)
 obspred_map(data_cv1_mdg, cv1_output2, column = FALSE)
 ggsave('figs/mdg_polygons_only_obspred_map.png')
 obspred_map(data_cv1_mdg, cv1_output2, trans = 'log10', column = FALSE)
@@ -196,7 +196,7 @@ ggsave('figs/mdg_polygons_only_obspred.png')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv1_output3 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = 500)
+                      cores = 10, parallel_delay = 1500)
 obspred_map(data_cv1_mdg, cv1_output3, column = FALSE)
 ggsave('figs/mdg_both_obspred_map.png')
 obspred_map(data_cv1_mdg, cv1_output3, trans = 'log10', column = FALSE)
