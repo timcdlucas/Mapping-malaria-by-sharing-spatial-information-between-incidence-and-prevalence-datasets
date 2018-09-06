@@ -139,7 +139,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
            control = list(iter.max = its, eval.max = 2*its, trace = 0))
     },
     error = function(e) {
-      cat(paste('Error in model. Stopping'))
+      cat('Error in model. Stopping')
       return('error')
     }
   )
@@ -151,11 +151,11 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
     opt <- tryCatch({
       nlminb(obj$par + rnorm(length(obj$par)), obj$fn, obj$gr, 
              control = list(iter.max = its, eval.max = 2*its, trace = 0))
-    },
-    error = function(e) {
-      cat(paste('Error in model. Stopping'))
-      return('error')
-    }
+      },
+      error = function(e) {
+        cat('Error in model. Stopping')
+        return('error')
+      }
     )
     
     # Soft check
@@ -165,12 +165,15 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
     
   } 
 
+  cat("Optimisation has finished. Now moving onto sdreport")
+  
   sd_out <- sdreport(obj, getJointPrecision = TRUE)
   
   # Check sdreport worked.
   if(anyNA(sd_out$cov.fixed) | anyNA(sd_out$jointPrecision)) stop('sdreport failed. NAs in fixed SDs or joinPrecision')
   
-  cat("Optimisation has finished. Now moving onto prediction.")
+  cat("Model fitting has finished. Now moving onto prediction.")
+  
   
   predictions <- predict_model(pars = obj$env$last.par.best, data, mesh, overlap)
   uncertainty <- predict_uncertainty(pars = obj$env$last.par.best, 
