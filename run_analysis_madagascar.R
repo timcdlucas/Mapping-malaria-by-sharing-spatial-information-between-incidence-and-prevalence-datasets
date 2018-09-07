@@ -168,6 +168,8 @@ in_sample <- cv_performance(predictions = full_model$predictions,
 autoplot(in_sample, CI = TRUE)
 autoplot(in_sample, trans = 'log1p')
 
+
+cat('Start cv1 model 1')
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv1_output1 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, 
@@ -181,6 +183,8 @@ autoplot(cv1_output1, type = 'obs_preds', CI = TRUE)
 ggsave('figs/mdg_points_only_obspred.png')
 
 
+
+cat('Start cv1 model 2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
@@ -193,6 +197,7 @@ autoplot(cv1_output2, type = 'obs_preds', CI = TRUE)
 ggsave('figs/mdg_polygons_only_obspred.png')
 
 
+cat('Start cv1 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv1_output3 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
@@ -221,12 +226,14 @@ cv1_output3$summary$pr_metrics
 
 # Run 3 x models with 3 x hyperpars on cv2 Spatial.
 
+cat('Start cv2')
 data_cv2_mdg <- cv_spatial_folds(data_mdg, k = 3)
 save(data_cv2_mdg, file = 'model_outputs/mdg_cv_2.RData')
 autoplot(data_cv2_mdg, jitter = 0.0)
 ggsave('figs/idn_cv_spatial.png')
 
 
+cat('Start cv2 model1')
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv2_output1 <- run_cv(data_cv2_mdg, mesh_mdg, its = 1000, 
@@ -239,6 +246,7 @@ autoplot(cv2_output1, type = 'obs_preds', CI = TRUE)
 ggsave('figs/mdg_points_only_obspred2.png')
 
 
+cat('Start cv2 model2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv2_output2 <- run_cv(data_cv2_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, parallel_delay = 500)
@@ -250,6 +258,7 @@ autoplot(cv2_output2, type = 'obs_preds', CI = TRUE)
 ggsave('figs/mdg_polygons_only_obspred2.png')
 
 
+cat('Start cv2 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv2_output3 <- run_cv(data_cv2_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, parallel_delay = 500)
