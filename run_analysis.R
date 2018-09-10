@@ -221,7 +221,8 @@ save(polygons_model, file = 'model_outputs/polygons_model_idn.RData')
 
 # Run 3 x models on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
-cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, 
+                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
 obspred_map(data_cv1_idn, cv1_output1, column = FALSE)
 ggsave('figs/idn_points_only_obspred_map.png')
 obspred_map(data_cv1_idn, cv1_output1, trans = 'log10', column = FALSE)
@@ -231,7 +232,8 @@ ggsave('figs/idn_points_only_obspred.png')
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
-cv1_output2 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+cv1_output2 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, 
+                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
 obspred_map(data_cv1_idn, cv1_output2, column = FALSE)
 ggsave('figs/idn_polygons_only_obspred_map.png')
 obspred_map(data_cv1_idn, cv1_output2, trans = 'log10', column = FALSE)
@@ -241,7 +243,8 @@ ggsave('figs/idn_polygons_only_obspred.png')
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
-cv1_output3 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+cv1_output3 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, 
+                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
 obspred_map(data_cv1_idn, cv1_output3, column = FALSE)
 ggsave('figs/idn_joint_obspred_map.png')
 obspred_map(data_cv1_idn, cv1_output3, trans = 'log10', column = FALSE)
@@ -273,7 +276,8 @@ save(data_cv2_idn, file = 'model_outputs/cv_2.RData')
 
 # Run 3 x models on cv2.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
-cv2_output1 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+cv2_output1 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, 
+                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
 obspred_map(data_cv2_idn, cv2_output1, column = FALSE)
 ggsave('figs/idn_points_only_obspred_map2.png')
 obspred_map(data_cv2_idn, cv2_output1, trans = 'log10', column = FALSE)
@@ -283,7 +287,8 @@ ggsave('figs/idn_points_only_obspred2.png')
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
-cv2_output2 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+cv2_output2 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, 
+                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
 obspred_map(data_cv2_idn, cv2_output2, column = FALSE)
 ggsave('figs/idn_polygons_only_obspred_map2.png')
 obspred_map(data_cv2_idn, cv2_output2, trans = 'log10', column = FALSE)
@@ -293,7 +298,8 @@ ggsave('figs/idn_polygons_only_obspred2.png')
 
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
-cv2_output3 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, model.args = arg_list, CI = 0.8, cores = 10)
+cv2_output3 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, 
+                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
 obspred_map(data_cv2_idn, cv2_output3, column = FALSE)
 ggsave('figs/idn_joint_obspred_map2.png')
 obspred_map(data_cv2_idn, cv2_output3, trans = 'log10', column = FALSE)
