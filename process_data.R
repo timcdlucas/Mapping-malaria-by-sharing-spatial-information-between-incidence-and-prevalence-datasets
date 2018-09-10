@@ -107,7 +107,7 @@ process_data <- function(binomial_positive,
     if(serial_extract){
       extracted <- raster::extract(stack(pop_raster, cov_rasters), shapefiles, cellnumbers = TRUE, df = TRUE)
       extracted[, 1] <- shapefiles$area_id[extracted[, 1]]
-      names(extracted)[1] <- 'area_id'
+      names(extracted)[1:2] <- c('area_id', 'cellid')
     } else {
       cl <- makeCluster(min(detectCores() - 1, 20))
       registerDoParallel(cl)
