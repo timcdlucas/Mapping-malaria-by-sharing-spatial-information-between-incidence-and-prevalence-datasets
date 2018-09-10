@@ -360,6 +360,7 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_po
   rasters <- stack(predictions$pop, predictions$incidence_count)
   names(rasters) <- c('population', 'incidence_count')
   
+  # extracted <- parallelExtract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
   extracted <- parallelExtract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
   
   # Calc pred incidence and API
