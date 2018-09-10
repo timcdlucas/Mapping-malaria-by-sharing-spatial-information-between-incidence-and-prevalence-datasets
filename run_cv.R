@@ -10,7 +10,7 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, parall
   #for(i in seq_along(cv_data)){
   par_fun <- function(i){  
     message('Fitting model: ', i)
-    Sys.sleep(runif(1, 0, parallel_delay))
+    Sys.sleep(parallel_delay * (i - 1))
     fit_model(cv_data[[i]]$train, mesh, its, model.args)
   }
   
