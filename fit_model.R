@@ -354,13 +354,25 @@ makeLinearPredictor <- function(pars, data, field_ras, shapefile_ras, shapefile_
 }
 
 
-cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_points){
+cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_points, serial_extract = TRUE){
 
   # Extract raster data
   rasters <- stack(predictions$pop, predictions$incidence_count)
   names(rasters) <- c('population', 'incidence_count')
   
-  extracted <- parallelExtract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
+  if(serial_extract){
+    extracted <- raster::extract(rasters, holdout$shapefiles, cellnumbers = TRUE, df = TRUE)
+    extracted[, 1] <- shapefiles$area_id[extracted[, 1]]
+    names(extracted)[1] <- 'area_id'
+  } else {
+    cl <- makeCluster(min(detectCores() - 1, 20))
+    registerDoParallel(cl)
+    extracted <- parallelExtract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
+    stopCluster(cl)
+    registerDoSEQ()
+  }
+  
+  # extracted <- parallelExtract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
   #extracted <- extract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
   
   # Calc pred incidence and API
@@ -395,8 +407,20 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_po
   rasters_real <- stack(predictions$pop, predictions$incidence_count_realisations)
   names(rasters_real)[1] <- 'population'
   
-  extracted_reals <- parallelExtract(rasters_real, 
-                               holdout$shapefiles, fun = NULL, id = 'area_id')
+  
+  if(serial_extract){
+    extracted_reals <- raster::extract(rasters_real, holdout$shapefiles, cellnumbers = TRUE, df = TRUE)
+    extracted_reals[, 1] <- shapefiles$area_id[extracted_reals[, 1]]
+    names(extracted_reals)[1] <- 'area_id'
+  } else {
+    cl <- makeCluster(min(detectCores() - 1, 20))
+    registerDoParallel(cl)
+    extracted_reals <- parallelExtract(rasters_real, 
+                                       holdout$shapefiles, fun = NULL, id = 'area_id')
+    stopCluster(cl)
+    registerDoSEQ()
+  }
+  
   
   #extracted_reals[, -c(1:3)] <- as.matrix(extracted_reals[, -c(1:3)]) * extracted_reals$population
   
