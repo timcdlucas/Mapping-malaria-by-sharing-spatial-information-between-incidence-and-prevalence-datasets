@@ -155,7 +155,8 @@ arg_list <- list(prior_rho_min = 1, #
                  use_polygons = 1,
                  # use_polygons = 1,
                  use_points = 1)
-if(false){
+
+if(FALSE){
 full_model <- fit_model(data_mdg, mesh_mdg, its = 400, model.args = arg_list)
 autoplot(full_model)
 plot(full_model, layer = 'api')

@@ -14,7 +14,7 @@ process_data <- function(binomial_positive,
                          na.rm = FALSE,
                          transform = NULL,
                          skip_extract = FALSE,
-                         serial_extract = TRUE){
+                         serial_extract = FALSE){
   
   
   stopifnot(inherits(shapefiles, 'SpatialPolygonsDataFrame'))

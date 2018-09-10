@@ -354,7 +354,7 @@ makeLinearPredictor <- function(pars, data, field_ras, shapefile_ras, shapefile_
 }
 
 
-cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_points, serial_extract = TRUE){
+cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_points, serial_extract = FALSE){
 
   # Extract raster data
   rasters <- stack(predictions$pop, predictions$incidence_count)
