@@ -155,7 +155,7 @@ arg_list <- list(prior_rho_min = 1, #
                  use_polygons = 1,
                  # use_polygons = 1,
                  use_points = 1)
-
+if(false){
 full_model <- fit_model(data_mdg, mesh_mdg, its = 400, model.args = arg_list)
 autoplot(full_model)
 plot(full_model, layer = 'api')
@@ -167,7 +167,7 @@ in_sample <- cv_performance(predictions = full_model$predictions,
                             use_points = arg_list$use_points)
 autoplot(in_sample, CI = TRUE)
 autoplot(in_sample, trans = 'log1p')
-
+}
 
 cat('Start cv1 model 1')
 # Run 3 x models with 3 x hyperpars on cv1.
