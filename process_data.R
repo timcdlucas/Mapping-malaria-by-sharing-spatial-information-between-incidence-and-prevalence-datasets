@@ -13,7 +13,8 @@ process_data <- function(binomial_positive,
                          useiso3,
                          na.rm = FALSE,
                          transform = NULL,
-                         skip_extract = FALSE){
+                         skip_extract = FALSE,
+                         serial_extract = TRUE){
   
   
   stopifnot(inherits(shapefiles, 'SpatialPolygonsDataFrame'))
@@ -103,11 +104,17 @@ process_data <- function(binomial_positive,
   # Extract covariates
   extracted <- NULL
   if(!skip_extract){
-    cl <- makeCluster(min(detectCores() - 1, 20))
-    registerDoParallel(cl)
-    extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
-    stopCluster(cl)
-    registerDoSEQ()
+    if(serial_extract){
+      extracted <- raster::extract(stack(pop_raster, cov_rasters), shapefiles, cellnumbers = TRUE, df = TRUE)
+      extracted[, 1] <- shapefiles$area_id[extracted[, 1]]
+      names(extracted)[1] <- 'area_id'
+    } else {
+      cl <- makeCluster(min(detectCores() - 1, 20))
+      registerDoParallel(cl)
+      extracted <- parallelExtract(stack(pop_raster, cov_rasters), shapefiles, fun = NULL, id = 'area_id')
+      stopCluster(cl)
+      registerDoSEQ()
+    }
   }
   
   cor_matrix <- cor(na.omit(extracted[, -c(1:3)]))
