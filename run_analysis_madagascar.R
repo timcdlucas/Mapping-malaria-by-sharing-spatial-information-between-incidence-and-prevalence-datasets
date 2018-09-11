@@ -264,7 +264,7 @@ ggsave('figs/mdg_both_obspred.png')
 
 save(cv1_output1, file = 'model_outputs/mdg_points_cv_1.RData')
 save(cv1_output2, file = 'model_outputs/mdg_polygon_cv_1.RData')
-save(cv1_output3, file = 'model_outputs/mdg_join_cv_1.RData')
+save(cv1_output3, file = 'model_outputs/mdg_joint_cv_1.RData')
 
 cv1_output1$summary$polygon_metrics
 cv1_output2$summary$polygon_metrics
