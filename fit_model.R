@@ -165,14 +165,14 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
     
   } 
 
-  cat("Optimisation has finished. Now moving onto sdreport")
+  cat("Optimisation has finished. Now moving onto sdreport.\n")
   
   sd_out <- sdreport(obj, getJointPrecision = TRUE)
   
   # Check sdreport worked.
   if(anyNA(sd_out$cov.fixed) | anyNA(sd_out$jointPrecision)) stop('sdreport failed. NAs in fixed SDs or joinPrecision')
   
-  cat("Model fitting has finished. Now moving onto prediction.")
+  cat("Model fitting has finished. Now moving onto prediction.\n")
   
   
   predictions <- predict_model(pars = obj$env$last.par.best, data, mesh, overlap)

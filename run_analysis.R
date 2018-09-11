@@ -163,7 +163,10 @@ arg_list <- list(prior_rho_min = 3, #
 if(FALSE){
 full_model <- fit_model(data_idn, mesh_idn, its = 1000, model.args = arg_list)
 autoplot(full_model)
+
+png('figs/full_model_in_sample_map.png')
 plot(full_model, layer = 'api')
+dev.off()
 
 in_sample <- cv_performance(predictions = full_model$predictions, 
                             holdout = data_idn,
@@ -181,7 +184,9 @@ save(full_model, file = 'model_outputs/full_model_idn.RData')
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 points_model <- fit_model(data_idn, mesh_idn, its = 1000, model.args = arg_list)
 autoplot(points_model)
+png('figs/points_model_in_sample_map.png')
 plot(points_model, layer = 'api')
+dev.off()
 
 points_in_sample <- cv_performance(predictions = points_model$predictions, 
                             holdout = data_idn,
@@ -202,7 +207,9 @@ save(points_model, file = 'model_outputs/points_model_idn.RData')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 polygons_model <- fit_model(data_idn, mesh_idn, its = 1000, model.args = arg_list)
 autoplot(polygons_model)
+png('figs/polygons_model_in_sample_map.png')
 plot(polygons_model, layer = 'api')
+dev.off()
 
 polygons_in_sample <- cv_performance(predictions = polygons_model$predictions, 
                                    holdout = data_idn,

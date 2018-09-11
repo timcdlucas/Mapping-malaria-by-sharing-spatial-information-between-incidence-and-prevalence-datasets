@@ -157,17 +157,69 @@ arg_list <- list(prior_rho_min = 1, #
                  use_points = 1)
 
 if(FALSE){
-full_model <- fit_model(data_mdg, mesh_mdg, its = 400, model.args = arg_list)
-autoplot(full_model)
-plot(full_model, layer = 'api')
-
-in_sample <- cv_performance(predictions = full_model$predictions, 
-                            holdout = data_mdg,
-                            model_params = full_model$model,
-                            CI = 0.8,
-                            use_points = arg_list$use_points)
-autoplot(in_sample, CI = TRUE)
-autoplot(in_sample, trans = 'log1p')
+  full_model <- fit_model(data_mdg, mesh_mdg, its = 1000, model.args = arg_list)
+  autoplot(full_model)
+  
+  png('figs/mdg_full_model_in_sample_map.png')
+  plot(full_model, layer = 'api')
+  dev.off()
+  
+  in_sample <- cv_performance(predictions = full_model$predictions, 
+                              holdout = data_mdg,
+                              model_params = full_model$model, 
+                              CI = 0.8,
+                              use_points = use_points)
+  autoplot(in_sample, CI = TRUE)
+  autoplot(in_sample, trans = 'log1p', CI = TRUE)
+  ggsave('figs/mdg_full_model_in_sample.png')
+  
+  save(full_model, file = 'model_outputs/full_model_mdg.RData')
+  
+  
+  
+  arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
+  points_model <- fit_model(data_mdg, mesh_mdg, its = 1000, model.args = arg_list)
+  autoplot(points_model)
+  png('figs/mdg_points_model_in_sample_map.png')
+  plot(points_model, layer = 'api')
+  dev.off()
+  
+  points_in_sample <- cv_performance(predictions = points_model$predictions, 
+                                     holdout = data_mdg,
+                                     model_params = points_model$model, 
+                                     CI = 0.8,
+                                     use_points = use_points)
+  autoplot(points_in_sample, CI = TRUE)
+  autoplot(points_in_sample, trans = 'log1p', CI = TRUE)
+  ggsave('figs/mdg_points_model_in_sample.png')
+  
+  
+  save(points_model, file = 'model_outputs/points_model_mdg.RData')
+  
+  
+  
+  
+  
+  arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
+  polygons_model <- fit_model(data_mdg, mesh_mdg, its = 1000, model.args = arg_list)
+  autoplot(polygons_model)
+  png('figs/mdg_polygons_model_in_sample_map.png')
+  plot(polygons_model, layer = 'api')
+  dev.off()
+  
+  polygons_in_sample <- cv_performance(predictions = polygons_model$predictions, 
+                                       holdout = data_mdg,
+                                       model_params = polygons_model$model, 
+                                       CI = 0.8,
+                                       use_points = FALSE)
+  autoplot(polygons_in_sample, CI = TRUE)
+  autoplot(polygons_in_sample, trans = 'log1p', CI = TRUE)
+  ggsave('figs/mdg_polygon_model_in_sample.png')
+  
+  save(polygons_model, file = 'model_outputs/polygons_model_mdg.RData')
+  
+  
+  
 }
 
 cat('Start cv1 model 1')
