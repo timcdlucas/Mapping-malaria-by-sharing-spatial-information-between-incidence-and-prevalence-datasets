@@ -76,9 +76,9 @@ cv1_both_sen_path <- 'model_outputs/mdg_join_cv_1.RData'
 
 ### CV 2 output
 
-cv2_points_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv2_polys_sen_path <- 'model_outputs/mdg_polygon_cv_1.RData'
-cv2_both_sen_path <- 'model_outputs/mdg_join_cv_1.RData' # todo
+cv2_points_sen_path <- 'model_outputs/mdg_points_cv_2.RData'
+cv2_polys_sen_path <- 'model_outputs/mdg_polygon_cv_2.RData'
+cv2_both_sen_path <- 'model_outputs/mdg_join_cv_2.RData' # todo
 
 
 
@@ -106,9 +106,9 @@ cv1_both_mdg_path <- 'model_outputs/mdg_join_cv_1.RData'
 
 ### CV 2 output
 
-cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv2_polys_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv2_both_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
+cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
+cv2_polys_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
+cv2_both_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
 
 
 # figure 1.cross validation. %% Do fig 1 and 2, random and spatial cv. IDN on top, MDG and SEN below in each.
@@ -483,7 +483,7 @@ dev.off()
 
 # Useful summary tables
 table1_skeleton <- 
-"Incidence & Pearson & Indonesia & %s & %s &  %s\\\\
+  "Incidence & Pearson & Indonesia & %s & %s &  %s\\\\
 && Senegal & %s & %s &  %s\\\\
 && Madagascar & %s & %s &  %s\\vspace{1mm}\\\\
 & Spearman & Indonesia & %s & %s &  %s\\\\
@@ -499,7 +499,7 @@ Prevalence & Pearson & Indonesia & %s & %s &  %s\\\\
 r <- c(idn_cv1_metrics[[1]]$pearson, sen_cv1_metrics[[1]]$pearson, mdg_cv1_metrics[[1]]$pearson,
        idn_cv1_metrics[[1]]$spearman, sen_cv1_metrics[[1]]$spearman, mdg_cv1_metrics[[1]]$spearman,
        idn_cv1_metrics[[2]]$pearson, sen_cv1_metrics[[2]]$pearson, mdg_cv1_metrics[[2]]$pearson,
-        idn_cv1_metrics[[2]]$spearman, sen_cv1_metrics[[2]]$spearman, mdg_cv1_metrics[[2]]$spearman)
+       idn_cv1_metrics[[2]]$spearman, sen_cv1_metrics[[2]]$spearman, mdg_cv1_metrics[[2]]$spearman)
 
 r <- format(round(r, 2), nsmall = 2)
 
@@ -511,9 +511,9 @@ write(table1, 'figs/table1.txt')
 
 
 r_spat <- c(idn_cv1_metrics[[1]]$pearson, sen_cv1_metrics[[1]]$pearson, mdg_cv1_metrics[[1]]$pearson,
-       idn_cv1_metrics[[1]]$spearman, sen_cv1_metrics[[1]]$spearman, mdg_cv1_metrics[[1]]$spearman,
-       idn_cv1_metrics[[2]]$pearson, sen_cv1_metrics[[2]]$pearson, mdg_cv1_metrics[[2]]$pearson,
-       idn_cv1_metrics[[2]]$spearman, sen_cv1_metrics[[2]]$spearman, mdg_cv1_metrics[[2]]$spearman)
+            idn_cv1_metrics[[1]]$spearman, sen_cv1_metrics[[1]]$spearman, mdg_cv1_metrics[[1]]$spearman,
+            idn_cv1_metrics[[2]]$pearson, sen_cv1_metrics[[2]]$pearson, mdg_cv1_metrics[[2]]$pearson,
+            idn_cv1_metrics[[2]]$spearman, sen_cv1_metrics[[2]]$spearman, mdg_cv1_metrics[[2]]$spearman)
 
 r_spat <- format(round(r_spat, 2), nsmall = 2)
 
@@ -524,7 +524,7 @@ write(table2, 'figs/table2.txt')
 
 
 coverage_skeleton <-
-"Incidence & Random & Indonesia & %s & %s &  %s\\\\
+  "Incidence & Random & Indonesia & %s & %s &  %s\\\\
 && Senegal & %s & %s &  %s\\\\
 && Madagascar & %s & %s &  %s\\vspace{1mm}\\\\
 & Spatial & Indonesia & %s & %s &  %s\\\\
@@ -538,9 +538,9 @@ Prevalence & Random & Indonesia & %s & %s &  %s\\\\
 && Madagascar & %s & %s &  %s\\\\"
 
 cov <- c(idn_cv1_metrics[[1]]$coverage, sen_cv1_metrics[[1]]$coverage, mdg_cv1_metrics[[1]]$coverage,
-            idn_cv1_metrics[[1]]$coverage, sen_cv1_metrics[[1]]$coverage, mdg_cv1_metrics[[1]]$coverage,
-            idn_cv1_metrics[[2]]$coverage, sen_cv1_metrics[[2]]$coverage, mdg_cv1_metrics[[2]]$coverage,
-            idn_cv1_metrics[[2]]$spearman, sen_cv1_metrics[[2]]$coverage, mdg_cv1_metrics[[2]]$coverage)
+         idn_cv1_metrics[[1]]$coverage, sen_cv1_metrics[[1]]$coverage, mdg_cv1_metrics[[1]]$coverage,
+         idn_cv1_metrics[[2]]$coverage, sen_cv1_metrics[[2]]$coverage, mdg_cv1_metrics[[2]]$coverage,
+         idn_cv1_metrics[[2]]$spearman, sen_cv1_metrics[[2]]$coverage, mdg_cv1_metrics[[2]]$coverage)
 
 cov <- format(round(cov, 2), nsmall = 2)
 
