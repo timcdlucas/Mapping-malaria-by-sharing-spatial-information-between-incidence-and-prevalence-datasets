@@ -49,7 +49,7 @@ library(GBDutils)
 
 ## Plotting packages
 library(ggplot2)
-#library(cowplot)
+library(cowplot)
 theme_set(theme_minimal())
 
 ##  Modelling packages
@@ -160,6 +160,7 @@ arg_list <- list(prior_rho_min = 3, #
                  use_polygons = use_polygons,
                  use_points = use_points)
 
+if(FALSE){
 full_model <- fit_model(data_idn, mesh_idn, its = 1000, model.args = arg_list)
 autoplot(full_model)
 plot(full_model, layer = 'api')
@@ -216,7 +217,7 @@ save(polygons_model, file = 'model_outputs/polygons_model_idn.RData')
 
 
 
-
+}
 
 
 # Run 3 x models on cv1.
