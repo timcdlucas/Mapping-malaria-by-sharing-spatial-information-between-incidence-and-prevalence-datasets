@@ -230,7 +230,7 @@ save(polygons_model, file = 'model_outputs/polygons_model_idn.RData')
 # Run 3 x models on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
+                      model.args = arg_list, CI = 0.8, parallel_delay = 400)
 obspred_map(data_cv1_idn, cv1_output1, column = FALSE)
 ggsave('figs/idn_points_only_obspred_map.png')
 obspred_map(data_cv1_idn, cv1_output1, trans = 'log10', column = FALSE)
