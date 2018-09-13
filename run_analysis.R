@@ -228,6 +228,8 @@ save(polygons_model, file = 'model_outputs/polygons_model_idn.RData')
 
 
 # Run 3 x models on cv1.
+cat('Start cv1 model 1')
+
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, 
                       model.args = arg_list, CI = 0.8, parallel_delay = 300, cores = 3)
@@ -238,6 +240,7 @@ ggsave('figs/idn_points_only_obspred_map_log.png')
 autoplot(cv1_output1, type = 'obs_preds', CI = TRUE)
 ggsave('figs/idn_points_only_obspred.png')
 
+cat('Start cv1 model 2')
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, 
@@ -249,6 +252,7 @@ ggsave('figs/idn_polygons_only_obspred_map_log.png')
 autoplot(cv1_output2, type = 'obs_preds', CI = TRUE)
 ggsave('figs/idn_polygons_only_obspred.png')
 
+cat('Start cv1 model 3')
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv1_output3 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, 
@@ -283,6 +287,8 @@ save(data_cv2_idn, file = 'model_outputs/cv_2.RData')
 
 
 # Run 3 x models on cv2.
+cat('Start cv2 model 1')
+
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv2_output1 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, 
                       model.args = arg_list, CI = 0.8, parallel_delay = 300, cores = 3)
@@ -293,6 +299,7 @@ ggsave('figs/idn_points_only_obspred_map_log2.png')
 autoplot(cv2_output1, type = 'obs_preds', CI = TRUE)
 ggsave('figs/idn_points_only_obspred2.png')
 
+cat('Start cv2 model 2')
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv2_output2 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, 
@@ -304,6 +311,7 @@ ggsave('figs/idn_polygons_only_obspred_map_log2.png')
 autoplot(cv2_output2, type = 'obs_preds', CI = TRUE)
 ggsave('figs/idn_polygons_only_obspred2.png')
 
+cat('Start cv2 model 3')
 
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv2_output3 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, 
