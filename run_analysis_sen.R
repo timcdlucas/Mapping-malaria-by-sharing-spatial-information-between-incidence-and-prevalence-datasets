@@ -12,13 +12,13 @@ setwd('~/timz/timothy/point_polygon_joint_comparison')
 # define paths
 
 PR_path <- '~/timz/GBD2017/Processing/Stages/04b_PR_DB_Import_Export/Verified_Outputs/2018_02_15/pfpr_dump.csv'
-API_path <- '~/timz/GBD2017/Processing/Stages/04c_API_Data_Export/Checkpoint_Outputs/subnational.csv'
+API_path <- 'model_outputs/synthetic_data.csv'
 pop_path <- '~/timz/GBD2017/Processing/Stages/03_Muster_Population_Figures/Verified_Outputs/Output_Pop_At_Risk_Pf_5K/ihme_corrected_frankenpop_All_Ages_3_2015_at_risk_pf.tif'
 shapefile_path = '~/timz/master_geometries/Admin_Units/Global/GBD/GBD2017_MAP/GBD2017_MAP_MG_5K/'
 
 cov_raster_paths <- c(
   '~/timz/mastergrids/MODIS_Global/MOD11A2_LST/LST_Day/5km/Synoptic/LST_Day.Synoptic.Overall.mean.5km.mean.tif',
-  '~/timz/mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/EVI/5km/Synoptic/EVI.Synoptic.Overall.mean.5km.mean.tif',
+  #'~/timz/mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/EVI/5km/Synoptic/EVI.Synoptic.Overall.mean.5km.mean.tif', todo
   '~/timz/mastergrids/Other_Global_Covariates/TemperatureSuitability/TSI_Pf_Dynamic/5km/Synoptic/TSI-Martens2-Pf.Synoptic.Overall.Mean.5km.Data.tif',
   '~/timz/GBD2017/Processing/Static_Covariates/MAP/other_rasters/accessibility/accessibility.5k.MEAN.tif',
   '~/timz/mastergrids/Other_Global_Covariates/Elevation/SRTM-Elevation/5km/Synoptic/SRTM_elevation.Synoptic.Overall.Data.5km.mean.tif',
@@ -98,7 +98,7 @@ data <- load_data(PR_path,
                   shapefile_path, 
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'SEN', 
-                  admin_unit_level = 'ADMIN1', # todo
+                  admin_unit_level = 'ADMIN2', # todo
                   pr_year = 2015,
                   api_year = 2015)
 
@@ -126,9 +126,9 @@ save(data_sen, file = 'model_outputs/sen_full_data.RData')
 
 autoplot(data_sen)
 
-mesh_sen <- build_mesh(data_sen, mesh.args = list(max.edge = c(0.1, 1), cut = 0.1, offset = c(2, 4)))
+mesh_sen <- build_mesh(data_sen, mesh.args = list(max.edge = c(0.1, 0.8), cut = 0.1, offset = c(2, 2)))
 
-data_cv1_sen <- cv_random_folds(data_sen, k = 3) # todo
+data_cv1_sen <- cv_random_folds(data_sen, k = 7) # todo
 autoplot(data_cv1_sen, jitter = 0)
 save(data_cv1_sen, file = 'model_outputs/sen_cv_1.RData')
 
@@ -283,7 +283,7 @@ cat('Start cv2')
 data_cv2_sen <- cv_spatial_folds(data_sen, k = 4)
 save(data_cv2_sen, file = 'model_outputs/sen_cv_2.RData')
 autoplot(data_cv2_sen, jitter = 0.0)
-ggsave('figs/idn_cv_spatial.png')
+ggsave('figs/sen_cv_spatial.png')
 
 
 cat('Start cv2 model1')
