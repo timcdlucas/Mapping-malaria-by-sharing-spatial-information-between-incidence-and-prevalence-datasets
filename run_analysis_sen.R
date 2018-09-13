@@ -120,15 +120,15 @@ data_sen <- process_data(
   shapefiles = data$shapefiles,
   pop_raster = data$pop,
   cov_rasters = data$covs,
-  useiso3 = 'sen',
+  useiso3 = 'SEN',
   transform = c(4:7))
 save(data_sen, file = 'model_outputs/sen_full_data.RData')
 
 autoplot(data_sen)
 
-mesh_sen <- build_mesh(data_sen, mesh.args = list(max.edge = c(0.2, 3), cut = 0.2, offset = c(2, 5)))
+mesh_sen <- build_mesh(data_sen, mesh.args = list(max.edge = c(0.1, 1), cut = 0.1, offset = c(2, 4)))
 
-data_cv1_sen <- cv_random_folds(data_sen, k = 10)
+data_cv1_sen <- cv_random_folds(data_sen, k = 3) # todo
 autoplot(data_cv1_sen, jitter = 0)
 save(data_cv1_sen, file = 'model_outputs/sen_cv_1.RData')
 
@@ -139,7 +139,7 @@ save(data_cv1_sen, file = 'model_outputs/sen_cv_1.RData')
 
 arg_list <- list(prior_rho_min = 1, # 
                  prior_rho_prob = 0.00001, # Want p(rho < 3) = 0.0001 -> p(log_kappa < -0.058) = 0.0001
-                 prior_sigma_max = 1, # Want p(sd > 1) = 0.0001 (would explain most of prev).
+                 prior_sigma_max = 0.5, # Want p(sd > 1) = 0.0001 (would explain most of prev).
                  prior_sigma_prob = 0.00001,
                  prior_iideffect_sd_max = 0.05, 
                  # The difference between m_low_pf and LCI(pois(m_mean_pf)), then converted to inc rate, then to prev ranges around 0-0.025. 
@@ -188,7 +188,7 @@ if(FALSE){
                                      holdout = data_sen,
                                      model_params = points_model$model, 
                                      CI = 0.8,
-                                     use_points = use_points)
+                                     use_points = TRUE)
   autoplot(points_in_sample, CI = TRUE)
   autoplot(points_in_sample, trans = 'log1p', CI = TRUE)
   ggsave('figs/sen_points_model_in_sample.png')
@@ -280,7 +280,7 @@ cv1_output3$summary$pr_metrics
 # Run 3 x models with 3 x hyperpars on cv2 Spatial.
 
 cat('Start cv2')
-data_cv2_sen <- cv_spatial_folds(data_sen, k = 3)
+data_cv2_sen <- cv_spatial_folds(data_sen, k = 4)
 save(data_cv2_sen, file = 'model_outputs/sen_cv_2.RData')
 autoplot(data_cv2_sen, jitter = 0.0)
 ggsave('figs/idn_cv_spatial.png')

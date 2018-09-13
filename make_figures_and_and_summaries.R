@@ -58,13 +58,13 @@ cv2_both_idn_path <- 'model_outputs/join_cv_2.RData'
 
 ### Full data object
 
-full_data_sen_path <- 'model_outputs/mdg_full_data.RData'
+full_data_sen_path <- 'model_outputs/sen_full_data.RData'
 
 
 ### Cross validation object
 
-data_cv1_sen_path <- 'model_outputs/mdg_cv_1.RData'
-data_cv2_sen_path <- 'model_outputs/mdg_cv_2.RData'
+data_cv1_sen_path <- 'model_outputs/sen_cv_1.RData'
+data_cv2_sen_path <- 'model_outputs/sen_cv_1.RData'
 
 
 ### CV 1 output
@@ -78,7 +78,7 @@ cv1_both_sen_path <- 'model_outputs/mdg_join_cv_1.RData'
 
 cv2_points_sen_path <- 'model_outputs/mdg_points_cv_2.RData'
 cv2_polys_sen_path <- 'model_outputs/mdg_polygon_cv_2.RData'
-cv2_both_sen_path <- 'model_outputs/mdg_join_cv_2.RData' # todo
+cv2_both_sen_path <- 'model_outputs/mdg_joint_cv_2.RData' # todo
 
 
 
@@ -106,7 +106,7 @@ cv1_both_mdg_path <- 'model_outputs/mdg_join_cv_1.RData'
 
 ### CV 2 output
 
-cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
+cv2_points_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
 cv2_polys_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
 cv2_both_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
 
