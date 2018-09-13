@@ -133,7 +133,7 @@ data_cv1_idn <- cv_random_folds(data_idn, k = 10)
 autoplot(data_cv1_idn, jitter = 0.7)
 ggsave('figs/idn_cv_random.png')
 
-save(data_cv1_idn, file = 'model_outputs/cv_1.RData')
+save(data_cv1_idn, file = 'model_outputs/idn_cv_1.RData')
 
 #autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 
@@ -265,9 +265,9 @@ autoplot(cv1_output3, type = 'obs_preds', CI = TRUE)
 ggsave('figs/idn_joint_obspred.png')
 
 
-save(cv1_output1, file = 'model_outputs/points_cv_1.RData')
-save(cv1_output2, file = 'model_outputs/polygon_cv_1.RData')
-save(cv1_output3, file = 'model_outputs/join_cv_1.RData')
+save(cv1_output1, file = 'model_outputs/idn_points_cv_1.RData')
+save(cv1_output2, file = 'model_outputs/idn_polygon_cv_1.RData')
+save(cv1_output3, file = 'model_outputs/idn_joint_cv_1.RData')
 
 cv1_output1$summary$polygon_metrics
 cv1_output2$summary$polygon_metrics
@@ -283,7 +283,7 @@ cv1_output3$summary$pr_metrics
 data_cv2_idn <- cv_spatial_folds(data_idn, k = 6)
 autoplot(data_cv2_idn, jitter = 0.7)
 ggsave('figs/idn_cv_spatial2.png')
-save(data_cv2_idn, file = 'model_outputs/cv_2.RData')
+save(data_cv2_idn, file = 'model_outputs/idn_cv_2.RData')
 
 
 # Run 3 x models on cv2.
@@ -324,9 +324,9 @@ autoplot(cv2_output3, type = 'obs_preds', CI = TRUE)
 ggsave('figs/idn_joint_obspred2.png')
 
 
-save(cv2_output1, file = 'model_outputs/points_cv_2.RData')
-save(cv2_output2, file = 'model_outputs/polygon_cv_2.RData')
-save(cv2_output3, file = 'model_outputs/join_cv_2.RData')
+save(cv2_output1, file = 'model_outputs/idn_points_cv_2.RData')
+save(cv2_output2, file = 'model_outputs/idn_polygon_cv_2.RData')
+save(cv2_output3, file = 'model_outputs/idn_joint_cv_2.RData')
 
 cv2_output1$summary$polygon_metrics
 cv2_output2$summary$polygon_metrics

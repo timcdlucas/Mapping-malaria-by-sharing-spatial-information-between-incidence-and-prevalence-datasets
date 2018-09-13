@@ -38,20 +38,20 @@ full_data_idn_path <- 'model_outputs/idn_full_data.RData'
 
 ### Cross validation object
 
-data_cv1_idn_path <- 'model_outputs/cv_1.RData'
-data_cv2_idn_path <- 'model_outputs/cv_2.RData'
+data_cv1_idn_path <- 'model_outputs/idn_cv_1.RData'
+data_cv2_idn_path <- 'model_outputs/idn_cv_2.RData'
 
 ### CV 1 output
 
-cv1_points_idn_path <- 'model_outputs/points_cv_1.RData'
-cv1_polys_idn_path <- 'model_outputs/polygon_cv_1.RData'
-cv1_both_idn_path <- 'model_outputs/join_cv_1.RData'
+cv1_points_idn_path <- 'model_outputs/idn_points_cv_1.RData'
+cv1_polys_idn_path <- 'model_outputs/idn_polygon_cv_1.RData'
+cv1_both_idn_path <- 'model_outputs/idn_joint_cv_1.RData'
 
 ### CV 2 output
 
-cv2_points_idn_path <- 'model_outputs/points_cv_2.RData'
-cv2_polys_idn_path <- 'model_outputs/polygon_cv_2.RData'
-cv2_both_idn_path <- 'model_outputs/join_cv_2.RData'
+cv2_points_idn_path <- 'model_outputs/idn_points_cv_2.RData'
+cv2_polys_idn_path <- 'model_outputs/idn_polygon_cv_2.RData'
+cv2_both_idn_path <- 'model_outputs/idn_joint_cv_2.RData'
 
 
 ## SEN
@@ -71,7 +71,7 @@ data_cv2_sen_path <- 'model_outputs/sen_cv_1.RData'
 
 cv1_points_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
 cv1_polys_sen_path <- 'model_outputs/mdg_polygon_cv_1.RData'
-cv1_both_sen_path <- 'model_outputs/mdg_join_cv_1.RData'
+cv1_both_sen_path <- 'model_outputs/mdg_joint_cv_1.RData'
 
 
 ### CV 2 output
@@ -101,14 +101,14 @@ data_cv2_mdg_path <- 'model_outputs/mdg_cv_2.RData'
 
 cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
 cv1_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_1.RData'
-cv1_both_mdg_path <- 'model_outputs/mdg_join_cv_1.RData'
+cv1_both_mdg_path <- 'model_outputs/mdg_joint_cv_1.RData'
 
 
 ### CV 2 output
 
-cv2_points_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
-cv2_polys_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
-cv2_both_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
+cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
+cv2_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_2.RData'
+cv2_both_mdg_path <- 'model_outputs/mdg_joint_cv_2.RData'
 
 
 # figure 1.cross validation. %% Do fig 1 and 2, random and spatial cv. IDN on top, MDG and SEN below in each.
