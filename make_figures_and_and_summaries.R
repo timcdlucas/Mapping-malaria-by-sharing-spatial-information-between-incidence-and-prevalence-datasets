@@ -4,8 +4,11 @@
 # figure 5, 6. Spat and random cv. PR vs Poly columns, countries as rows, model as colour?
 
 
-
-setwd('~/timz/timothy/point_polygon_joint_comparison')
+if(Sys.info()["user"] != 'anita'){
+  setwd('~/timz/timothy/point_polygon_joint_comparison')
+} else {
+  setwd('~/Z/users/anita/point_polygon_join_comparison_analysis')
+}
 
 # Libs
 
