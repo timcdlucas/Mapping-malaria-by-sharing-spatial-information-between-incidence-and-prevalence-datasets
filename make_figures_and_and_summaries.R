@@ -67,7 +67,7 @@ full_data_sen_path <- 'model_outputs/sen_full_data.RData'
 ### Cross validation object
 
 data_cv1_sen_path <- 'model_outputs/sen_cv_1.RData'
-data_cv2_sen_path <- 'model_outputs/sen_cv_1.RData'
+data_cv2_sen_path <- 'model_outputs/sen_cv_2.RData'
 
 
 ### CV 1 output
@@ -85,13 +85,12 @@ cv2_both_sen_path <- 'model_outputs/sen_joint_cv_2.RData' # todo
 
 
 
-
 ## MDG
 
 
 ### Full data object
 
-# full_data_mdg_path <- 'model_outputs/mdg_full_data.RData'
+full_data_mdg_path <- 'model_outputs/mdg_full_data.RData'
 
 
 ### Cross validation object
@@ -109,14 +108,14 @@ cv1_both_mdg_path <- 'model_outputs/mdg_joint_cv_1.RData'
 
 ### CV 2 output
 
-cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
+cv2_points_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
 cv2_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_2.RData'
 cv2_both_mdg_path <- 'model_outputs/mdg_joint_cv_2.RData'
 
 
 # figure 1.cross validation. %% Do fig 1 and 2, random and spatial cv. IDN on top, MDG and SEN below in each.
 
-# Fig1 
+# Fig 1 - random cross validation for each country
 # Load data
 data_cv1_idn <- get(load(data_cv1_idn_path))
 data_cv1_sen <- get(load(data_cv1_sen_path))
@@ -138,11 +137,10 @@ rm(data_cv1_mdg)
 gc()
 
 
-# Fig2
+# Fig 2 - spatial cross validation for each country
 data_cv2_idn <- get(load(data_cv2_idn_path))
 data_cv2_sen <- get(load(data_cv2_sen_path))
 data_cv2_mdg <- get(load(data_cv2_mdg_path))
-
 
 
 p1 <- autoplot(data_cv2_idn) + guides(fill = FALSE)
@@ -165,6 +163,7 @@ gc()
 # figure 3 data and predicted incidence maps. Indonesia only. Data, Rand, Spatial for best model? Joint model?
 # todo add prevalence points
 
+# Fig 3 - IDN: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
 #full_data_idn <- get(load(full_data_idn_path))
 cv1_both_idn <- get(load(cv1_both_idn_path))
 cv2_both_idn <- get(load(cv2_both_idn_path))
@@ -181,13 +180,15 @@ print(idn_preds_plot)
 dev.off()
 
 
-rm(full_data_idn)
+#rm(full_data_idn)
 rm(cv1_both_idn)
 rm(cv2_both_idn)
 gc()
 
 
 # figure 4 data and predicted incidence maps. Senegal only. Data, Rand, Spatial for best model? Joint model?
+
+# Fig 4 - SEN: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
 #full_data_sen <- get(load(full_data_sen_path))
 cv1_both_sen <- get(load(cv1_both_sen_path))
 cv2_both_sen <- get(load(cv2_both_sen_path))
@@ -204,7 +205,7 @@ print(sen_preds_plot)
 dev.off()
 
 
-rm(full_data_sen)
+#rm(full_data_sen)
 rm(cv1_both_sen)
 rm(cv2_both_sen)
 gc()
