@@ -269,7 +269,7 @@ ggsave('figs/sen_both_obspred.png')
 
 save(cv1_output1, file = 'model_outputs/sen_points_cv_1.RData')
 save(cv1_output2, file = 'model_outputs/sen_polygon_cv_1.RData')
-save(cv1_output3, file = 'model_outputs/sen_join_cv_1.RData')
+save(cv1_output3, file = 'model_outputs/sen_joint_cv_1.RData')
 
 cv1_output1$summary$polygon_metrics
 cv1_output2$summary$polygon_metrics
