@@ -72,16 +72,16 @@ data_cv2_sen_path <- 'model_outputs/sen_cv_1.RData'
 
 ### CV 1 output
 
-cv1_points_sen_path <- 'model_outputs/mdg_points_cv_1.RData'
-cv1_polys_sen_path <- 'model_outputs/mdg_polygon_cv_1.RData'
-cv1_both_sen_path <- 'model_outputs/mdg_joint_cv_1.RData'
+cv1_points_sen_path <- 'model_outputs/sen_points_cv_1.RData'
+cv1_polys_sen_path <- 'model_outputs/sen_polygon_cv_1.RData'
+cv1_both_sen_path <- 'model_outputs/sen_joint_cv_1.RData'
 
 
 ### CV 2 output
 
-cv2_points_sen_path <- 'model_outputs/mdg_points_cv_2.RData'
-cv2_polys_sen_path <- 'model_outputs/mdg_polygon_cv_2.RData'
-cv2_both_sen_path <- 'model_outputs/mdg_joint_cv_2.RData' # todo
+cv2_points_sen_path <- 'model_outputs/sen_points_cv_2.RData'
+cv2_polys_sen_path <- 'model_outputs/sen_polygon_cv_2.RData'
+cv2_both_sen_path <- 'model_outputs/sen_joint_cv_2.RData' # todo
 
 
 
