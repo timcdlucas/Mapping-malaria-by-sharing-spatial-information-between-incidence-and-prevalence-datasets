@@ -71,7 +71,9 @@ autoplot.ppj_cv <- function(object, jitter = 0.5, ...){
     geom_polygon() +
     geom_jitter(data = test_pr, aes(longitude, latitude, group = NULL), 
                 pch = 21,
-                height = jitter, width = jitter, show.legend = FALSE) +
+                height = jitter, width = jitter, 
+                show.legend = FALSE,
+                ...) +
     coord_equal() + 
     scale_fill_brewer(palette = 'Set3')
   
@@ -236,7 +238,9 @@ obspred_map <- function(cv_data,
                         layer = 'api', 
                         trans = 'identity', 
                         lims = NULL, 
-                        column = TRUE){
+                        column = TRUE,
+                        legend_title = 'response',
+                        ...){
   
   stopifnot(inherits(cv_data, 'ppj_cv'))
   stopifnot(inherits(cv_preds, 'ppf_cv_results'))
@@ -298,12 +302,20 @@ obspred_map <- function(cv_data,
   p <- ggplot(df, aes(long, lat, group = group, fill = response)) + 
          geom_polygon() +
          coord_equal() + 
-         scale_fill_viridis_c(trans = trans, limits = lims, oob = scales::squish)
+         scale_fill_viridis_c(trans = trans, 
+                              limits = lims, 
+                              oob = scales::squish, 
+                              name = legend_title,
+                              ...)
   
   p2 <- ggplot(r_df, aes(x, y, fill = z)) + 
           geom_raster() +
-          scale_fill_viridis_c(trans = trans, limits = lims, oob = scales::squish) +
-          coord_equal()
+          coord_equal() +
+          scale_fill_viridis_c(trans = trans, 
+                               limits = lims, 
+                               oob = scales::squish, 
+                               name = legend_title,
+                               ...)
   
   
   # Combine in cowplot?

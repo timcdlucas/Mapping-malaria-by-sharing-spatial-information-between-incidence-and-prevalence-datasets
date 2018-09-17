@@ -28,6 +28,8 @@ library(malariaAtlas)
 library(ggplot2)
 library(cowplot)
 theme_set(theme_minimal())
+theme_update(text = element_text(size = 10))
+
 
 source('plotting_functions.R')
 
@@ -121,15 +123,21 @@ data_cv1_idn <- get(load(data_cv1_idn_path))
 data_cv1_sen <- get(load(data_cv1_sen_path))
 data_cv1_mdg <- get(load(data_cv1_mdg_path))
 
-p1 <- autoplot(data_cv1_idn) + guides(fill = FALSE)
-p2 <- autoplot(data_cv1_sen) + guides(fill = FALSE)
-p3 <- autoplot(data_cv1_mdg) + guides(fill = FALSE)
+p1 <- autoplot(data_cv1_idn, jitter = 0, size = 0.7) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
+p2 <- autoplot(data_cv1_sen, jitter = 0, size = 0.7) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
+p3 <- autoplot(data_cv1_mdg, jitter = 0, size = 0.7) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
 
-bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'))
+bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'), rel_widths = c(0.6, 0.4))
 
-full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''))
+full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''), rel_heights = c(0.45, 0.55))
 
-png('figs/random_crossvalidation_full.png', height = 1000, width = 1000)
+png('figs/random_crossvalidation_full.png', height = 100, width = 100, unit = 'mm', res = 720)
 print(full_plot)
 dev.off()
 
@@ -143,15 +151,21 @@ data_cv2_sen <- get(load(data_cv2_sen_path))
 data_cv2_mdg <- get(load(data_cv2_mdg_path))
 
 
-p1 <- autoplot(data_cv2_idn) + guides(fill = FALSE)
-p2 <- autoplot(data_cv2_sen) + guides(fill = FALSE)
-p3 <- autoplot(data_cv2_mdg) + guides(fill = FALSE)
+p1 <- autoplot(data_cv2_idn, jitter = 0, size = 0.7) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
+p2 <- autoplot(data_cv2_sen, jitter = 0, size = 0.7) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
+p3 <- autoplot(data_cv2_mdg, jitter = 0, size = 0.7) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
 
-bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'))
+bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'), rel_widths = c(0.6, 0.4))
 
-full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''))
+full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''), rel_heights = c(0.45, 0.55))
 
-png('figs/spatial_crossvalidation_full.png', height = 1000, width = 1000)
+png('figs/spatial_crossvalidation_full.png', height = 100, width = 100, unit = 'mm', res = 720)
 print(full_plot)
 dev.off()
 
@@ -168,15 +182,31 @@ gc()
 cv1_both_idn <- get(load(cv1_both_idn_path))
 cv2_both_idn <- get(load(cv2_both_idn_path))
 
+xx= data_cv2_idn[1:3]
+class(xx) = 'ppj_cv' #todo
+p1 <- obspred_map(data_cv1_idn, cv1_both_idn, trans = 'log1p', 
+                  legend_title = 'API', 
+                  breaks = c(1, 10, 100, 300, 500))
+p2 <- obspred_map(xx, cv2_both_idn, trans = 'log1p', legend_title = 'API')
 
-p1 <- obspred_map(data_cv1_idn, cv1_both_idn, trans = 'log1p')
-p2 <- obspred_map(data_cv2_idn, cv2_both_idn, trans = 'log1p')
 
+panel1 <- p1[[1]] +
+  guides(fill = FALSE) + 
+  labs(x = '', y = '')
+panel2 <- p1[[2]] + 
+  guides(fill = FALSE) + 
+  labs(x = '', y = 'Latitude')
+panel3 <- p2[[2]] + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = '')
 
-idn_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 1)
+legend <- get_legend(p1[[1]])
 
-png('figs/idn_both_cv12_preds.png', height = 1500, width = 1200)
-print(idn_preds_plot)
+idn_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 1)
+full_plot <- plot_grid(idn_preds_plot, legend, ncol = 2, rel_widths = c(4, 1))
+
+png('figs/idn_both_cv12_preds.png', height = 130, width = 100, unit = 'mm', res = 720)
+print(full_plot)
 dev.off()
 
 
