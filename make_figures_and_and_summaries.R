@@ -224,14 +224,35 @@ cv1_both_sen <- get(load(cv1_both_sen_path))
 cv2_both_sen <- get(load(cv2_both_sen_path))
 
 
-p1 <- obspred_map(data_cv1_sen, cv1_both_sen, trans = 'log1p')
-p2 <- obspred_map(data_cv2_sen, cv2_both_sen, trans = 'log1p')
+p1 <- obspred_map(data_cv1_sen, cv1_both_sen, trans = 'log1p', 
+                  legend_title = 'API', 
+                  breaks = c(1, 10, 100, 300))
+p2 <- obspred_map(data_cv2_sen, cv2_both_sen, trans = 'log1p', legend_title = 'API')
 
-# Todo! switch back to p1
-sen_preds_plot <- plot_grid(p2[[1]], p2[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 3)
 
-png('figs/sen_both_cv12_preds.png', height = 700, width = 1200)
-print(sen_preds_plot)
+panel1 <- p1[[1]] +
+  guides(fill = FALSE) + 
+  labs(x = '', y = '') +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+panel2 <- p1[[2]] + 
+  guides(fill = FALSE) + 
+  labs(x = '', y = 'Latitude') +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+panel3 <- p2[[2]] + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = '')+
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+
+legend <- get_legend(p1[[1]])
+
+sen_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 1)
+full_plot <- plot_grid(sen_preds_plot, legend, ncol = 2, rel_widths = c(4, 1))
+
+
+
+
+png('figs/sen_both_cv12_preds.png', height = 150, width = 100, unit = 'mm', res = 720)
+print(full_plot)
 dev.off()
 
 
