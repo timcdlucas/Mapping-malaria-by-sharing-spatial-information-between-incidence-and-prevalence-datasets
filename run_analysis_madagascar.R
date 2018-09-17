@@ -103,11 +103,12 @@ data <- load_data(PR_path,
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'MDG', 
                   admin_unit_level = 'ADMIN3',
-                  pr_year = 2016,
-                  api_year = 2015)
+                  pr_year = 2013,
+                  api_year = 2013)
 
-#pr_year = 2013,
-#api_year = 2013)
+#test years
+#pr_year = 2016,
+#api_year = 2015)
 
 # madagascar
 
