@@ -98,10 +98,10 @@ data <- load_data(PR_path,
                   shapefile_path, 
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'IDN', 
-                  pr_year = 2008,
-                  api_year = 2014)
-                  # pr_year = 2010,
-                  # api_year = 2012)
+                  # pr_year = 2008,
+                  # api_year = 2014)
+                  pr_year = 2010,
+                  api_year = 2012)
 
 
 # indonesia
@@ -129,11 +129,21 @@ ggsave('figs/idn_input_data.png')
 mesh_idn <- build_mesh(data_idn, mesh.args = list(max.edge = c(0.5, 5), cut = 0.5))
 autoplot(mesh_idn)
 
+
+
+# Define cross validation strategies
 data_cv1_idn <- cv_random_folds(data_idn, k = 10)
 autoplot(data_cv1_idn, jitter = 0.7)
 ggsave('figs/idn_cv_random.png')
-
 save(data_cv1_idn, file = 'model_outputs/idn_cv_1.RData')
+
+
+# Spatial
+data_cv2_idn <- cv_spatial_folds(data_idn, k = 7)
+autoplot(data_cv2_idn, jitter = 0.7)
+ggsave('figs/idn_cv_spatial2.png')
+save(data_cv2_idn, file = 'model_outputs/idn_cv_2.RData')
+
 
 #autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 
@@ -278,12 +288,6 @@ cv1_output2$summary$pr_metrics
 cv1_output3$summary$pr_metrics
 
 
-
-# Spatial
-data_cv2_idn <- cv_spatial_folds(data_idn, k = 6)
-autoplot(data_cv2_idn, jitter = 0.7)
-ggsave('figs/idn_cv_spatial2.png')
-save(data_cv2_idn, file = 'model_outputs/idn_cv_2.RData')
 
 
 # Run 3 x models on cv2.
