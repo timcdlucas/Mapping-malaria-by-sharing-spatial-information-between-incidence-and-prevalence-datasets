@@ -129,11 +129,10 @@ bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'))
 
 full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''))
 
-png('figs/random_crossvalidation_full.png', height = 1000, width = 1000)
+png('figs/summaries/random_crossvalidation_full.png', height = 1000, width = 1000)
 print(full_plot)
 dev.off()
 
-rm(data_cv1_mdg)
 gc()
 
 
@@ -151,11 +150,10 @@ bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'))
 
 full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''))
 
-png('figs/spatial_crossvalidation_full.png', height = 1000, width = 1000)
+png('figs/summaries/spatial_crossvalidation_full.png', height = 1000, width = 1000)
 print(full_plot)
 dev.off()
 
-rm(data_cv2_mdg)
 gc()
 
 
@@ -175,7 +173,7 @@ p2 <- obspred_map(data_cv2_idn, cv2_both_idn, trans = 'log1p')
 
 idn_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 1)
 
-png('figs/idn_both_cv12_preds.png', height = 1500, width = 1200)
+png('figs/summaries/idn_both_cv12_preds.png', height = 1500, width = 1200)
 print(idn_preds_plot)
 dev.off()
 
@@ -184,7 +182,6 @@ dev.off()
 rm(cv1_both_idn)
 rm(cv2_both_idn)
 gc()
-
 
 # figure 4 data and predicted incidence maps. Senegal only. Data, Rand, Spatial for best model? Joint model?
 
@@ -198,9 +195,9 @@ p1 <- obspred_map(data_cv1_sen, cv1_both_sen, trans = 'log1p')
 p2 <- obspred_map(data_cv2_sen, cv2_both_sen, trans = 'log1p')
 
 # Todo! switch back to p1
-sen_preds_plot <- plot_grid(p2[[1]], p2[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 3)
+sen_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 3)
 
-png('figs/sen_both_cv12_preds.png', height = 700, width = 1200)
+png('figs/summaries/sen_both_cv12_preds.png', height = 700, width = 1200)
 print(sen_preds_plot)
 dev.off()
 
@@ -211,7 +208,30 @@ rm(cv2_both_sen)
 gc()
 
 
-# figure 5, random cv. PR vs Poly columns, countries as rows, model as colour?
+# Fig 5 - MDG: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
+#full_data_mdg <- get(load(full_data_mdg_path))
+cv1_both_mdg <- get(load(cv1_both_mdg_path))
+cv2_both_mdg <- get(load(cv2_both_mdg_path))
+
+
+p1 <- obspred_map(data_cv1_mdg, cv1_both_mdg, trans = 'log1p')
+p2 <- obspred_map(data_cv2_mdg, cv2_both_mdg, trans = 'log1p')
+
+
+mdg_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 1)
+
+png('figs/summaries/mdg_both_cv12_preds.png', height = 1500, width = 1200)
+print(mdg_preds_plot)
+dev.off()
+
+
+#rm(full_data_mdg)
+rm(cv1_both_mdg)
+rm(cv2_both_mdg)
+gc()
+
+
+# figure 6, random cv. PR vs Poly columns, countries as rows, model as colour?
 
 
 cv1_points_idn <- get(load(cv1_points_idn_path))
@@ -337,13 +357,13 @@ scatter_list <- list(idn_poly, idn_points, sen_poly, sen_points, mdg_poly, mdg_p
 full_obs_pred_scatter <- plot_grid(plotlist = scatter_list,
                                    labels = LETTERS[1:6], ncol = 2)
 
-png('figs/random_cv_scatter.png', height = 1500, width = 1100)
+png('figs/summaries/random_cv_scatter.png', height = 1500, width = 1100)
 print(full_obs_pred_scatter)
 dev.off()
 
 
 
-pdf('figs/random_cv_scatter.pdf', height = 15, width = 11)
+pdf('figs/summaries/random_cv_scatter.pdf', height = 15, width = 11)
 print(full_obs_pred_scatter)
 dev.off()
 
@@ -474,12 +494,12 @@ scatter_list <- list(idn_poly, idn_points, sen_poly, sen_points, mdg_poly, mdg_p
 full_obs_pred_scatter <- plot_grid(plotlist = scatter_list,
                                    labels = LETTERS[1:6], ncol = 2)
 
-png('figs/spatial_cv_scatter.png', height = 1500, width = 700)
+png('figs/summaries/spatial_cv_scatter.png', height = 1500, width = 700)
 print(full_obs_pred_scatter)
 dev.off()
 
 
-pdf('figs/spatial_cv_scatter.pdf', height = 15, width = 11)
+pdf('figs/summaries/spatial_cv_scatter.pdf', height = 15, width = 11)
 print(full_obs_pred_scatter)
 dev.off()
 
@@ -509,7 +529,7 @@ r <- format(round(r, 2), nsmall = 2)
 
 table1 <- do.call(sprintf, c(table1_skeleton, as.list(r)))
 
-write(table1, 'figs/table1.txt')
+write(table1, 'figs/summaries/table1.txt')
 
 
 
@@ -523,7 +543,7 @@ r_spat <- format(round(r_spat, 2), nsmall = 2)
 
 table2 <- do.call(sprintf, c(table1_skeleton, as.list(r_spat)))
 
-write(table2, 'figs/table2.txt')
+write(table2, 'figs/summaries/table2.txt')
 
 
 
@@ -550,7 +570,7 @@ cov <- format(round(cov, 2), nsmall = 2)
 
 table3 <- do.call(sprintf, c(coverage_skeleton, as.list(cov)))
 
-write(table3, 'figs/table3.txt')
+write(table3, 'figs/summaries/table3.txt')
 
 
 # Further SI figures.
