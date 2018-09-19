@@ -142,7 +142,7 @@ arg_list <- list(prior_rho_min = 3, #
 data <- cv_data[[i]]$train
 
 
-model <- fit_model(data, mesh_idn, its = 30, model.args = arg_list)
+model <- fit_model(data, mesh_idn, its = 400, model.args = arg_list)
 #save(full_model, file = 'model_outputs/full_model_idn.RData')
 
 
