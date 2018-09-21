@@ -87,23 +87,34 @@ source('run_cv.R')
 source('random_crossvalidation_setup.R')
 source('spatial_crossvalidation_setup.R')
 source('plotting_functions.R')
+source('collate_seperate_cv_runs.R')
 
 # Compile the model
 compile("joint_model.cpp")
 
 set.seed(180530)
 
+arg_list <- list()
+
+# Load cv data
+
+load('model_outputs/idn_cv_1.RData')
+load('model_outputs/idn_cv_2.RData')
+
+
+
 
 
 # Run 3 x models on cv1.
 cat('Start cv1 model 1')
 
+
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 
 
 files1 <- paste0('model_outputs/idn-random-points-', 1:10, '.RData')
-cv1_output1 <- lapply(files1, function(x) get(load(x)))
-class(cv1_output1) <- c('ppf_cv_results', 'list')
+cv1_output1_list <- lapply(files1, function(x) get(load(x)))
+cv1_output1 <- collate(cv1_output1_list)
 
 # cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, 
 #                       model.args = arg_list, CI = 0.8, parallel_delay = 0, cores = 1)
