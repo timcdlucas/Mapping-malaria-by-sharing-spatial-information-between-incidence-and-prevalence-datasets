@@ -118,9 +118,9 @@ cv1_output1 <- collate(cv1_output1_list)
 
 # cv1_output1 <- run_cv(data_cv1_idn, mesh_idn, its = 1000, 
 #                       model.args = arg_list, CI = 0.8, parallel_delay = 0, cores = 1)
-obspred_map(data_cv1_idn, cv1_output1, column = FALSE)
+obspred_map(data_cv1_idn, cv1_output1, column = TRUE)
 ggsave('figs/idn_points_only_obspred_map.png')
-obspred_map(data_cv1_idn, cv1_output1, trans = 'log10', column = FALSE)
+obspred_map(data_cv1_idn, cv1_output1, trans = 'log10', column = TRUE)
 ggsave('figs/idn_points_only_obspred_map_log.png')
 autoplot(cv1_output1, type = 'obs_preds', CI = TRUE)
 ggsave('figs/idn_points_only_obspred.png')
@@ -128,13 +128,13 @@ ggsave('figs/idn_points_only_obspred.png')
 cat('Start cv1 model 2')
 
 files2 <- paste0('model_outputs/idn-random-polygons-', 1:10, '.RData')
-cv1_output2 <- lapply(files2, function(x) get(load(x)))
-class(cv1_output2) <- c('ppf_cv_results', 'list')
+cv1_output2_list <- lapply(files2, function(x) get(load(x)))
+cv1_output2 <- collate(cv1_output2_list)
 
 
-obspred_map(data_cv1_idn, cv1_output2, column = FALSE)
+obspred_map(data_cv1_idn, cv1_output2, column = TRUE)
 ggsave('figs/idn_polygons_only_obspred_map.png')
-obspred_map(data_cv1_idn, cv1_output2, trans = 'log10', column = FALSE)
+obspred_map(data_cv1_idn, cv1_output2, trans = 'log10', column = TRUE)
 ggsave('figs/idn_polygons_only_obspred_map_log.png')
 autoplot(cv1_output2, type = 'obs_preds', CI = TRUE)
 ggsave('figs/idn_polygons_only_obspred.png')
@@ -142,12 +142,12 @@ ggsave('figs/idn_polygons_only_obspred.png')
 cat('Start cv1 model 3')
 
 files3 <- paste0('model_outputs/idn-random-joint-', 1:10, '.RData')
-cv1_output3 <- lapply(files3, function(x) get(load(x)))
-class(cv1_output3) <- c('ppf_cv_results', 'list')
+cv1_output3_list <- lapply(files3, function(x) get(load(x)))
+cv1_output3 <- collate(cv1_output3_list)
 
-obspred_map(data_cv1_idn, cv1_output3, column = FALSE)
+obspred_map(data_cv1_idn, cv1_output3, column = TRUE)
 ggsave('figs/idn_joint_obspred_map.png')
-obspred_map(data_cv1_idn, cv1_output3, trans = 'log10', column = FALSE)
+obspred_map(data_cv1_idn, cv1_output3, trans = 'log10', column = TRUE)
 ggsave('figs/idn_joint_obspred_map_log.png')
 autoplot(cv1_output3, type = 'obs_preds', CI = TRUE)
 ggsave('figs/idn_joint_obspred.png')
@@ -171,9 +171,9 @@ cv1_output3$summary$pr_metrics
 # Run 3 x models on cv2.
 cat('Start cv2 model 1')
 
-files3 <- paste0('model_outputs/idn-spatial-points-', 1:7, '.RData')
-cv1_output3 <- lapply(files3, function(x) get(load(x)))
-class(cv1_output3) <- c('ppf_cv_results', 'list')
+files4 <- paste0('model_outputs/idn-spatial-points-', 1:7, '.RData')
+cv2_output1_list <- lapply(files4, function(x) get(load(x)))
+cv2_output1 <- collate(cv2_output1_list)
 
 obspred_map(data_cv2_idn, cv2_output1, column = FALSE)
 ggsave('figs/idn_points_only_obspred_map2.png')
@@ -184,9 +184,10 @@ ggsave('figs/idn_points_only_obspred2.png')
 
 cat('Start cv2 model 2')
 
-arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
-cv2_output2 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = 0, cores = 1)
+files5 <- paste0('model_outputs/idn-spatial-polygons-', 1:7, '.RData')
+cv2_output2_list <- lapply(files5, function(x) get(load(x)))
+cv2_output2 <- collate(cv2_output2_list)
+
 obspred_map(data_cv2_idn, cv2_output2, column = FALSE)
 ggsave('figs/idn_polygons_only_obspred_map2.png')
 obspred_map(data_cv2_idn, cv2_output2, trans = 'log10', column = FALSE)
@@ -196,9 +197,10 @@ ggsave('figs/idn_polygons_only_obspred2.png')
 
 cat('Start cv2 model 3')
 
-arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
-cv2_output3 <- run_cv(data_cv2_idn, mesh_idn, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = 0, cores = 1)
+files6 <- paste0('model_outputs/idn-spatial-joint-', 1:7, '.RData')
+cv2_output3_list <- lapply(files6, function(x) get(load(x)))
+cv2_output3 <- collate(cv2_output3_list)
+
 obspred_map(data_cv2_idn, cv2_output3, column = FALSE)
 ggsave('figs/idn_joint_obspred_map2.png')
 obspred_map(data_cv2_idn, cv2_output3, trans = 'log10', column = FALSE)
