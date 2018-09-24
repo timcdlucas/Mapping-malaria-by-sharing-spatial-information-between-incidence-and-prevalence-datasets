@@ -5,6 +5,16 @@ if [ $# -ne 2 ]; then
   exit 1
 fi
 
+if [[ "$1" != @(random|spatial) ]]; then
+  echo "cv_type must be random or spatial"
+  exit 1
+fi
+
+if [[ "$2" != @(points|polygons|joint) ]]; then
+  echo "model_type must be points, polygons or joint"
+  exit 1
+fi
+
 N=10
 
 for boot in {1..10}; do 
