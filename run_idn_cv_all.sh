@@ -8,7 +8,7 @@ do
    for j in "${model_type[@]}" 
    do
       echo "Run $i $j"
-      ./run_idn_cv_single.sh $i $j
+      ./run_idn_cv_single.sh $i $j &
    done
 done
 
