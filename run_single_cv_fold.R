@@ -153,8 +153,8 @@ results <- cv_performance(model$predictions,
                           CI = 0.8)
 
 
-summary <- summarise_cv_results(list(results))
-out <- list(summary = summary, models = model, results = results)
+#summary <- summarise_cv_results(list(results))
+out <- list(models = model, results = results)
 
 save(out, file = paste0('model_outputs/idn-', cv_type, '-', model_type, '-', i, '.RData'))
 
