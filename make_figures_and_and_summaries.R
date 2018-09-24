@@ -31,6 +31,10 @@ theme_set(theme_minimal())
 theme_update(text = element_text(size = 10))
 
 
+# Metrics 
+
+
+
 source('plotting_functions.R')
 
 # Paths
@@ -284,6 +288,10 @@ gc()
 
 # figure 6, random cv. PR vs Poly columns, countries as rows, model as colour?
 
+#################################################################################
+## Make model comparisons. Random CV.                                          ##
+#################################################################################
+
 
 cv1_points_idn <- get(load(cv1_points_idn_path))
 cv1_polys_idn <- get(load(cv1_polys_idn_path))
@@ -297,12 +305,31 @@ idn_cv1_pr_df <-  rbind(cv1_points_idn$summary$combined_pr %>% cbind(model = 'po
                         cv1_both_idn$summary$combined_pr %>% cbind(model = 'both'))
 
 
+idn_cv1_new_metrics <- 
+  rbind(cv1_points_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv1_polys_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv1_both_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+  )
+
+
+
+
 idn_cv1_metrics <- list(rbind(cv1_points_idn$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv1_polys_idn$summary$polygon_metrics %>% cbind(model = 'polygons'),
                               cv1_both_idn$summary$polygon_metrics %>% cbind(model = 'both')),
                         rbind(cv1_points_idn$summary$pr_metrics %>% cbind(model = 'points'),
                               cv1_polys_idn$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv1_both_idn$summary$pr_metrics %>% cbind(model = 'both')))
+idn_cv1_metrics[[2]] <- left_join(idn_cv1_metrics[[2]], idn_cv1_new_metrics)
 
 rm(cv1_points_idn)
 rm(cv1_polys_idn)
@@ -322,12 +349,31 @@ sen_cv1_pr_df <-  rbind(cv1_points_sen$summary$combined_pr %>% cbind(model = 'po
                         cv1_polys_sen$summary$combined_pr %>% cbind(model = 'polygons'),
                         cv1_both_sen$summary$combined_pr %>% cbind(model = 'both'))
 
+sen_cv1_new_metrics <- 
+  rbind(cv1_points_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv1_polys_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv1_both_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+  )
+
+
+
+
 sen_cv1_metrics <- list(rbind(cv1_points_sen$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv1_polys_sen$summary$polygon_metrics %>% cbind(model = 'polygons'),
                               cv1_both_sen$summary$polygon_metrics %>% cbind(model = 'both')),
                         rbind(cv1_points_sen$summary$pr_metrics %>% cbind(model = 'points'),
                               cv1_polys_sen$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv1_both_sen$summary$pr_metrics %>% cbind(model = 'both')))
+sen_cv1_metrics[[2]] <- left_join(sen_cv1_metrics[[2]], sen_cv1_new_metrics)
 
 
 
@@ -335,6 +381,7 @@ rm(cv1_points_sen)
 rm(cv1_polys_sen)
 rm(cv1_both_sen)
 gc()
+
 
 
 cv1_points_mdg <- get(load(cv1_points_mdg_path))
@@ -351,6 +398,23 @@ mdg_cv1_pr_df <-  rbind(cv1_points_mdg$summary$combined_pr %>% cbind(model = 'po
                         cv1_both_mdg$summary$combined_pr %>% cbind(model = 'both'))
 
 
+mdg_cv1_new_metrics <- 
+  rbind(cv1_points_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv1_polys_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv1_both_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+        )
+
+
+
 
 mdg_cv1_metrics <- list(rbind(cv1_points_mdg$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv1_polys_mdg$summary$polygon_metrics %>% cbind(model = 'polygons'),
@@ -358,6 +422,8 @@ mdg_cv1_metrics <- list(rbind(cv1_points_mdg$summary$polygon_metrics %>% cbind(m
                         rbind(cv1_points_mdg$summary$pr_metrics %>% cbind(model = 'points'),
                               cv1_polys_mdg$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv1_both_mdg$summary$pr_metrics %>% cbind(model = 'both')))
+mdg_cv1_metrics[[2]] <- left_join(mdg_cv1_metrics[[2]], mdg_cv1_new_metrics)
+
 
 rm(cv1_points_mdg)
 rm(cv1_polys_mdg)
@@ -420,7 +486,9 @@ dev.off()
 
 
 # Fig 4 and 6
-
+#################################################################################
+## Make model comparisons. Spatial CV.                                         ##
+#################################################################################
 
 cv2_points_idn <- get(load(cv2_points_idn_path))
 cv2_polys_idn <- get(load(cv2_polys_idn_path))
@@ -558,23 +626,15 @@ dev.off()
 
 # Useful summary tables
 table1_skeleton <- 
-  "Incidence & Pearson & Indonesia & %s & %s &  %s\\\\
-&& Senegal & %s & %s &  %s\\\\
-&& Madagascar & %s & %s &  %s\\vspace{1mm}\\\\
-& Spearman & Indonesia & %s & %s &  %s\\\\
-&& Senegal & %s & %s &  %s\\\\
-&& Madagascar & %s & %s &  %s\\vspace{3mm} \\\\
-Prevalence & Pearson & Indonesia & %s & %s &  %s\\\\
-&& Senegal & %s & %s &  %s\\\\
-&& Madagascar & %s & %s &  %s\\vspace{1mm}\\\\
-& Spearman & Indonesia & %s & %s &  %s\\\\\
-&& Senegal & %s & %s &  %s\\\\
-&& Madagascar & %s & %s &  %s\\\\"
+  "Incidence & Indonesia & %s & %s &  %s\\\\
+& Senegal & %s & %s &  %s\\\\
+& Madagascar & %s & %s &  %s\\vspace{3mm}\\\\
+Prevalence & Indonesia & %s & %s &  %s\\\\
+& Senegal & %s & %s &  %s\\\\
+& Madagascar & %s & %s &  %s\\\\"
 
-r <- c(idn_cv1_metrics[[1]]$pearson, sen_cv1_metrics[[1]]$pearson, mdg_cv1_metrics[[1]]$pearson,
-       idn_cv1_metrics[[1]]$spearman, sen_cv1_metrics[[1]]$spearman, mdg_cv1_metrics[[1]]$spearman,
-       idn_cv1_metrics[[2]]$pearson, sen_cv1_metrics[[2]]$pearson, mdg_cv1_metrics[[2]]$pearson,
-       idn_cv1_metrics[[2]]$spearman, sen_cv1_metrics[[2]]$spearman, mdg_cv1_metrics[[2]]$spearman)
+r <- c(idn_cv1_metrics[[1]]$MAE, sen_cv1_metrics[[1]]$MAE, mdg_cv1_metrics[[1]]$MAE,
+       idn_cv1_metrics[[2]]$weightMAE, sen_cv1_metrics[[2]]$weightMAE, mdg_cv1_metrics[[2]]$weightMAE)
 
 r <- format(round(r, 2), nsmall = 2)
 
