@@ -16,24 +16,24 @@ autoplot.ppj_data <- function(object, type = 'both', trans = 'identity', limits 
   df <- ggplot2::fortify(object$shapefiles, region = 'area_id')
   
   df <- object$shapefiles@data %>% 
-          mutate(area_id = as.character(area_id)) %>% 
-          left_join(df, ., by = c('id' = 'area_id'))
+    mutate(area_id = as.character(area_id)) %>% 
+    left_join(df, ., by = c('id' = 'area_id'))
   
   
   p <- ggplot(df, aes(long, lat, group = group, fill = response)) + 
-         geom_polygon() +
-         coord_equal() +
-         scale_fill_viridis_c(trans = trans, limits = limits, oob = scales::squish)
+    geom_polygon() +
+    coord_equal() +
+    scale_fill_viridis_c(trans = trans, limits = limits, oob = scales::squish)
   
   
   
   if(type == 'both'){
     p <- p + 
-           geom_point(data = object$pr, 
-                        aes(longitude, latitude, colour = positive / examined, 
-                            fill = NULL, group = NULL), 
-                        alpha = 0.8) +
-           scale_colour_viridis_c(trans = trans, limits = pr_limits, oob = scales::squish)
+      geom_point(data = object$pr, 
+                 aes(longitude, latitude, colour = positive / examined, 
+                     fill = NULL, group = NULL), 
+                 alpha = 0.8) +
+      scale_colour_viridis_c(trans = trans, limits = pr_limits, oob = scales::squish)
     
   }
   print(p)
@@ -46,15 +46,15 @@ autoplot.ppj_data <- function(object, type = 'both', trans = 'identity', limits 
 autoplot.ppj_cv <- function(object, jitter = 0.5, ...){
   
   test_poly <- lapply(seq_along(object), 
-                        function(x) cbind(object[[x]]$test$shapefiles@data, fold = x)) %>% 
-                   do.call(rbind, .)
+                      function(x) cbind(object[[x]]$test$shapefiles@data, fold = x)) %>% 
+    do.call(rbind, .)
   
   test_shapes <- lapply(seq_along(object), 
                         function(x) object[[x]]$test$shapefiles) %>% 
     do.call(rbind, .)
   
   test_pr <- lapply(seq_along(object), 
-                        function(x) cbind(object[[x]]$test$pr, fold = x)) %>% 
+                    function(x) cbind(object[[x]]$test$pr, fold = x)) %>% 
     do.call(rbind, .)
   
   
@@ -106,13 +106,13 @@ autoplot.ppj_model <- function(object, skip_node_mean = TRUE, ...){
   if(!skip_node_mean) pars.df$parameter[pars.df$parameter_group == 'nodemean'] <- ''
   
   p <- ggplot() + 
-         geom_point(data = pars.df %>% dplyr::filter(parameter_group != 'nodemean'), 
-                    aes(x = value, y = parameter, colour = parameter_group)) +
-         geom_jitter(data = pars.df %>% dplyr::filter(parameter_group == 'nodemean'), 
-               aes(x = value, y = parameter, colour = parameter_group),
-               alpha = 0.6, width = 0) +
-         facet_wrap(~ parameter_group, scale = 'free') + 
-         scale_fill_brewer(palette = 'Set3')
+    geom_point(data = pars.df %>% dplyr::filter(parameter_group != 'nodemean'), 
+               aes(x = value, y = parameter, colour = parameter_group)) +
+    geom_jitter(data = pars.df %>% dplyr::filter(parameter_group == 'nodemean'), 
+                aes(x = value, y = parameter, colour = parameter_group),
+                alpha = 0.6, width = 0) +
+    facet_wrap(~ parameter_group, scale = 'free') + 
+    scale_fill_brewer(palette = 'Set3')
   print(p)
   return(p)
 }
@@ -142,12 +142,12 @@ autoplot.ppj_cv_performance <- function(object, trans = 'identity', CI = FALSE, 
   d <- rbind(polygon_clean, pr_clean)
   
   p <- ggplot(d, aes(observed, predicted)) + 
-         geom_abline(intercept = 0, slope = 1, linetype = 2) +
-         geom_point() + 
-         geom_smooth(method = 'lm', alpha = 0.15, size = 0.8, colour = 'steelblue') +
-         facet_wrap(~ data_type, scale = 'free') + 
-         scale_x_continuous(trans = trans) +
-         scale_y_continuous(trans = trans)
+    geom_abline(intercept = 0, slope = 1, linetype = 2) +
+    geom_point() + 
+    geom_smooth(method = 'lm', alpha = 0.15, size = 0.8, colour = 'steelblue') +
+    facet_wrap(~ data_type, scale = 'free') + 
+    scale_x_continuous(trans = trans) +
+    scale_y_continuous(trans = trans)
   
   if(CI) p <- p + geom_errorbar(aes(ymin = lower, ymax = upper), alpha = 0.3)
   
@@ -167,6 +167,7 @@ autoplot.ppf_cv_results <- function(object,
                                     layer = 'api', 
                                     fun = range,
                                     trans = 'identity',
+                                    CI = TRUE,
                                     ...){
   
   if(type == 'layers'){
@@ -174,25 +175,29 @@ autoplot.ppf_cv_results <- function(object,
   } else if (type == 'raster_summary') {
     p <- ppf_cv_results_raster_summary(object, layer, fun)
   } else if (type == 'obs_preds') {
-    p <- ppf_cv_results_obspreds(object, trans)
+    p <- ppf_cv_results_obspreds(object, trans, CI)
   } else {
     stop('Availale plot types are layers, raster_summary and obs_preds')
   }
   return(p)
 }
 
-ppf_cv_results_obspreds <- function(object, trans){
+ppf_cv_results_obspreds <- function(object, trans, CI = TRUE){
   
   pr <- object$summary$combined_pr
   polygon <- object$summary$combined_aggregated
   
   polygon_clean <- data_frame(data_type = 'polygon', 
                               predicted = polygon$pred_api,
-                              observed = polygon$response)
+                              observed = polygon$response,
+                              upper = polygon$pred_api_upper,
+                              lower = polygon$pred_api_lower)
   
   pr_clean = data_frame(data_type = 'point',
                         predicted = pr$pred_prev, 
-                        observed = pr$prevalence)
+                        observed = pr$prevalence,
+                        upper = pr$prevalence_upper,
+                        lower = pr$prevalence_lower)
   
   d <- rbind(polygon_clean, pr_clean)
   
@@ -203,6 +208,9 @@ ppf_cv_results_obspreds <- function(object, trans){
     facet_wrap(~ data_type, scale = 'free') + 
     scale_x_continuous(trans = trans) +
     scale_y_continuous(trans = trans)
+  
+  if(CI) p <- p + geom_errorbar(aes(ymin = lower, ymax = upper), alpha = 0.3)
+  
   print(p)
   return(p)
 }
@@ -271,8 +279,8 @@ obspred_map <- function(cv_data,
   
   # Create mosaiced predicted map
   r <- lapply(cv_preds$models, function(x) x$predictions[[layer]]) %>% 
-         do.call(stack, .) %>% 
-         mean
+    do.call(stack, .) %>% 
+    mean
   
   test_shapes@data <- test_poly
   
@@ -283,7 +291,7 @@ obspred_map <- function(cv_data,
   }
   
   r_df <- as.MAPraster(r)
-
+  
   # Find limits
   if(is.null(lims)){
     if(trans %in% c('log', 'log10')){
@@ -300,22 +308,22 @@ obspred_map <- function(cv_data,
   
   
   p <- ggplot(df, aes(long, lat, group = group, fill = response)) + 
-         geom_polygon() +
-         coord_equal() + 
-         scale_fill_viridis_c(trans = trans, 
-                              limits = lims, 
-                              oob = scales::squish, 
-                              name = legend_title,
-                              ...)
+    geom_polygon() +
+    coord_equal() + 
+    scale_fill_viridis_c(trans = trans, 
+                         limits = lims, 
+                         oob = scales::squish, 
+                         name = legend_title,
+                         ...)
   
   p2 <- ggplot(r_df, aes(x, y, fill = z)) + 
-          geom_raster() +
-          coord_equal() +
-          scale_fill_viridis_c(trans = trans, 
-                               limits = lims, 
-                               oob = scales::squish, 
-                               name = legend_title,
-                               ...)
+    geom_raster() +
+    coord_equal() +
+    scale_fill_viridis_c(trans = trans, 
+                         limits = lims, 
+                         oob = scales::squish, 
+                         name = legend_title,
+                         ...)
   
   
   # Combine in cowplot?
