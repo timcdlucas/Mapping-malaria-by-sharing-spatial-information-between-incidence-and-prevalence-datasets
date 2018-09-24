@@ -17,12 +17,15 @@ fi
 
 N=10
 
-for boot in {1..10}; do 
-Rscript run_single_cv_fold.R "$boot" "$1" "$2" & 
-  i=$(($boot % $N))
-if [ $i == 0 -o $boot == 100 ]; then
-wait
+if [ "$1" == "random" ]; then
+   END=10
+elif [ "$1" == "spatial" ]; then
+   END=7
 fi
+
+
+for fold in $(seq 1 $END); do 
+   Rscript run_single_cv_fold.R "$fold" "$1" "$2" & 
 done
 
 echo 'finished'
