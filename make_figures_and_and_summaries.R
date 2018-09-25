@@ -433,41 +433,64 @@ gc()
 
 
 
-
+a <- 0.2
+s <- 16
 
 idn_poly <- ggplot(idn_cv1_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point() + 
+  geom_point(alpha = a, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
-  guides(colour = FALSE)
-idn_points <- ggplot(idn_cv1_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_point() + 
-  geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-sen_poly <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_jitter(width = 0.5, height = 0.5) + #todo
-  geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
-  guides(colour = FALSE)
-sen_points <- ggplot(sen_cv1_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_jitter(width = 0.02, height = 0.02) + #todo
+
+idn_points <- ggplot(idn_cv1_pr_df, aes(prevalence, pred_prev, colour = model, size = examined)) + 
+  geom_point(alpha = a, shape = s) + 
   geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
   guides(colour = FALSE)
+
+
+sen_poly <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
+  guides(colour = FALSE)
+
+sen_points <- sen_cv1_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
+    geom_point(alpha = a, shape = s) + 
+    geom_abline(slope = 1, intercept = 0)  +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
 
 
 mdg_poly <- ggplot(mdg_cv1_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_jitter(width = 0.5, height = 0.5) + #todo
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
-mdg_points <- ggplot(mdg_cv1_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_jitter(width = 0.02, height = 0.02) + #todo
-  geom_abline(slope = 1, intercept = 0)  +
-  guides(colour = FALSE)
+mdg_points <- mdg_cv1_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
+    geom_point(alpha = a, shape = s) + 
+    geom_abline(slope = 1, intercept = 0)  +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
 
 
 scatter_list <- list(idn_poly, idn_points, sen_poly, sen_points, mdg_poly, mdg_points)
@@ -502,12 +525,31 @@ idn_cv2_pr_df <-  rbind(cv2_points_idn$summary$combined_pr %>% cbind(model = 'po
                         cv2_both_idn$summary$combined_pr %>% cbind(model = 'both'))
 
 
+idn_cv2_new_metrics <- 
+  rbind(cv2_points_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv2_polys_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv2_both_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+  )
+
+
+
+
 idn_cv2_metrics <- list(rbind(cv2_points_idn$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv2_polys_idn$summary$polygon_metrics %>% cbind(model = 'polygons'),
                               cv2_both_idn$summary$polygon_metrics %>% cbind(model = 'both')),
                         rbind(cv2_points_idn$summary$pr_metrics %>% cbind(model = 'points'),
                               cv2_polys_idn$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv2_both_idn$summary$pr_metrics %>% cbind(model = 'both')))
+idn_cv2_metrics[[2]] <- left_join(idn_cv2_metrics[[2]], idn_cv2_new_metrics)
 
 rm(cv2_points_idn)
 rm(cv2_polys_idn)
@@ -527,12 +569,32 @@ sen_cv2_pr_df <-  rbind(cv2_points_sen$summary$combined_pr %>% cbind(model = 'po
                         cv2_polys_sen$summary$combined_pr %>% cbind(model = 'polygons'),
                         cv2_both_sen$summary$combined_pr %>% cbind(model = 'both'))
 
+
+sen_cv2_new_metrics <- 
+  rbind(cv2_points_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv2_polys_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv2_both_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+  )
+
+
+
+
 sen_cv2_metrics <- list(rbind(cv2_points_sen$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv2_polys_sen$summary$polygon_metrics %>% cbind(model = 'polygons'),
                               cv2_both_sen$summary$polygon_metrics %>% cbind(model = 'both')),
                         rbind(cv2_points_sen$summary$pr_metrics %>% cbind(model = 'points'),
                               cv2_polys_sen$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv2_both_sen$summary$pr_metrics %>% cbind(model = 'both')))
+sen_cv2_metrics[[2]] <- left_join(sen_cv2_metrics[[2]], sen_cv2_new_metrics)
 
 
 
@@ -556,6 +618,23 @@ mdg_cv2_pr_df <-  rbind(cv2_points_mdg$summary$combined_pr %>% cbind(model = 'po
                         cv2_both_mdg$summary$combined_pr %>% cbind(model = 'both'))
 
 
+mdg_cv2_new_metrics <- 
+  rbind(cv2_points_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv2_polys_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv2_both_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+  )
+
+
+
 
 mdg_cv2_metrics <- list(rbind(cv2_points_mdg$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv2_polys_mdg$summary$polygon_metrics %>% cbind(model = 'polygons'),
@@ -563,6 +642,7 @@ mdg_cv2_metrics <- list(rbind(cv2_points_mdg$summary$polygon_metrics %>% cbind(m
                         rbind(cv2_points_mdg$summary$pr_metrics %>% cbind(model = 'points'),
                               cv2_polys_mdg$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv2_both_mdg$summary$pr_metrics %>% cbind(model = 'both')))
+mdg_cv2_metrics[[2]] <- left_join(mdg_cv2_metrics[[2]], mdg_cv2_new_metrics)
 
 rm(cv2_points_mdg)
 rm(cv2_polys_mdg)
@@ -574,40 +654,65 @@ gc()
 
 
 
+
+a <- 0.2
+s <- 16
+
 idn_poly <- ggplot(idn_cv2_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point() + 
+  geom_point(alpha = a, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
-  guides(colour = FALSE)
-idn_points <- ggplot(idn_cv2_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_point() + 
-  geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-sen_poly <- ggplot(sen_cv2_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_jitter(width = 0.5, height = 0.5) + #todo
-  geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
-  guides(colour = FALSE)
-sen_points <- ggplot(sen_cv2_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_jitter(width = 0.02, height = 0.02) + #todo
+
+idn_points <- ggplot(idn_cv2_pr_df, aes(prevalence, pred_prev, colour = model, size = examined)) + 
+  geom_point(alpha = a, shape = s) + 
   geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+  guides(colour = FALSE)
+
+
+sen_poly <- ggplot(sen_cv2_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
+  guides(colour = FALSE)
+
+sen_points <- sen_cv2_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
+  geom_point(alpha = a, shape = s) + 
+  geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
   guides(colour = FALSE)
 
 
 mdg_poly <- ggplot(mdg_cv2_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_jitter(width = 0.5, height = 0.5) + #todo
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
-mdg_points <- ggplot(mdg_cv2_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_jitter(width = 0.02, height = 0.02) + #todo
+mdg_points <- mdg_cv2_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
+  geom_point(alpha = a, shape = s) + 
   geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
   guides(colour = FALSE)
-
 
 scatter_list <- list(idn_poly, idn_points, sen_poly, sen_points, mdg_poly, mdg_points)
 full_obs_pred_scatter <- plot_grid(plotlist = scatter_list,
@@ -636,7 +741,7 @@ Prevalence & Indonesia & %s & %s &  %s\\\\
 r <- c(idn_cv1_metrics[[1]]$MAE, sen_cv1_metrics[[1]]$MAE, mdg_cv1_metrics[[1]]$MAE,
        idn_cv1_metrics[[2]]$weightMAE, sen_cv1_metrics[[2]]$weightMAE, mdg_cv1_metrics[[2]]$weightMAE)
 
-r <- format(round(r, 2), nsmall = 2)
+r <- c(format(round(r[1:9], 2), nsmall = 2), format(round(r[10:18], 3), nsmall = 3))
 
 table1 <- do.call(sprintf, c(table1_skeleton, as.list(r)))
 
@@ -645,12 +750,10 @@ write(table1, 'figs/summaries/table1.txt')
 
 
 
-r_spat <- c(idn_cv2_metrics[[1]]$pearson, sen_cv2_metrics[[1]]$pearson, mdg_cv2_metrics[[1]]$pearson,
-            idn_cv2_metrics[[1]]$spearman, sen_cv2_metrics[[1]]$spearman, mdg_cv2_metrics[[1]]$spearman,
-            idn_cv2_metrics[[2]]$pearson, sen_cv2_metrics[[2]]$pearson, mdg_cv2_metrics[[2]]$pearson,
-            idn_cv2_metrics[[2]]$spearman, sen_cv2_metrics[[2]]$spearman, mdg_cv2_metrics[[2]]$spearman)
+r_spat <- c(idn_cv2_metrics[[1]]$MAE, sen_cv2_metrics[[1]]$MAE, mdg_cv2_metrics[[1]]$MAE,
+            idn_cv2_metrics[[2]]$weightMAE, sen_cv2_metrics[[2]]$weightMAE, mdg_cv2_metrics[[2]]$weightMAE)
 
-r_spat <- format(round(r_spat, 2), nsmall = 2)
+r_spat <- c(format(round(r_spat[1:9], 2), nsmall = 2), format(round(r_spat[10:18], 3), nsmall = 3))
 
 table2 <- do.call(sprintf, c(table1_skeleton, as.list(r_spat)))
 
