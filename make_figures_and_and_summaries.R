@@ -227,8 +227,12 @@ cv2_both_sen <- get(load(cv2_both_sen_path))
 
 p1 <- obspred_map(data_cv1_sen, cv1_both_sen, trans = 'log1p', 
                   legend_title = 'API', 
+                  mask = TRUE,
                   breaks = c(1, 10, 100, 300))
-p2 <- obspred_map(data_cv2_sen, cv2_both_sen, trans = 'log1p', legend_title = 'API')
+p2 <- obspred_map(data_cv2_sen, cv2_both_sen, 
+                  trans = 'log1p', 
+                  legend_title = 'API',
+                  mask = TRUE)
 
 
 panel1 <- p1[[1]] +

@@ -248,6 +248,7 @@ obspred_map <- function(cv_data,
                         lims = NULL, 
                         column = TRUE,
                         legend_title = 'response',
+                        mask = FALSE,
                         ...){
   
   stopifnot(inherits(cv_data, 'ppj_cv'))
@@ -281,6 +282,10 @@ obspred_map <- function(cv_data,
   r <- lapply(cv_preds$models, function(x) x$predictions[[layer]]) %>% 
     do.call(stack, .) %>% 
     mean
+  
+  if(mask){
+    r <- mask(r, test_shapes)
+  }
   
   test_shapes@data <- test_poly
   
