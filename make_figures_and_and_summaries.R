@@ -258,28 +258,28 @@ rm(cv1_both_sen)
 rm(cv2_both_sen)
 gc()
 
-# 
-# # Fig 5 - MDG: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
-# #full_data_mdg <- get(load(full_data_mdg_path))
-# cv1_both_mdg <- get(load(cv1_both_mdg_path))
-# cv2_both_mdg <- get(load(cv2_both_mdg_path))
-# 
-# 
-# p1 <- obspred_map(data_cv1_mdg, cv1_both_mdg, trans = 'log1p')
-# p2 <- obspred_map(data_cv2_mdg, cv2_both_mdg, trans = 'log1p')
-# 
-# 
-# mdg_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 1)
-# 
-# png('figs/summaries/mdg_both_cv12_preds.png', height = 1500, width = 1200)
-# print(mdg_preds_plot)
-# dev.off()
-# 
-# 
-# #rm(full_data_mdg)
-# rm(cv1_both_mdg)
-# rm(cv2_both_mdg)
-# gc()
+
+# Fig 5 - MDG: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
+#full_data_mdg <- get(load(full_data_mdg_path))
+cv1_both_mdg <- get(load(cv1_both_mdg_path))
+cv2_both_mdg <- get(load(cv2_both_mdg_path))
+
+
+p1 <- obspred_map(data_cv1_mdg, cv1_both_mdg, trans = 'log1p')
+p2 <- obspred_map(data_cv2_mdg, cv2_both_mdg, trans = 'log1p')
+
+
+mdg_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 1)
+
+png('figs/summaries/mdg_both_cv12_preds.png', height = 1500, width = 1200)
+print(mdg_preds_plot)
+dev.off()
+
+
+#rm(full_data_mdg)
+rm(cv1_both_mdg)
+rm(cv2_both_mdg)
+gc()
 
 
 # figure 6, random cv. PR vs Poly columns, countries as rows, model as colour?
