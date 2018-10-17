@@ -780,8 +780,8 @@ Prevalence & Random & Indonesia & %s & %s &  %s\\\\
 && Madagascar & %s & %s &  %s\\\\"
 
 cov <- c(idn_cv1_metrics[[1]]$coverage, sen_cv1_metrics[[1]]$coverage, mdg_cv1_metrics[[1]]$coverage,
-         idn_cv1_metrics[[1]]$coverage, sen_cv1_metrics[[1]]$coverage, mdg_cv1_metrics[[1]]$coverage,
-         idn_cv2_metrics[[2]]$coverage, sen_cv2_metrics[[2]]$coverage, mdg_cv2_metrics[[2]]$coverage,
+         idn_cv2_metrics[[1]]$coverage, sen_cv2_metrics[[1]]$coverage, mdg_cv2_metrics[[1]]$coverage,
+         idn_cv1_metrics[[2]]$coverage, sen_cv1_metrics[[2]]$coverage, mdg_cv1_metrics[[2]]$coverage,
          idn_cv2_metrics[[2]]$coverage, sen_cv2_metrics[[2]]$coverage, mdg_cv2_metrics[[2]]$coverage)
 
 cov <- format(round(cov, 2), nsmall = 2)
