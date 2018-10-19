@@ -105,7 +105,7 @@ data <- load_data(PR_path,
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'SEN', 
                   admin_unit_level = 'ADMIN2', # todo
-                  pr_year = 2015,
+                  pr_year = c(2008:2011),
                   api_year = 2009)
 
 #pr_year = 2013,
@@ -127,7 +127,7 @@ data_sen <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs,
   useiso3 = 'SEN',
-  transform = c(3:6))
+  transform = c(3,4,5,7))
 save(data_sen, file = 'model_outputs/sen_full_data.RData')
 
 autoplot(data_sen)
