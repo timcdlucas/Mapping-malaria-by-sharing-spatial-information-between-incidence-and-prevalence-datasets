@@ -23,17 +23,6 @@
 
 #include <TMB.hpp>
 
-// Define zero-inflated binomial likelihood
- template<class Type>
- inline Type dzibinom(const Type &x, const Type &size, const Type &p, const Type & zip,
-                     int give_log=0)
- {
-   Type logres;
-   if (x==Type(0)) logres=log(zip + (Type(1)-zip)*dbinom(x, size, p, false)); 
-   else logres=log(Type(1)-zip) + dbinom(x, size, p, true);
-   if (give_log) return logres; else return exp(logres);
- }
-
 template<class Type>
 Type objective_function<Type>::operator() () {
 
@@ -157,13 +146,6 @@ DATA_SCALAR(prior_rho_prob);
 DATA_SCALAR(prior_sigma_max);
 DATA_SCALAR(prior_sigma_prob);
 
-// Prior on ZIB model
-// Logit used to ensure than omega is between 0 and 1
-PARAMETER(logit_omega);
-Type omega = invlogit(logit_omega);
-DATA_SCALAR(priormean_omega);
-DATA_SCALAR(priorsd_omega);
-
 // Convert hyperparameters to natural scale
 // todo
 Type kappa = sqrt(8) / rho;
@@ -230,9 +212,6 @@ for(int p = 0; p < iideffect_pr.size(); p++) {
   nll -= dnorm(iideffect_pr[p], iideffect_pr_mean, iideffect_pr_sd, true);
 }
 
-// Likelihood of ZIP prior
-nll -= dnorm(omega, priormean_omega, priorsd_omega, true);
-
 // Likelihood of hyperparameters for field
 
 Type lambdatilde1 = -log(prior_rho_prob) * prior_rho_min;
@@ -285,11 +264,14 @@ vector<Type> reportnllpoint(pointn);
 for(int q = 0; q < pointn; q++){
   point_linear_pred[q] = point_linear_pred[q] + iideffect[pointtopolygonmap[q] - 1] + iideffect_pr[q]; // Check index of array
   point_linear_pred[q] = invlogit(point_linear_pred[q]);
-  nll -= point_weight * dzibinom(pointcases[q], pointtested[q], point_linear_pred[q], omega, true);
-  reportnllpoint[q] = -point_weight * dzibinom(pointcases[q], pointtested[q], point_linear_pred[q], omega, true);
+  nll -= point_weight * dbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
+  reportnllpoint[q] = -point_weight * dbinom(pointcases[q], pointtested[q], point_linear_pred[q], true);
 }
 REPORT(reportnllpoint);
 Type nll2 = nll;
+
+
+
 
 
 
