@@ -55,6 +55,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   priorsd_intercept = 2
   priormean_slope = 0 
   priorsd_slope = 0.4
+  priormean_omega = 0.6
+  priorsd_omega = 0.2
   use_polygons = 0
   use_points = 1
 
@@ -89,6 +91,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      iideffect_pr_log_tau = 1,
                      log_sigma = 0,
                      log_rho = 4,
+                     logit_omega = 0.4,
                      nodemean = rep(0, n_s))
 
   input_data <- list(x = cov_matrix, 
@@ -115,6 +118,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      priorsd_intercept = priorsd_intercept,
                      priormean_slope = priormean_slope, 
                      priorsd_slope = priorsd_slope,
+                     priormean_omega = priormean_omega,
+                     priorsd_omega = priorsd_omega,
                      use_polygons = use_polygons,
                      use_points = use_points)
   
