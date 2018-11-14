@@ -105,7 +105,7 @@ data <- load_data(PR_path,
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'SEN', 
                   admin_unit_level = 'ADMIN2', # todo
-                  pr_year = 2008,
+                  pr_year = c(2008:2011),
                   api_year = 2009)
 
 #pr_year = 2013,
@@ -127,7 +127,7 @@ data_sen <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs,
   useiso3 = 'SEN',
-  transform = c(3:6))
+  transform = c(3,4,5,7))
 save(data_sen, file = 'model_outputs/sen_full_data.RData')
 
 autoplot(data_sen)
@@ -228,12 +228,14 @@ if(FALSE){
   
 }
 
+delay <- 300
+
 cat('Start cv1 model 1')
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv1_output1 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = 200)
+                      cores = 10, parallel_delay = delay)
 obspred_map(data_cv1_sen, cv1_output1, column = FALSE)
 ggsave('figs/sen_points_only_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output1, trans = 'log10', column = FALSE)
@@ -247,7 +249,7 @@ cat('Start cv1 model 2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = 200)
+                      cores = 10, parallel_delay = delay)
 obspred_map(data_cv1_sen, cv1_output2, column = FALSE)
 ggsave('figs/sen_polygons_only_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output2, trans = 'log10', column = FALSE)
@@ -260,7 +262,7 @@ cat('Start cv1 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv1_output3 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = 200)
+                      cores = 10, parallel_delay = delay)
 obspred_map(data_cv1_sen, cv1_output3, column = FALSE)
 ggsave('figs/sen_both_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output3, trans = 'log10', column = FALSE)
@@ -296,7 +298,7 @@ cat('Start cv2 model1')
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv2_output1 <- run_cv(data_cv2_sen, mesh_sen, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
+                      model.args = arg_list, CI = 0.8, parallel_delay = delay)
 obspred_map(data_cv2_sen, cv2_output1, column = FALSE)
 ggsave('figs/sen_points_only_obspred_map2.png')
 obspred_map(data_cv2_sen, cv2_output1, trans = 'log10', column = FALSE)
@@ -308,7 +310,7 @@ ggsave('figs/sen_points_only_obspred2.png')
 cat('Start cv2 model2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv2_output2 <- run_cv(data_cv2_sen, mesh_sen, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
+                      model.args = arg_list, CI = 0.8, parallel_delay = delay)
 obspred_map(data_cv2_sen, cv2_output2, column = FALSE)
 ggsave('figs/sen_polygons_only_obspred_map2.png')
 obspred_map(data_cv2_sen, cv2_output2, trans = 'log10', column = FALSE)
@@ -320,7 +322,7 @@ ggsave('figs/sen_polygons_only_obspred2.png')
 cat('Start cv2 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv2_output3 <- run_cv(data_cv2_sen, mesh_sen, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
+                      model.args = arg_list, CI = 0.8, parallel_delay = delay)
 obspred_map(data_cv2_sen, cv2_output3, column = FALSE)
 ggsave('figs/sen_both_obspred_map2.png')
 obspred_map(data_cv2_sen, cv2_output3, trans = 'log10', column = FALSE)

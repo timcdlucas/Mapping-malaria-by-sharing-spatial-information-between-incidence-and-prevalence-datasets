@@ -6,5 +6,8 @@ Z <- function(path){
   } else {
     fullpath <- paste0( '~/Z/', path)
   }
+  if(Sys.info()["sysname"] == 'Windows'){
+    fullpath <- paste0( 'Z://', path)
+  }
   return(fullpath)
 }
