@@ -105,7 +105,7 @@ data <- load_data(PR_path,
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'SEN', 
                   admin_unit_level = 'ADMIN2', # todo
-                  pr_year = 2015,
+                  pr_year = 2008,
                   api_year = 2009)
 
 #pr_year = 2013,
