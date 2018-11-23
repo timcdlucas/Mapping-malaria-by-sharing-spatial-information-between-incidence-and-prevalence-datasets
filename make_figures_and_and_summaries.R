@@ -184,8 +184,8 @@ gc()
 cv1_both_idn <- get(load(cv1_both_idn_path))
 cv2_both_idn <- get(load(cv2_both_idn_path))
 
-xx= data_cv2_idn[1:3]
-class(xx) = 'ppj_cv' #todo
+#xx= data_cv2_idn[1:3]
+#class(xx) = 'ppj_cv' #todo
 p1 <- obspred_map(data_cv1_idn, cv1_both_idn, trans = 'log1p', 
                   legend_title = 'API', 
                   breaks = c(1, 10, 100, 300, 500))
@@ -437,7 +437,7 @@ gc()
 
 
 
-a <- 0.2
+a <- 0.5
 s <- 16
 
 idn_poly <- ggplot(idn_cv1_poly_df, aes(response, pred_api, colour = model)) + 
@@ -445,6 +445,16 @@ idn_poly <- ggplot(idn_cv1_poly_df, aes(response, pred_api, colour = model)) +
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
+  guides(colour = FALSE)
+
+idn_poly_facet <- ggplot(idn_cv1_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a, size = 3, shape = s) + 
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  facet_wrap(~model) + 
+  geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
@@ -497,17 +507,17 @@ idn_cv1_pr_df %>%
 
 
 idn_points5 <- 
-idn_cv1_pr_df %>% 
-  filter(positive > 2) %>% 
-  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
-    geom_point() +
-    geom_abline(slope = 1, intercept = 0)  +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
+  idn_cv1_pr_df %>% 
+    filter(positive > 5 | (positive == 0 & examined > 200)) %>% 
+    ggplot(., aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
+      geom_point(alpha = a, shape = s) +
+      geom_abline(slope = 1, intercept = 0)  +
+      #facet_wrap(~ model) +
+      geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+      scale_y_sqrt() + 
+      scale_x_sqrt() +
+      labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+      guides(colour = FALSE)
 
 
 idn_points6 <- 
@@ -524,6 +534,24 @@ idn_cv1_pr_df %>%
     guides(colour = FALSE)
 
 
+
+idn_points_facet <- 
+  idn_cv1_pr_df %>% 
+    filter(positive > 2 | (positive == 0 & examined > 200)) %>% 
+    ggplot(., aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
+      geom_point(alpha = a, shape = s) +
+      geom_abline(slope = 1, intercept = 0)  +
+      facet_wrap(~ model) +
+      geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+      scale_y_sqrt() + 
+      scale_x_sqrt() +
+      labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+      guides(colour = FALSE)
+
+
+
+
+
 sen_poly <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) + 
   geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
@@ -532,14 +560,38 @@ sen_poly <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
+sen_poly_facet <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  facet_wrap(~ model) +
+  geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+  labs(x = 'Observed API', y = 'Predicted API') +
+  guides(colour = FALSE)
+
 sen_points <- sen_cv1_pr_df %>% 
   mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
   mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
     geom_point(alpha = a, shape = s) + 
     geom_abline(slope = 1, intercept = 0)  +
     scale_y_sqrt() + 
     scale_x_sqrt() +
+    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+sen_points_facet <- sen_cv1_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
+    geom_point(alpha = a, shape = s) + 
+    geom_abline(slope = 1, intercept = 0)  +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    facet_wrap(~ model) +
+    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
     labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
     guides(colour = FALSE)
 
@@ -551,19 +603,45 @@ mdg_poly <- ggplot(mdg_cv1_poly_df, aes(response, pred_api, colour = model)) +
   scale_x_sqrt() +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
+
 mdg_points <- mdg_cv1_pr_df %>% 
   mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
   mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
     geom_point(alpha = a, shape = s) + 
     geom_abline(slope = 1, intercept = 0)  +
     scale_y_sqrt() + 
     scale_x_sqrt() +
+    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
     labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
     guides(colour = FALSE)
 
 
-scatter_list <- list(idn_poly, idn_points, sen_poly, sen_points, mdg_poly, mdg_points)
+mdg_poly_facet <- ggplot(mdg_cv1_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +  
+  facet_wrap(~ model) + 
+  geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+  labs(x = 'Observed API', y = 'Predicted API') +
+  guides(colour = FALSE)
+
+mdg_points_facet <- mdg_cv1_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
+    geom_point(alpha = a, shape = s) + 
+    geom_abline(slope = 1, intercept = 0)  +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    facet_wrap(~ model) + 
+    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+
+scatter_list <- list(idn_poly, idn_points5, sen_poly, sen_points, mdg_poly, mdg_points)
 full_obs_pred_scatter <- plot_grid(plotlist = scatter_list,
                                    labels = LETTERS[1:6], ncol = 2)
 
@@ -575,6 +653,38 @@ dev.off()
 
 pdf('figs/summaries/random_cv_scatter.pdf', height = 15, width = 11)
 print(full_obs_pred_scatter)
+dev.off()
+
+
+
+poly_facet_list <- list(idn_poly_facet, sen_poly_facet, mdg_poly_facet)
+full_obs_pred_poly_facet <- plot_grid(plotlist = poly_facet_list,
+                                   labels = LETTERS[1:3], ncol = 1)
+
+png('figs/summaries/random_cv_poly_facet.png', height = 1500, width = 1100)
+print(full_obs_pred_poly_facet)
+dev.off()
+
+
+
+pdf('figs/summaries/random_cv_poly_facet.pdf', height = 15, width = 11)
+print(full_obs_pred_poly_facet)
+dev.off()
+
+
+
+points_facet_list <- list(idn_points_facet, sen_points_facet, mdg_points_facet)
+full_obs_pred_points_facet <- plot_grid(plotlist = points_facet_list,
+                                   labels = LETTERS[1:3], ncol = 1)
+
+png('figs/summaries/random_cv_points_facet.png', height = 1500, width = 1100)
+print(full_obs_pred_points_facet)
+dev.off()
+
+
+
+pdf('figs/summaries/random_cv_points_facet.pdf', height = 15, width = 11)
+print(full_obs_pred_points_facet)
 dev.off()
 
 
@@ -725,7 +835,7 @@ gc()
 
 
 
-a <- 0.2
+a <- 0.5
 s <- 16
 
 idn_poly <- ggplot(idn_cv2_poly_df, aes(response, pred_api, colour = model)) + 
@@ -733,6 +843,16 @@ idn_poly <- ggplot(idn_cv2_poly_df, aes(response, pred_api, colour = model)) +
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
+  guides(colour = FALSE)
+
+idn_poly_facet <- ggplot(idn_cv2_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a, size = 3, shape = s) + 
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  facet_wrap(~model) + 
+  geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
@@ -746,6 +866,90 @@ idn_points <- ggplot(idn_cv2_pr_df, aes(prevalence, pred_prev, colour = model, s
   guides(colour = FALSE)
 
 
+idn_points2 <- 
+idn_cv2_pr_df %>% 
+  mutate(positive = round(positive), pred_positive = round(pred_prev * examined)) %>% 
+  ggplot(., aes(positive, pred_positive, colour = model)) + 
+    geom_count() +
+    geom_abline(slope = 1, intercept = 0)  +
+    facet_wrap(~ model) +
+    geom_smooth(method = 'lm', aes(colour = NULL))
+
+
+idn_points3 <- 
+idn_cv2_pr_df %>% 
+  filter(positive > 8) %>% 
+  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
+    geom_point() +
+    geom_abline(slope = 1, intercept = 0)  +
+    facet_wrap(~ model) +
+    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+
+idn_points4 <- 
+idn_cv2_pr_df %>% 
+  filter(positive > 5) %>% 
+  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
+    geom_point() +
+    geom_abline(slope = 1, intercept = 0)  +
+    facet_wrap(~ model) +
+    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+
+idn_points5 <- 
+  idn_cv2_pr_df %>% 
+    filter(positive > 5 | (positive == 0 & examined > 200)) %>% 
+    ggplot(., aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
+      geom_point(alpha = a, shape = s) +
+      geom_abline(slope = 1, intercept = 0)  +
+      #facet_wrap(~ model) +
+      geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+      scale_y_sqrt() + 
+      scale_x_sqrt() +
+      labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+      guides(colour = FALSE)
+
+
+idn_points6 <- 
+idn_cv2_pr_df %>% 
+  filter(positive > 1) %>% 
+  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
+    geom_point() +
+    geom_abline(slope = 1, intercept = 0)  +
+    facet_wrap(~ model) +
+    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+
+
+idn_points_facet <- 
+  idn_cv2_pr_df %>% 
+    filter(positive > 2 | (positive == 0 & examined > 200)) %>% 
+    ggplot(., aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
+      geom_point(alpha = a, shape = s) +
+      geom_abline(slope = 1, intercept = 0)  +
+      facet_wrap(~ model) +
+      geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+      scale_y_sqrt() + 
+      scale_x_sqrt() +
+      labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+      guides(colour = FALSE)
+
+
+
+
+
 sen_poly <- ggplot(sen_cv2_poly_df, aes(response, pred_api, colour = model)) + 
   geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
@@ -754,16 +958,40 @@ sen_poly <- ggplot(sen_cv2_poly_df, aes(response, pred_api, colour = model)) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
+sen_poly_facet <- ggplot(sen_cv2_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  facet_wrap(~ model) +
+  geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+  labs(x = 'Observed API', y = 'Predicted API') +
+  guides(colour = FALSE)
+
 sen_points <- sen_cv2_pr_df %>% 
   mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
   mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
-  geom_point(alpha = a, shape = s) + 
-  geom_abline(slope = 1, intercept = 0)  +
-  scale_y_sqrt() + 
-  scale_x_sqrt() +
-  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-  guides(colour = FALSE)
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
+    geom_point(alpha = a, shape = s) + 
+    geom_abline(slope = 1, intercept = 0)  +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+sen_points_facet <- sen_cv2_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
+    geom_point(alpha = a, shape = s) + 
+    geom_abline(slope = 1, intercept = 0)  +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    facet_wrap(~ model) +
+    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
 
 
 mdg_poly <- ggplot(mdg_cv2_poly_df, aes(response, pred_api, colour = model)) + 
@@ -773,28 +1001,88 @@ mdg_poly <- ggplot(mdg_cv2_poly_df, aes(response, pred_api, colour = model)) +
   scale_x_sqrt() +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
+
 mdg_points <- mdg_cv2_pr_df %>% 
   mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
   mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
-  geom_point(alpha = a, shape = s) + 
-  geom_abline(slope = 1, intercept = 0)  +
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
+    geom_point(alpha = a, shape = s) + 
+    geom_abline(slope = 1, intercept = 0)  +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+
+mdg_poly_facet <- ggplot(mdg_cv2_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
-  scale_x_sqrt() +
-  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+  scale_x_sqrt() +  
+  facet_wrap(~ model) + 
+  geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+  labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-scatter_list <- list(idn_poly, idn_points, sen_poly, sen_points, mdg_poly, mdg_points)
+mdg_points_facet <- mdg_cv2_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
+    geom_point(alpha = a, shape = s) + 
+    geom_abline(slope = 1, intercept = 0)  +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    facet_wrap(~ model) + 
+    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+
+scatter_list <- list(idn_poly, idn_points5, sen_poly, sen_points, mdg_poly, mdg_points)
 full_obs_pred_scatter <- plot_grid(plotlist = scatter_list,
                                    labels = LETTERS[1:6], ncol = 2)
 
-png('figs/summaries/spatial_cv_scatter.png', height = 1500, width = 700)
+png('figs/summaries/spatial_cv_scatter.png', height = 1500, width = 1100)
 print(full_obs_pred_scatter)
 dev.off()
 
 
+
 pdf('figs/summaries/spatial_cv_scatter.pdf', height = 15, width = 11)
 print(full_obs_pred_scatter)
+dev.off()
+
+
+
+poly_facet_list <- list(idn_poly_facet, sen_poly_facet, mdg_poly_facet)
+full_obs_pred_poly_facet <- plot_grid(plotlist = poly_facet_list,
+                                   labels = LETTERS[1:3], ncol = 1)
+
+png('figs/summaries/spatial_cv_poly_facet.png', height = 1500, width = 1100)
+print(full_obs_pred_poly_facet)
+dev.off()
+
+
+
+pdf('figs/summaries/spatial_cv_poly_facet.pdf', height = 15, width = 11)
+print(full_obs_pred_poly_facet)
+dev.off()
+
+
+
+points_facet_list <- list(idn_points_facet, sen_points_facet, mdg_points_facet)
+full_obs_pred_points_facet <- plot_grid(plotlist = points_facet_list,
+                                   labels = LETTERS[1:3], ncol = 1)
+
+png('figs/summaries/spatial_cv_points_facet.png', height = 1500, width = 1100)
+print(full_obs_pred_points_facet)
+dev.off()
+
+
+
+pdf('figs/summaries/spatial_cv_points_facet.pdf', height = 15, width = 11)
+print(full_obs_pred_points_facet)
 dev.off()
 
 
