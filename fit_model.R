@@ -507,6 +507,7 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_po
   pr_metrics <- pr_pred_obs %>% 
     mutate(inCI = prevalence > prevalence_lower & prevalence < prevalence_upper) %>% 
     summarise(RMSE = sqrt(mean((pred_prev - prevalence) ^ 2)),
+              wMAE = weighted.mean(abs(pred_prev - prevalence), w = examined),
               MAE = mean(abs(pred_prev - prevalence)),
               pearson = cor(pred_prev, prevalence, method = 'pearson'),
               spearman = cor(pred_prev, prevalence, method = 'spearman'),
