@@ -35,6 +35,12 @@ cov_raster_paths <- c(
   Z('mastergrids/MODIS_Global/MCD43D6_v6_BRDF_Reflectance/TCW_v6/5km/Synoptic/TCW_v6.Synoptic.Overall.mean.5km.mean.tif')
 )
 
+
+#which_vars <- c(1:20)[-c(19, 12, 15, 6, 14, 7, 5)] 
+#which_vars <- c(2, 5, 6, 8, 10, 20)
+#cov_raster_paths <- paste0('~/timz/mastergrids/Other_Global_Covariates/Pf_Covariates/PF_V', 1:20, '/5km/Monthly/PF_V', 1:20, '.2010.05.Data.5km.Data.tif')#[which_vars]
+
+
 # load packages
 
 ## Spatial packages
@@ -127,7 +133,7 @@ data_sen <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs,
   useiso3 = 'SEN',
-  transform = c(3,4,5,7))
+  transform = NULL)
 save(data_sen, file = 'model_outputs/sen_full_data.RData')
 
 autoplot(data_sen)
@@ -330,7 +336,7 @@ ggsave('figs/sen_both_obspred_map_log2.png')
 autoplot(cv2_output3, type = 'obs_preds', CI = TRUE)
 ggsave('figs/sen_both_obspred2.png')
 
-save(cv2_output1, file = 'model_outputs/sen_points_cv_2.RData')
+  save(cv2_output1, file = 'model_outputs/sen_points_cv_2.RData')
 save(cv2_output2, file = 'model_outputs/sen_polygon_cv_2.RData')
 save(cv2_output3, file = 'model_outputs/sen_joint_cv_2.RData')
 
