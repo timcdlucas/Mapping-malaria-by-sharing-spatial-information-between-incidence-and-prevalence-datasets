@@ -162,8 +162,10 @@ Type tau = sigma * pow(kappa, nu) * sqrt(4 * M_PI);
 PARAMETER_VECTOR(nodemean);
 
 // Prevalence to incidence conversion parameters 
-DATA_VECTOR(prev_inc_par); // length: 3 
+PARAMETER_VECTOR(prev_inc_par); // length: 3 
 
+DATA_VECTOR(prev_inc_mean);
+DATA_vECTOR(prev_inc_sd);
 
 // get number of data points to loop over
 // y (cases) length
@@ -189,6 +191,10 @@ nll -= dnorm(intercept, priormean_intercept, priorsd_intercept, true);
 for(int s = 0; s < slope.size(); s++){
   nll -= dnorm(slope[s], priormean_slope, priorsd_slope, true);
 }
+
+// Likelihood of prev_inc relationship priors.
+
+
 
 
 // Likelihood of hyperparameter of polygon iid random effect.
