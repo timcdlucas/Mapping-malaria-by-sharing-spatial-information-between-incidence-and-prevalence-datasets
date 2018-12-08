@@ -193,7 +193,7 @@ for(int s = 0; s < slope.size(); s++){
 }
 
 // Likelihood of prev_inc relationship priors.
-for(int r = 0; r < slope.size(); r++){
+for(int r = 0; r < prev_inc_par.size(); r++){
   nll -= dnorm(prev_inc_par[r], prev_inc_mean[r], prev_inc_sd[r], true);
 }
 
