@@ -165,7 +165,7 @@ PARAMETER_VECTOR(nodemean);
 PARAMETER_VECTOR(prev_inc_par); // length: 3 
 
 DATA_VECTOR(prev_inc_mean);
-DATA_vECTOR(prev_inc_sd);
+DATA_VECTOR(prev_inc_sd);
 
 // get number of data points to loop over
 // y (cases) length
@@ -193,7 +193,9 @@ for(int s = 0; s < slope.size(); s++){
 }
 
 // Likelihood of prev_inc relationship priors.
-
+for(int r = 0; r < slope.size(); r++){
+  nll -= dnorm(prev_inc_par[r], prev_inc_mean[r], prev_inc_sd[r], true);
+}
 
 
 
