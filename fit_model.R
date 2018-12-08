@@ -89,6 +89,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      iideffect_pr_log_tau = 1,
                      log_sigma = 0,
                      log_rho = 4,
+                     prev_inc_par = c(2.616, -3.596, 1.594),
                      nodemean = rep(0, n_s))
 
   input_data <- list(x = cov_matrix, 
@@ -102,7 +103,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      startendindex = startendindex,
                      polygon_cases = data$polygon$response * data$polygon$population / 1000,
                      pointtopolygonmap = pointtopolygonmap,
-                     prev_inc_par = c(2.616, -3.596, 1.594),
+                     prev_inc_mean = c(2.616, -3.596, 1.594),
+                     prev_inc_sd = c(0.2, 0.1, 0.1),
                      prior_rho_min = prior_rho_min,
                      prior_rho_prob = prior_rho_prob,
                      prior_sigma_max = prior_sigma_max,
