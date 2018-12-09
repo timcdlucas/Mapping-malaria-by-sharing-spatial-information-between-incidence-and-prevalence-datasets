@@ -239,14 +239,15 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, shapefile_ids, N, 
   
   prevalence_ci <- calc(prevalence, fun = quant)
 
-  api_ci <- 1000 * PrevIncConversion(prevalence_ci)
-
+  # Copy for a template.
   api <- prevalence
 
   for(r in seq_len(N)){
     p <- split(par_draws[r, ], names(pars))
     api[[r]] <- 1000 * PrevIncConversionFitted(prevalence[[r]], p$prev_inc_par)
   }
+
+  api_ci <- calc(api, fun = quant)
 
 
   incidence_count <- api * data$pop_raster / 1000
