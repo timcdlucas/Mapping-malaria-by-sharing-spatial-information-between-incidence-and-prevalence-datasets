@@ -238,9 +238,17 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, shapefile_ids, N, 
   quant <- function(x) quantile(x, probs = probs, na.rm = TRUE)
   
   prevalence_ci <- calc(prevalence, fun = quant)
+
   api_ci <- 1000 * PrevIncConversion(prevalence_ci)
-  
-  api <- 1000 * PrevIncConversion(prevalence)
+
+  api <- prevalence
+
+  for(r in seq_len(N)){
+    p <- split(par_draws[r, ], names(pars))
+    api[[r]] <- 1000 * PrevIncConversionFitted(prevalence[[r]], p$prev_inc_par)
+  }
+
+
   incidence_count <- api * data$pop_raster / 1000
   
   predictions <- list(api_ci = api_ci, 
@@ -294,7 +302,7 @@ predict_model <- function(pars, data, mesh, shapefile_ids){
   linear_pred <- linear_pred_result$linear_pred
   
   prevalence <- 1 / (1 + exp(-1 * linear_pred))
-  api <- 1000 * PrevIncConversion(prevalence)
+  api <- 1000 * PrevIncConversionFitted(prevalence, pars$prev_inc_par)
   
   incidence_count <- api * data$pop_raster / 1000
   
@@ -308,6 +316,14 @@ predict_model <- function(pars, data, mesh, shapefile_ids){
                       )
   class(predictions) <- c('ppj_preds', 'list')
   return(predictions)
+}
+
+
+
+PrevIncConversionFitted <- function(prev, pars){
+  prev * pars[1] -
+    prev^2 * pars[2] +
+    prev^3 * pars[3]
 }
 
 
