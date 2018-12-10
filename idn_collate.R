@@ -12,26 +12,6 @@ if(Sys.info()["user"] != 'anita'){
 
 source("setUserInfo.R")
 
-# define paths
-
-PR_path <- Z('GBD2017/Processing/Stages/04b_PR_DB_Import_Export/Verified_Outputs/2018_02_15/pfpr_dump.csv')
-API_path <- Z('GBD2017/Processing/Stages/04c_API_Data_Export/Checkpoint_Outputs/subnational.csv')
-pop_path <- Z('GBD2017/Processing/Stages/03_Muster_Population_Figures/Verified_Outputs/Output_Pop_At_Risk_Pf_5K/ihme_corrected_frankenpop_All_Ages_3_2015_at_risk_pf.tif')
-shapefile_path <- Z('master_geometries/Admin_Units/Global/GBD/GBD2017_MAP/GBD2017_MAP_MG_5K/')
-
-cov_raster_paths <- c(
-  Z('mastergrids/MODIS_Global/MOD11A2_LST/LST_Day/5km/Synoptic/LST_Day.Synoptic.Overall.mean.5km.mean.tif'),
-  #Z('mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/EVI/5km/Synoptic/EVI.Synoptic.Overall.mean.5km.mean.tif'),
-  Z('mastergrids/Other_Global_Covariates/TemperatureSuitability/TSI_Pf_Dynamic/5km/Synoptic/TSI-Martens2-Pf.Synoptic.Overall.Mean.5km.Data.tif'),
-  Z('GBD2017/Processing/Static_Covariates/MAP/other_rasters/accessibility/accessibility.5k.MEAN.tif'),
-  Z('mastergrids/Other_Global_Covariates/Elevation/SRTM-Elevation/5km/Synoptic/SRTM_elevation.Synoptic.Overall.Data.5km.mean.tif'),
-  Z('mastergrids/MODIS_Global/MOD11A2_LST/LST_Day/5km/Synoptic/LST_Day.Synoptic.Overall.SD.5km.mean.tif'),
-  #Z('mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/TCB/5km/Synoptic/TCB.Synoptic.Overall.mean.5km.mean.tif'),
-  Z('mastergrids/Other_Global_Covariates/NightTimeLights/VIIRS_DNB_Monthly/5km/Annual/VIIRS-SLC.2016.Annual.5km.MEDIAN.tif'),
-  #Z('mastergrids/Other_Global_Covariates/UrbanAreas/Global_Urban_Footprint/From_86m/5km/Global_Urban_Footprint_5km_PropUrban.tif'),
-  Z('mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/TCW/5km/Synoptic/TCW.Synoptic.Overall.mean.5km.mean.tif')
-)
-
 # load packages
 
 ## Spatial packages
@@ -74,23 +54,9 @@ library(sparseMVN)
 library(foreach)
 library(doParallel)
 
-
-# load functions
-
-source('collect_data.R')
-source('process_data.R')
-source('CombineRasters.R')
-source('parallel-raster-extract.R')
-source('build_inla_meshes.R')
-source('fit_model.R')
-source('run_cv.R')
-source('random_crossvalidation_setup.R')
-source('spatial_crossvalidation_setup.R')
 source('plotting_functions.R')
+source('run_cv.R')
 source('collate_seperate_cv_runs.R')
-
-# Compile the model
-compile("joint_model.cpp")
 
 set.seed(180530)
 
@@ -101,13 +67,8 @@ arg_list <- list()
 load('model_outputs/idn_cv_1.RData')
 load('model_outputs/idn_cv_2.RData')
 
-
-
-
-
 # Run 3 x models on cv1.
 cat('Start cv1 model 1')
-
 
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 

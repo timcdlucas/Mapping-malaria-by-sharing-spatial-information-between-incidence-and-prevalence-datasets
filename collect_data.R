@@ -66,6 +66,18 @@ load_data <- function(PR_path,
   api <- api_full %>% filter(year %in% api_year, 
                              iso3 %in% useiso3,
                              admin_unit_level == admin_unit_level_char)
+  
+  # Hack to add a bit of non-overlapping ADMIN3 Sengal data
+  if(useiso3 =='SEN') {
+    extra_shapefiles <- c(439478571, 439478573, 439478656, 439478639, 439478657, 439478574, 439478662)
+    api_extra <- api_full %>% filter(year %in% api_year, 
+                                     iso3 %in% useiso3,
+                                     admin_unit_level == 'ADMIN3',
+                                     shapefile_id %in% extra_shapefiles)
+    
+    api <- rbind(api,api_extra)
+  }
+  
   api <- cbind(api_mean = pull(api, api_column),
                population = pull(api, pop_column),
                shapefile_id = pull(api, shapefile_column)) %>% as.data.frame

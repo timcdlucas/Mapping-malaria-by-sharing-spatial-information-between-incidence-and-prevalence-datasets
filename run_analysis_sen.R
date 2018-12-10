@@ -17,21 +17,22 @@ source("setUserInfo.R")
 # define paths
 
 PR_path <- Z('GBD2017/Processing/Stages/04b_PR_DB_Import_Export/Verified_Outputs/2018_02_15/pfpr_dump.csv')
-API_path <- Z('GBD2017/Processing/Stages/04c_API_Data_Export/Checkpoint_Outputs/subnational.csv')
+# API_path <- Z('GBD2017/Processing/Stages/04c_API_Data_Export/Checkpoint_Outputs/subnational.csv')
+API_path <- Z('GBD2017/Processing/Stages/04c_API_Data_Export/Checkpoint_Outputs/2018-10-17_Senegal/subnational.csv')
 pop_path <- Z('GBD2017/Processing/Stages/03_Muster_Population_Figures/Verified_Outputs/Output_Pop_At_Risk_Pf_5K/ihme_corrected_frankenpop_All_Ages_3_2015_at_risk_pf.tif')
 shapefile_path <- Z('master_geometries/Admin_Units/Global/GBD/GBD2017_MAP/GBD2017_MAP_MG_5K/')
 
 cov_raster_paths <- c(
-  Z('mastergrids/MODIS_Global/MOD11A2_LST/LST_Day/5km/Synoptic/LST_Day.Synoptic.Overall.mean.5km.mean.tif'),
-  #Z('mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/EVI/5km/Synoptic/EVI.Synoptic.Overall.mean.5km.mean.tif'),
+  Z('mastergrids/MODIS_Global/MOD11A2_v6_LST/LST_Day/5km/Synoptic/LST_Day_v6.Synoptic.Overall.mean.5km.mean.tif'),
+  Z('mastergrids/MODIS_Global/MCD43D6_v6_BRDF_Reflectance/EVI_v6/5km/Synoptic/EVI_v6.Synoptic.Overall.mean.5km.mean.tif'),
   Z('mastergrids/Other_Global_Covariates/TemperatureSuitability/TSI_Pf_Dynamic/5km/Synoptic/TSI-Martens2-Pf.Synoptic.Overall.Mean.5km.Data.tif'),
   Z('GBD2017/Processing/Static_Covariates/MAP/other_rasters/accessibility/accessibility.5k.MEAN.tif'),
   Z('mastergrids/Other_Global_Covariates/Elevation/SRTM-Elevation/5km/Synoptic/SRTM_elevation.Synoptic.Overall.Data.5km.mean.tif'),
-  Z('mastergrids/MODIS_Global/MOD11A2_LST/LST_Day/5km/Synoptic/LST_Day.Synoptic.Overall.SD.5km.mean.tif'),
+  Z('mastergrids/MODIS_Global/MOD11A2_v6_LST/LST_Day/5km/Synoptic/LST_Day_v6.Synoptic.Overall.SD.5km.mean.tif'),
   #Z('mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/TCB/5km/Synoptic/TCB.Synoptic.Overall.mean.5km.mean.tif'),
   Z('mastergrids/Other_Global_Covariates/NightTimeLights/VIIRS_DNB_Monthly/5km/Annual/VIIRS-SLC.2016.Annual.5km.MEDIAN.tif'),
   #Z('mastergrids/Other_Global_Covariates/UrbanAreas/Global_Urban_Footprint/From_86m/5km/Global_Urban_Footprint_5km_PropUrban.tif'),
-  Z('mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/TCW/5km/Synoptic/TCW.Synoptic.Overall.mean.5km.mean.tif')
+  Z('mastergrids/MODIS_Global/MCD43D6_v6_BRDF_Reflectance/TCW_v6/5km/Synoptic/TCW_v6.Synoptic.Overall.mean.5km.mean.tif')
 )
 
 # load packages
@@ -104,8 +105,8 @@ data <- load_data(PR_path,
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'SEN', 
                   admin_unit_level = 'ADMIN2', # todo
-                  pr_year = 2015,
-                  api_year = 2015)
+                  pr_year = c(2008:2011),
+                  api_year = 2009)
 
 #pr_year = 2013,
 #api_year = 2013)
@@ -126,14 +127,14 @@ data_sen <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs,
   useiso3 = 'SEN',
-  transform = c(3:6))
+  transform = c(3,4,5,7))
 save(data_sen, file = 'model_outputs/sen_full_data.RData')
 
 autoplot(data_sen)
 
 mesh_sen <- build_mesh(data_sen, mesh.args = list(max.edge = c(0.1, 0.8), cut = 0.1, offset = c(2, 2)))
 
-data_cv1_sen <- cv_random_folds(data_sen, k = 7) # todo
+data_cv1_sen <- cv_random_folds(data_sen, k = 10) # todo
 autoplot(data_cv1_sen, jitter = 0)
 save(data_cv1_sen, file = 'model_outputs/sen_cv_1.RData')
 
@@ -227,12 +228,14 @@ if(FALSE){
   
 }
 
+delay <- 300
+
 cat('Start cv1 model 1')
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv1_output1 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = 200)
+                      cores = 10, parallel_delay = delay)
 obspred_map(data_cv1_sen, cv1_output1, column = FALSE)
 ggsave('figs/sen_points_only_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output1, trans = 'log10', column = FALSE)
@@ -246,7 +249,7 @@ cat('Start cv1 model 2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = 200)
+                      cores = 10, parallel_delay = delay)
 obspred_map(data_cv1_sen, cv1_output2, column = FALSE)
 ggsave('figs/sen_polygons_only_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output2, trans = 'log10', column = FALSE)
@@ -259,7 +262,7 @@ cat('Start cv1 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv1_output3 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = 200)
+                      cores = 10, parallel_delay = delay)
 obspred_map(data_cv1_sen, cv1_output3, column = FALSE)
 ggsave('figs/sen_both_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output3, trans = 'log10', column = FALSE)
@@ -295,7 +298,7 @@ cat('Start cv2 model1')
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv2_output1 <- run_cv(data_cv2_sen, mesh_sen, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
+                      model.args = arg_list, CI = 0.8, parallel_delay = delay)
 obspred_map(data_cv2_sen, cv2_output1, column = FALSE)
 ggsave('figs/sen_points_only_obspred_map2.png')
 obspred_map(data_cv2_sen, cv2_output1, trans = 'log10', column = FALSE)
@@ -307,7 +310,7 @@ ggsave('figs/sen_points_only_obspred2.png')
 cat('Start cv2 model2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv2_output2 <- run_cv(data_cv2_sen, mesh_sen, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
+                      model.args = arg_list, CI = 0.8, parallel_delay = delay)
 obspred_map(data_cv2_sen, cv2_output2, column = FALSE)
 ggsave('figs/sen_polygons_only_obspred_map2.png')
 obspred_map(data_cv2_sen, cv2_output2, trans = 'log10', column = FALSE)
@@ -319,7 +322,7 @@ ggsave('figs/sen_polygons_only_obspred2.png')
 cat('Start cv2 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv2_output3 <- run_cv(data_cv2_sen, mesh_sen, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = 200)
+                      model.args = arg_list, CI = 0.8, parallel_delay = delay)
 obspred_map(data_cv2_sen, cv2_output3, column = FALSE)
 ggsave('figs/sen_both_obspred_map2.png')
 obspred_map(data_cv2_sen, cv2_output3, trans = 'log10', column = FALSE)

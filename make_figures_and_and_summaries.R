@@ -31,6 +31,10 @@ theme_set(theme_minimal())
 theme_update(text = element_text(size = 10))
 
 
+# Metrics 
+
+
+
 source('plotting_functions.R')
 
 # Paths
@@ -223,8 +227,12 @@ cv2_both_sen <- get(load(cv2_both_sen_path))
 
 p1 <- obspred_map(data_cv1_sen, cv1_both_sen, trans = 'log1p', 
                   legend_title = 'API', 
+                  mask = TRUE,
                   breaks = c(1, 10, 100, 300))
-p2 <- obspred_map(data_cv2_sen, cv2_both_sen, trans = 'log1p', legend_title = 'API')
+p2 <- obspred_map(data_cv2_sen, cv2_both_sen, 
+                  trans = 'log1p', 
+                  legend_title = 'API',
+                  mask = TRUE)
 
 
 panel1 <- p1[[1]] +
@@ -258,31 +266,35 @@ rm(cv1_both_sen)
 rm(cv2_both_sen)
 gc()
 
-# 
-# # Fig 5 - MDG: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
-# #full_data_mdg <- get(load(full_data_mdg_path))
-# cv1_both_mdg <- get(load(cv1_both_mdg_path))
-# cv2_both_mdg <- get(load(cv2_both_mdg_path))
-# 
-# 
-# p1 <- obspred_map(data_cv1_mdg, cv1_both_mdg, trans = 'log1p')
-# p2 <- obspred_map(data_cv2_mdg, cv2_both_mdg, trans = 'log1p')
-# 
-# 
-# mdg_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 1)
-# 
-# png('figs/summaries/mdg_both_cv12_preds.png', height = 1500, width = 1200)
-# print(mdg_preds_plot)
-# dev.off()
-# 
-# 
-# #rm(full_data_mdg)
-# rm(cv1_both_mdg)
-# rm(cv2_both_mdg)
-# gc()
+
+# Fig 5 - MDG: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
+#full_data_mdg <- get(load(full_data_mdg_path))
+cv1_both_mdg <- get(load(cv1_both_mdg_path))
+cv2_both_mdg <- get(load(cv2_both_mdg_path))
+
+
+p1 <- obspred_map(data_cv1_mdg, cv1_both_mdg, trans = 'log1p')
+p2 <- obspred_map(data_cv2_mdg, cv2_both_mdg, trans = 'log1p')
+
+
+mdg_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 1)
+
+png('figs/summaries/mdg_both_cv12_preds.png', height = 1500, width = 1200)
+print(mdg_preds_plot)
+dev.off()
+
+
+#rm(full_data_mdg)
+rm(cv1_both_mdg)
+rm(cv2_both_mdg)
+gc()
 
 
 # figure 6, random cv. PR vs Poly columns, countries as rows, model as colour?
+
+#################################################################################
+## Make model comparisons. Random CV.                                          ##
+#################################################################################
 
 
 cv1_points_idn <- get(load(cv1_points_idn_path))
@@ -297,12 +309,31 @@ idn_cv1_pr_df <-  rbind(cv1_points_idn$summary$combined_pr %>% cbind(model = 'po
                         cv1_both_idn$summary$combined_pr %>% cbind(model = 'both'))
 
 
+idn_cv1_new_metrics <- 
+  rbind(cv1_points_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv1_polys_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv1_both_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+  )
+
+
+
+
 idn_cv1_metrics <- list(rbind(cv1_points_idn$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv1_polys_idn$summary$polygon_metrics %>% cbind(model = 'polygons'),
                               cv1_both_idn$summary$polygon_metrics %>% cbind(model = 'both')),
                         rbind(cv1_points_idn$summary$pr_metrics %>% cbind(model = 'points'),
                               cv1_polys_idn$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv1_both_idn$summary$pr_metrics %>% cbind(model = 'both')))
+idn_cv1_metrics[[2]] <- left_join(idn_cv1_metrics[[2]], idn_cv1_new_metrics)
 
 rm(cv1_points_idn)
 rm(cv1_polys_idn)
@@ -322,12 +353,31 @@ sen_cv1_pr_df <-  rbind(cv1_points_sen$summary$combined_pr %>% cbind(model = 'po
                         cv1_polys_sen$summary$combined_pr %>% cbind(model = 'polygons'),
                         cv1_both_sen$summary$combined_pr %>% cbind(model = 'both'))
 
+sen_cv1_new_metrics <- 
+  rbind(cv1_points_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv1_polys_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv1_both_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+  )
+
+
+
+
 sen_cv1_metrics <- list(rbind(cv1_points_sen$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv1_polys_sen$summary$polygon_metrics %>% cbind(model = 'polygons'),
                               cv1_both_sen$summary$polygon_metrics %>% cbind(model = 'both')),
                         rbind(cv1_points_sen$summary$pr_metrics %>% cbind(model = 'points'),
                               cv1_polys_sen$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv1_both_sen$summary$pr_metrics %>% cbind(model = 'both')))
+sen_cv1_metrics[[2]] <- left_join(sen_cv1_metrics[[2]], sen_cv1_new_metrics)
 
 
 
@@ -335,6 +385,7 @@ rm(cv1_points_sen)
 rm(cv1_polys_sen)
 rm(cv1_both_sen)
 gc()
+
 
 
 cv1_points_mdg <- get(load(cv1_points_mdg_path))
@@ -351,6 +402,23 @@ mdg_cv1_pr_df <-  rbind(cv1_points_mdg$summary$combined_pr %>% cbind(model = 'po
                         cv1_both_mdg$summary$combined_pr %>% cbind(model = 'both'))
 
 
+mdg_cv1_new_metrics <- 
+  rbind(cv1_points_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv1_polys_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv1_both_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+        )
+
+
+
 
 mdg_cv1_metrics <- list(rbind(cv1_points_mdg$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv1_polys_mdg$summary$polygon_metrics %>% cbind(model = 'polygons'),
@@ -358,6 +426,8 @@ mdg_cv1_metrics <- list(rbind(cv1_points_mdg$summary$polygon_metrics %>% cbind(m
                         rbind(cv1_points_mdg$summary$pr_metrics %>% cbind(model = 'points'),
                               cv1_polys_mdg$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv1_both_mdg$summary$pr_metrics %>% cbind(model = 'both')))
+mdg_cv1_metrics[[2]] <- left_join(mdg_cv1_metrics[[2]], mdg_cv1_new_metrics)
+
 
 rm(cv1_points_mdg)
 rm(cv1_polys_mdg)
@@ -367,41 +437,130 @@ gc()
 
 
 
-
+a <- 0.2
+s <- 16
 
 idn_poly <- ggplot(idn_cv1_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point() + 
+  geom_point(alpha = a, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
-  guides(colour = FALSE)
-idn_points <- ggplot(idn_cv1_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_point() + 
-  geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-sen_poly <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_jitter(width = 0.5, height = 0.5) + #todo
-  geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
-  guides(colour = FALSE)
-sen_points <- ggplot(sen_cv1_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_jitter(width = 0.02, height = 0.02) + #todo
+
+idn_points <- ggplot(idn_cv1_pr_df, aes(prevalence, pred_prev, colour = model, size = examined)) + 
+  geom_point(alpha = a, shape = s) + 
   geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
   guides(colour = FALSE)
+
+
+idn_points2 <- 
+idn_cv1_pr_df %>% 
+  mutate(positive = round(positive), pred_positive = round(pred_prev * examined)) %>% 
+  ggplot(., aes(positive, pred_positive, colour = model)) + 
+    geom_count() +
+    geom_abline(slope = 1, intercept = 0)  +
+    facet_wrap(~ model) +
+    geom_smooth(method = 'lm', aes(colour = NULL))
+
+
+idn_points3 <- 
+idn_cv1_pr_df %>% 
+  filter(positive > 8) %>% 
+  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
+    geom_point() +
+    geom_abline(slope = 1, intercept = 0)  +
+    facet_wrap(~ model) +
+    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+
+idn_points4 <- 
+idn_cv1_pr_df %>% 
+  filter(positive > 5) %>% 
+  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
+    geom_point() +
+    geom_abline(slope = 1, intercept = 0)  +
+    facet_wrap(~ model) +
+    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+
+idn_points5 <- 
+idn_cv1_pr_df %>% 
+  filter(positive > 2) %>% 
+  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
+    geom_point() +
+    geom_abline(slope = 1, intercept = 0)  +
+    facet_wrap(~ model) +
+    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+
+idn_points6 <- 
+idn_cv1_pr_df %>% 
+  filter(positive > 1) %>% 
+  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
+    geom_point() +
+    geom_abline(slope = 1, intercept = 0)  +
+    facet_wrap(~ model) +
+    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
+
+
+sen_poly <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
+  guides(colour = FALSE)
+
+sen_points <- sen_cv1_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
+    geom_point(alpha = a, shape = s) + 
+    geom_abline(slope = 1, intercept = 0)  +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
 
 
 mdg_poly <- ggplot(mdg_cv1_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_jitter(width = 0.5, height = 0.5) + #todo
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
-mdg_points <- ggplot(mdg_cv1_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_jitter(width = 0.02, height = 0.02) + #todo
-  geom_abline(slope = 1, intercept = 0)  +
-  guides(colour = FALSE)
+mdg_points <- mdg_cv1_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
+    geom_point(alpha = a, shape = s) + 
+    geom_abline(slope = 1, intercept = 0)  +
+    scale_y_sqrt() + 
+    scale_x_sqrt() +
+    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+    guides(colour = FALSE)
 
 
 scatter_list <- list(idn_poly, idn_points, sen_poly, sen_points, mdg_poly, mdg_points)
@@ -420,7 +579,9 @@ dev.off()
 
 
 # Fig 4 and 6
-
+#################################################################################
+## Make model comparisons. Spatial CV.                                         ##
+#################################################################################
 
 cv2_points_idn <- get(load(cv2_points_idn_path))
 cv2_polys_idn <- get(load(cv2_polys_idn_path))
@@ -434,12 +595,31 @@ idn_cv2_pr_df <-  rbind(cv2_points_idn$summary$combined_pr %>% cbind(model = 'po
                         cv2_both_idn$summary$combined_pr %>% cbind(model = 'both'))
 
 
+idn_cv2_new_metrics <- 
+  rbind(cv2_points_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv2_polys_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv2_both_idn$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+  )
+
+
+
+
 idn_cv2_metrics <- list(rbind(cv2_points_idn$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv2_polys_idn$summary$polygon_metrics %>% cbind(model = 'polygons'),
                               cv2_both_idn$summary$polygon_metrics %>% cbind(model = 'both')),
                         rbind(cv2_points_idn$summary$pr_metrics %>% cbind(model = 'points'),
                               cv2_polys_idn$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv2_both_idn$summary$pr_metrics %>% cbind(model = 'both')))
+idn_cv2_metrics[[2]] <- left_join(idn_cv2_metrics[[2]], idn_cv2_new_metrics)
 
 rm(cv2_points_idn)
 rm(cv2_polys_idn)
@@ -459,12 +639,32 @@ sen_cv2_pr_df <-  rbind(cv2_points_sen$summary$combined_pr %>% cbind(model = 'po
                         cv2_polys_sen$summary$combined_pr %>% cbind(model = 'polygons'),
                         cv2_both_sen$summary$combined_pr %>% cbind(model = 'both'))
 
+
+sen_cv2_new_metrics <- 
+  rbind(cv2_points_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv2_polys_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv2_both_sen$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+  )
+
+
+
+
 sen_cv2_metrics <- list(rbind(cv2_points_sen$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv2_polys_sen$summary$polygon_metrics %>% cbind(model = 'polygons'),
                               cv2_both_sen$summary$polygon_metrics %>% cbind(model = 'both')),
                         rbind(cv2_points_sen$summary$pr_metrics %>% cbind(model = 'points'),
                               cv2_polys_sen$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv2_both_sen$summary$pr_metrics %>% cbind(model = 'both')))
+sen_cv2_metrics[[2]] <- left_join(sen_cv2_metrics[[2]], sen_cv2_new_metrics)
 
 
 
@@ -488,6 +688,23 @@ mdg_cv2_pr_df <-  rbind(cv2_points_mdg$summary$combined_pr %>% cbind(model = 'po
                         cv2_both_mdg$summary$combined_pr %>% cbind(model = 'both'))
 
 
+mdg_cv2_new_metrics <- 
+  rbind(cv2_points_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'points'),
+        cv2_polys_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'polygons'),
+        cv2_both_mdg$summary$combined_pr %>%
+          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+          cbind(model = 'both')
+  )
+
+
+
 
 mdg_cv2_metrics <- list(rbind(cv2_points_mdg$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv2_polys_mdg$summary$polygon_metrics %>% cbind(model = 'polygons'),
@@ -495,6 +712,7 @@ mdg_cv2_metrics <- list(rbind(cv2_points_mdg$summary$polygon_metrics %>% cbind(m
                         rbind(cv2_points_mdg$summary$pr_metrics %>% cbind(model = 'points'),
                               cv2_polys_mdg$summary$pr_metrics %>% cbind(model = 'polygons'),
                               cv2_both_mdg$summary$pr_metrics %>% cbind(model = 'both')))
+mdg_cv2_metrics[[2]] <- left_join(mdg_cv2_metrics[[2]], mdg_cv2_new_metrics)
 
 rm(cv2_points_mdg)
 rm(cv2_polys_mdg)
@@ -506,40 +724,65 @@ gc()
 
 
 
+
+a <- 0.2
+s <- 16
+
 idn_poly <- ggplot(idn_cv2_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point() + 
+  geom_point(alpha = a, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
-  guides(colour = FALSE)
-idn_points <- ggplot(idn_cv2_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_point() + 
-  geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-sen_poly <- ggplot(sen_cv2_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_jitter(width = 0.5, height = 0.5) + #todo
-  geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
-  guides(colour = FALSE)
-sen_points <- ggplot(sen_cv2_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_jitter(width = 0.02, height = 0.02) + #todo
+
+idn_points <- ggplot(idn_cv2_pr_df, aes(prevalence, pred_prev, colour = model, size = examined)) + 
+  geom_point(alpha = a, shape = s) + 
   geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
+  guides(colour = FALSE)
+
+
+sen_poly <- ggplot(sen_cv2_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_abline(slope = 1, intercept = 0) +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
+  guides(colour = FALSE)
+
+sen_points <- sen_cv2_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
+  geom_point(alpha = a, shape = s) + 
+  geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
   guides(colour = FALSE)
 
 
 mdg_poly <- ggplot(mdg_cv2_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_jitter(width = 0.5, height = 0.5) + #todo
+  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
-  scale_y_log10() + 
-  scale_x_log10() +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
-mdg_points <- ggplot(mdg_cv2_pr_df, aes(prevalence, pred_prev, colour = model)) + 
-  geom_jitter(width = 0.02, height = 0.02) + #todo
+mdg_points <- mdg_cv2_pr_df %>% 
+  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
+  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
+  ggplot(aes(prevalence, pred_prev, colour = model, size = examined)) + 
+  geom_point(alpha = a, shape = s) + 
   geom_abline(slope = 1, intercept = 0)  +
+  scale_y_sqrt() + 
+  scale_x_sqrt() +
+  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
   guides(colour = FALSE)
-
 
 scatter_list <- list(idn_poly, idn_points, sen_poly, sen_points, mdg_poly, mdg_points)
 full_obs_pred_scatter <- plot_grid(plotlist = scatter_list,
@@ -558,25 +801,17 @@ dev.off()
 
 # Useful summary tables
 table1_skeleton <- 
-  "Incidence & Pearson & Indonesia & %s & %s &  %s\\\\
-&& Senegal & %s & %s &  %s\\\\
-&& Madagascar & %s & %s &  %s\\vspace{1mm}\\\\
-& Spearman & Indonesia & %s & %s &  %s\\\\
-&& Senegal & %s & %s &  %s\\\\
-&& Madagascar & %s & %s &  %s\\vspace{3mm} \\\\
-Prevalence & Pearson & Indonesia & %s & %s &  %s\\\\
-&& Senegal & %s & %s &  %s\\\\
-&& Madagascar & %s & %s &  %s\\vspace{1mm}\\\\
-& Spearman & Indonesia & %s & %s &  %s\\\\\
-&& Senegal & %s & %s &  %s\\\\
-&& Madagascar & %s & %s &  %s\\\\"
+  "Incidence & Indonesia & %s & %s &  %s\\\\
+& Senegal & %s & %s &  %s\\\\
+& Madagascar & %s & %s &  %s\\vspace{3mm}\\\\
+Prevalence & Indonesia & %s & %s &  %s\\\\
+& Senegal & %s & %s &  %s\\\\
+& Madagascar & %s & %s &  %s\\\\"
 
-r <- c(idn_cv1_metrics[[1]]$pearson, sen_cv1_metrics[[1]]$pearson, mdg_cv1_metrics[[1]]$pearson,
-       idn_cv1_metrics[[1]]$spearman, sen_cv1_metrics[[1]]$spearman, mdg_cv1_metrics[[1]]$spearman,
-       idn_cv1_metrics[[2]]$pearson, sen_cv1_metrics[[2]]$pearson, mdg_cv1_metrics[[2]]$pearson,
-       idn_cv1_metrics[[2]]$spearman, sen_cv1_metrics[[2]]$spearman, mdg_cv1_metrics[[2]]$spearman)
+r <- c(idn_cv1_metrics[[1]]$MAE, sen_cv1_metrics[[1]]$MAE, mdg_cv1_metrics[[1]]$MAE,
+       idn_cv1_metrics[[2]]$weightMAE, sen_cv1_metrics[[2]]$weightMAE, mdg_cv1_metrics[[2]]$weightMAE)
 
-r <- format(round(r, 2), nsmall = 2)
+r <- c(format(round(r[1:9], 2), nsmall = 2), format(round(r[10:18], 3), nsmall = 3))
 
 table1 <- do.call(sprintf, c(table1_skeleton, as.list(r)))
 
@@ -585,12 +820,10 @@ write(table1, 'figs/summaries/table1.txt')
 
 
 
-r_spat <- c(idn_cv2_metrics[[1]]$pearson, sen_cv2_metrics[[1]]$pearson, mdg_cv2_metrics[[1]]$pearson,
-            idn_cv2_metrics[[1]]$spearman, sen_cv2_metrics[[1]]$spearman, mdg_cv2_metrics[[1]]$spearman,
-            idn_cv2_metrics[[2]]$pearson, sen_cv2_metrics[[2]]$pearson, mdg_cv2_metrics[[2]]$pearson,
-            idn_cv2_metrics[[2]]$spearman, sen_cv2_metrics[[2]]$spearman, mdg_cv2_metrics[[2]]$spearman)
+r_spat <- c(idn_cv2_metrics[[1]]$MAE, sen_cv2_metrics[[1]]$MAE, mdg_cv2_metrics[[1]]$MAE,
+            idn_cv2_metrics[[2]]$weightMAE, sen_cv2_metrics[[2]]$weightMAE, mdg_cv2_metrics[[2]]$weightMAE)
 
-r_spat <- format(round(r_spat, 2), nsmall = 2)
+r_spat <- c(format(round(r_spat[1:9], 2), nsmall = 2), format(round(r_spat[10:18], 3), nsmall = 3))
 
 table2 <- do.call(sprintf, c(table1_skeleton, as.list(r_spat)))
 
@@ -613,8 +846,8 @@ Prevalence & Random & Indonesia & %s & %s &  %s\\\\
 && Madagascar & %s & %s &  %s\\\\"
 
 cov <- c(idn_cv1_metrics[[1]]$coverage, sen_cv1_metrics[[1]]$coverage, mdg_cv1_metrics[[1]]$coverage,
-         idn_cv1_metrics[[1]]$coverage, sen_cv1_metrics[[1]]$coverage, mdg_cv1_metrics[[1]]$coverage,
-         idn_cv2_metrics[[2]]$coverage, sen_cv2_metrics[[2]]$coverage, mdg_cv2_metrics[[2]]$coverage,
+         idn_cv2_metrics[[1]]$coverage, sen_cv2_metrics[[1]]$coverage, mdg_cv2_metrics[[1]]$coverage,
+         idn_cv1_metrics[[2]]$coverage, sen_cv1_metrics[[2]]$coverage, mdg_cv1_metrics[[2]]$coverage,
          idn_cv2_metrics[[2]]$coverage, sen_cv2_metrics[[2]]$coverage, mdg_cv2_metrics[[2]]$coverage)
 
 cov <- format(round(cov, 2), nsmall = 2)
