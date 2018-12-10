@@ -8,3 +8,7 @@ model_outputs/*
 *.stackdump
 *.pdf
 *.log
+test_nonsp*
+notes.md
+idn_collate_temp.R
+idn_exploration.R

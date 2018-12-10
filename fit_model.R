@@ -89,6 +89,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      iideffect_pr_log_tau = 1,
                      log_sigma = 0,
                      log_rho = 4,
+                     prev_inc_par = c(2.616, -3.596, 1.594),
                      nodemean = rep(0, n_s))
 
   input_data <- list(x = cov_matrix, 
@@ -102,7 +103,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      startendindex = startendindex,
                      polygon_cases = data$polygon$response * data$polygon$population / 1000,
                      pointtopolygonmap = pointtopolygonmap,
-                     prev_inc_par = c(2.616, -3.596, 1.594),
+                     prev_inc_mean = c(2.616, -3.596, 1.594),
+                     prev_inc_sd = c(0.2, 0.1, 0.1),
                      prior_rho_min = prior_rho_min,
                      prior_rho_prob = prior_rho_prob,
                      prior_sigma_max = prior_sigma_max,
@@ -236,9 +238,18 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, shapefile_ids, N, 
   quant <- function(x) quantile(x, probs = probs, na.rm = TRUE)
   
   prevalence_ci <- calc(prevalence, fun = quant)
-  api_ci <- 1000 * PrevIncConversion(prevalence_ci)
-  
-  api <- 1000 * PrevIncConversion(prevalence)
+
+  # Copy for a template.
+  api <- prevalence
+
+  for(r in seq_len(N)){
+    p <- split(par_draws[r, ], names(pars))
+    api[[r]] <- 1000 * PrevIncConversionFitted(prevalence[[r]], p$prev_inc_par)
+  }
+
+  api_ci <- calc(api, fun = quant)
+
+
   incidence_count <- api * data$pop_raster / 1000
   
   predictions <- list(api_ci = api_ci, 
@@ -292,7 +303,7 @@ predict_model <- function(pars, data, mesh, shapefile_ids){
   linear_pred <- linear_pred_result$linear_pred
   
   prevalence <- 1 / (1 + exp(-1 * linear_pred))
-  api <- 1000 * PrevIncConversion(prevalence)
+  api <- 1000 * PrevIncConversionFitted(prevalence, pars$prev_inc_par)
   
   incidence_count <- api * data$pop_raster / 1000
   
@@ -306,6 +317,14 @@ predict_model <- function(pars, data, mesh, shapefile_ids){
                       )
   class(predictions) <- c('ppj_preds', 'list')
   return(predictions)
+}
+
+
+
+PrevIncConversionFitted <- function(prev, pars){
+  prev * pars[1] -
+    prev^2 * pars[2] +
+    prev^3 * pars[3]
 }
 
 
@@ -507,6 +526,7 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_po
   pr_metrics <- pr_pred_obs %>% 
     mutate(inCI = prevalence > prevalence_lower & prevalence < prevalence_upper) %>% 
     summarise(RMSE = sqrt(mean((pred_prev - prevalence) ^ 2)),
+              wMAE = weighted.mean(abs(pred_prev - prevalence), w = examined),
               MAE = mean(abs(pred_prev - prevalence)),
               pearson = cor(pred_prev, prevalence, method = 'pearson'),
               spearman = cor(pred_prev, prevalence, method = 'spearman'),

@@ -80,7 +80,7 @@ summarise_cv_results <- function(results){
   pr_metrics <- combined_pr %>% 
     mutate(inCI = prevalence > prevalence_lower & prevalence < prevalence_upper) %>% 
     summarise(RMSE = sqrt(mean((pred_prev - prevalence) ^ 2)),
-              MAE = mean(abs(pred_prev - prevalence)),
+              wMAE = weighted.mean(abs(pred_prev - prevalence), w = examined),
               pearson = cor(pred_prev, prevalence, method = 'pearson'),
               spearman = cor(pred_prev, prevalence, method = 'spearman'),
               log_pearson = cor(log1p(pred_prev), log1p(prevalence), method = 'pearson'),
