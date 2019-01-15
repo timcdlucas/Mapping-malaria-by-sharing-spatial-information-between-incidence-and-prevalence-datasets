@@ -10,17 +10,12 @@ cv_random_folds <- function(data, k = 5){
   s <- sample(1:nrow(data$polygon))
   folds <- f[s]
   
-
-  # Same for PR
-  fpr <- rep(1:k, ceiling(nrow(data$pr) / k))
-  spr <- sample(1:nrow(data$pr))
-  foldspr <- fpr[spr]
   
   data_cv <- list()
   class(data_cv) <- c('ppj_cv', 'list')
   
   for(i in 1:k){
-    data_cv[[i]] <- subset_data_cv(data, folds, foldspr, i)
+    data_cv[[i]] <- subset_data_cv(data, folds, i)
   }
   
   any_empty <- sapply(seq_along(data_cv), function(x) data_cv[[x]]$test$polygon %>% nrow) %>% 
@@ -38,12 +33,12 @@ cv_random_folds <- function(data, k = 5){
 
 
 
-subset_data_cv <- function(data, polygon_folds, pr_folds, k){
+subset_data_cv <- function(data, polygon_folds, k){
   
   data_fold <- list(train = list(), test = list())
   
-  data_fold$train$pr <- data$pr[pr_folds != k, ]
-  data_fold$train$pr_covs <- data$pr_covs[pr_folds != k, ]
+  data_fold$train$pr <- data$pr
+  data_fold$train$pr_covs <- data$pr_covs
     
   data_fold$train$polygon <- data$polygon[polygon_folds != k, ]
   cov_rows <- data$covs$area_id %in% data_fold$train$polygon$shapefile_id
@@ -56,8 +51,8 @@ subset_data_cv <- function(data, polygon_folds, pr_folds, k){
   data_fold$train$iid_raster <- data$iid_raster  
   data_fold$train$shapefile_raster <- data$shapefile_raster  
   
-  data_fold$test$pr <- data$pr[pr_folds == k, ]
-  data_fold$test$pr_covs <- data$pr_covs[pr_folds == k, ] # this shouldn't ever be used as far as I can see.
+  data_fold$test$pr <- data$pr
+  data_fold$test$pr_covs <- data$pr_covs
   
   data_fold$test$polygon <- data$polygon[polygon_folds == k, ]
   data_fold$test$covs <- data$covs[!cov_rows, ]
