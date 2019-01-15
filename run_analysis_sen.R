@@ -111,7 +111,7 @@ data <- load_data(PR_path,
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'SEN', 
                   admin_unit_level = 'ADMIN2', # todo
-                  pr_year = c(2008:2011),
+                  pr_year = c(2007:2011),
                   api_year = 2009)
 
 #pr_year = 2013,
@@ -234,7 +234,7 @@ if(FALSE){
   
 }
 
-delay <- 300
+delay <- 10
 
 cat('Start cv1 model 1')
 # Run 3 x models with 3 x hyperpars on cv1.
@@ -260,9 +260,9 @@ obspred_map(data_cv1_sen, cv1_output2, column = FALSE)
 ggsave('figs/sen_polygons_only_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output2, trans = 'log10', column = FALSE)
 ggsave('figs/sen_polygons_only_obspred_map_log.png')
-autoplot(cv1_output2, type = 'obs_preds', CI = TRUE)
+autoplot(cv1_output2, type = 'obs_preds', CI = FALSE)
 ggsave('figs/sen_polygons_only_obspred.png')
-
+save(cv1_output2, file = 'model_outputs/sen_polygon_cv_1.RData')
 
 cat('Start cv1 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
@@ -275,10 +275,12 @@ obspred_map(data_cv1_sen, cv1_output3, trans = 'log10', column = FALSE)
 ggsave('figs/sen_both_obspred_map_log.png')
 autoplot(cv1_output3, type = 'obs_preds', CI = TRUE)
 ggsave('figs/sen_both_obspred.png')
+save(cv1_output3, file = 'model_outputs/sen_joint_cv_1.RData')
+
 
 save(cv1_output1, file = 'model_outputs/sen_points_cv_1.RData')
-save(cv1_output2, file = 'model_outputs/sen_polygon_cv_1.RData')
-save(cv1_output3, file = 'model_outputs/sen_joint_cv_1.RData')
+
+
 
 cv1_output1$summary$polygon_metrics
 cv1_output2$summary$polygon_metrics
@@ -321,9 +323,9 @@ obspred_map(data_cv2_sen, cv2_output2, column = FALSE)
 ggsave('figs/sen_polygons_only_obspred_map2.png')
 obspred_map(data_cv2_sen, cv2_output2, trans = 'log10', column = FALSE)
 ggsave('figs/sen_polygons_only_obspred_map_log2.png')
-autoplot(cv2_output2, type = 'obs_preds', CI = TRUE)
+autoplot(cv2_output2, type = 'obs_preds', CI = FALSE)
 ggsave('figs/sen_polygons_only_obspred2.png')
-
+save(cv2_output2, file = 'model_outputs/sen_polygon_cv_2.RData')
 
 cat('Start cv2 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
@@ -333,13 +335,13 @@ obspred_map(data_cv2_sen, cv2_output3, column = FALSE)
 ggsave('figs/sen_both_obspred_map2.png')
 obspred_map(data_cv2_sen, cv2_output3, trans = 'log10', column = FALSE)
 ggsave('figs/sen_both_obspred_map_log2.png')
-autoplot(cv2_output3, type = 'obs_preds', CI = TRUE)
+autoplot(cv2_output3, type = 'obs_preds', CI = FALSE)
 ggsave('figs/sen_both_obspred2.png')
 
-  save(cv2_output1, file = 'model_outputs/sen_points_cv_2.RData')
-save(cv2_output2, file = 'model_outputs/sen_polygon_cv_2.RData')
 save(cv2_output3, file = 'model_outputs/sen_joint_cv_2.RData')
 
+
+  save(cv2_output1, file = 'model_outputs/sen_points_cv_2.RData')
 cv2_output1$summary$polygon_metrics
 cv2_output2$summary$polygon_metrics
 cv2_output3$summary$polygon_metrics
