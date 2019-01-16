@@ -22,14 +22,17 @@ shapefile_path <- Z('master_geometries/Admin_Units/Global/GBD/GBD2017_MAP/GBD201
 
 cov_raster_paths <- c(
   Z('mastergrids/MODIS_Global/MOD11A2_v6_LST/LST_Day/5km/Synoptic/LST_Day_v6.Synoptic.Overall.mean.5km.mean.tif'),
-  Z('mastergrids/MODIS_Global/MCD43B4_v6_BRDF_Reflectance/EVI_v6/5km/Synoptic/EVI.Synoptic.Overall.mean.5km.mean.tif'),
+  Z('mastergrids/MODIS_Global/MCD43D6_v6_BRDF_Reflectance/EVI_v6/5km/Synoptic/EVI_v6.Synoptic.Overall.mean.5km.mean.tif'),
   Z('mastergrids/Other_Global_Covariates/TemperatureSuitability/TSI_Pf_Dynamic/5km/Synoptic/TSI-Martens2-Pf.Synoptic.Overall.Mean.5km.Data.tif'),
   Z('GBD2017/Processing/Static_Covariates/MAP/other_rasters/accessibility/accessibility.5k.MEAN.tif'),
-  Z('mastergrids/Other_Global_Covariates/Elevation/SRTM-Elevation/5km/Synoptic/SRTM_elevation.Synoptic.Overall.Data.5km.mean.tif')
+  Z('mastergrids/Other_Global_Covariates/Elevation/SRTM-Elevation/5km/Synoptic/SRTM_elevation.Synoptic.Overall.Data.5km.mean.tif'),
   Z('mastergrids/MODIS_Global/MOD11A2_v6_LST/LST_Day/5km/Synoptic/LST_Day_v6.Synoptic.Overall.SD.5km.mean.tif'),
+  #Z('mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/TCB/5km/Synoptic/TCB.Synoptic.Overall.mean.5km.mean.tif'),
   Z('mastergrids/Other_Global_Covariates/NightTimeLights/VIIRS_DNB_Monthly/5km/Annual/VIIRS-SLC.2016.Annual.5km.MEDIAN.tif'),
+  #Z('mastergrids/Other_Global_Covariates/UrbanAreas/Global_Urban_Footprint/From_86m/5km/Global_Urban_Footprint_5km_PropUrban.tif'),
   Z('mastergrids/MODIS_Global/MCD43D6_v6_BRDF_Reflectance/TCW_v6/5km/Synoptic/TCW_v6.Synoptic.Overall.mean.5km.mean.tif')
 )
+
 #Z('mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/TCB/5km/Synoptic/TCB.Synoptic.Overall.mean.5km.mean.tif'),
 #Z('mastergrids/Other_Global_Covariates/UrbanAreas/Global_Urban_Footprint/From_86m/5km/Global_Urban_Footprint_5km_PropUrban.tif'),
 
@@ -103,7 +106,7 @@ data <- load_data(PR_path,
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'MDG', 
                   admin_unit_level = 'ADMIN3',
-                  pr_year = 2013,
+                  pr_year = 2011:2016,
                   api_year = 2013)
 
 #test years
@@ -126,7 +129,7 @@ data_mdg <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs,
   useiso3 = 'MDG',
-  transform = c(3:6))
+  transform = 4:7)
 save(data_mdg, file = 'model_outputs/mdg_full_data.RData')
 
 autoplot(data_mdg)
@@ -304,7 +307,7 @@ obspred_map(data_cv2_mdg, cv2_output1, trans = 'log10', column = FALSE)
 ggsave('figs/mdg_points_only_obspred_map_log2.png')
 autoplot(cv2_output1, type = 'obs_preds', CI = TRUE)
 ggsave('figs/mdg_points_only_obspred2.png')
-
+save(cv2_output1, file = 'model_outputs/mdg_points_cv_2.RData')
 
 cat('Start cv2 model2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
@@ -316,7 +319,7 @@ obspred_map(data_cv2_mdg, cv2_output2, trans = 'log10', column = FALSE)
 ggsave('figs/mdg_polygons_only_obspred_map_log2.png')
 autoplot(cv2_output2, type = 'obs_preds', CI = TRUE)
 ggsave('figs/mdg_polygons_only_obspred2.png')
-
+save(cv2_output2, file = 'model_outputs/mdg_polygon_cv_2.RData')
 
 cat('Start cv2 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
@@ -329,8 +332,8 @@ ggsave('figs/mdg_both_obspred_map_log2.png')
 autoplot(cv2_output3, type = 'obs_preds', CI = TRUE)
 ggsave('figs/mdg_both_obspred2.png')
 
-save(cv2_output1, file = 'model_outputs/mdg_points_cv_2.RData')
-save(cv2_output2, file = 'model_outputs/mdg_polygon_cv_2.RData')
+
+
 save(cv2_output3, file = 'model_outputs/mdg_joint_cv_2.RData')
 
 cv2_output1$summary$polygon_metrics
@@ -340,5 +343,70 @@ cv2_output3$summary$polygon_metrics
 cv2_output1$summary$pr_metrics
 cv2_output2$summary$pr_metrics
 cv2_output3$summary$pr_metrics
+
+
+
+
+
+
+
+# Run 3 x models with 3 x hyperpars on cv3 Spatial.
+
+cat('Start cv3')
+data_cv3_mdg <- cv_spatial_folds(data_mdg, k = 3, keep_pr = TRUE)
+save(data_cv3_mdg, file = 'model_outputs/mdg_cv_3.RData')
+autoplot(data_cv3_mdg, jitter = 0.0)
+ggsave('figs/mdg_cv_spatial2.png')
+
+
+cat('Start cv3 model1')
+# Run 3 x models with 3 x hyperpars on cv1.
+arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
+cv3_output1 <- run_cv(data_cv3_mdg, mesh_mdg, its = 1000, 
+                      model.args = arg_list, CI = 0.8, parallel_delay = delay)
+obspred_map(data_cv3_mdg, cv3_output1, column = FALSE)
+ggsave('figs/mdg_points_only_obspred_map3.png')
+obspred_map(data_cv3_mdg, cv3_output1, trans = 'log10', column = FALSE)
+ggsave('figs/mdg_points_only_obspred_map_log3.png')
+autoplot(cv3_output1, type = 'obs_preds', CI = TRUE)
+ggsave('figs/mdg_points_only_obspred3.png')
+save(cv3_output1, file = 'model_outputs/mdg_points_cv_3.RData')
+
+cat('Start cv3 model2')
+arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
+cv3_output2 <- run_cv(data_cv3_mdg, mesh_mdg, its = 1000, 
+                      model.args = arg_list, CI = 0.8, parallel_delay = delay)
+obspred_map(data_cv3_mdg, cv3_output2, column = FALSE)
+ggsave('figs/mdg_polygons_only_obspred_map3.png')
+obspred_map(data_cv3_mdg, cv3_output2, trans = 'log10', column = FALSE)
+ggsave('figs/mdg_polygons_only_obspred_map_log3.png')
+autoplot(cv3_output2, type = 'obs_preds', CI = TRUE)
+ggsave('figs/mdg_polygons_only_obspred3.png')
+save(cv3_output2, file = 'model_outputs/mdg_polygon_cv_3.RData')
+
+cat('Start cv3 model3')
+arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
+cv3_output3 <- run_cv(data_cv3_mdg, mesh_mdg, its = 1000, 
+                      model.args = arg_list, CI = 0.8, parallel_delay = delay)
+obspred_map(data_cv3_mdg, cv3_output3, column = FALSE)
+ggsave('figs/mdg_both_obspred_map3.png')
+obspred_map(data_cv3_mdg, cv3_output3, trans = 'log10', column = FALSE)
+ggsave('figs/mdg_both_obspred_map_log3.png')
+autoplot(cv3_output3, type = 'obs_preds', CI = TRUE)
+ggsave('figs/mdg_both_obspred3.png')
+
+
+
+save(cv3_output3, file = 'model_outputs/mdg_joint_cv_3.RData')
+
+cv3_output1$summary$polygon_metrics
+cv3_output2$summary$polygon_metrics
+cv3_output3$summary$polygon_metrics
+
+cv3_output1$summary$pr_metrics
+cv3_output2$summary$pr_metrics
+cv3_output3$summary$pr_metrics
+
+
 
 print('Finished')

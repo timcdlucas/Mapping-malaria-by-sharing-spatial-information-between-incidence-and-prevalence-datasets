@@ -15,20 +15,26 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, parall
   }
   
 
-  if(Sys.info()["sysname"] != 'Windows'){
-    models <- mclapply(seq_along(cv_data), par_fun, mc.cores = cores)
-  } else {
-    cl <- makePSOCKcluster(cores, outfile = "")
-    setDefaultCluster(cl)
-    clusterExport(cl, c('fit_model', 'cv_data', 'mesh', 'model.args', 'predict_model', 'predict_uncertainty', 'iidDraw',
-                        'make_startend_index', 'MakeField', 'PrevIncConversion', 'extractFieldProperties', 'makeLinearPredictor'))
-    clusterEvalQ(NULL, library(magrittr))
-    clusterEvalQ(NULL, library(INLA))
-    clusterEvalQ(NULL, library(TMB))
-    clusterEvalQ(NULL, library(raster))
-    models <- parLapply(cl, seq_along(cv_data), par_fun)
-    stopCluster(cl)
-    registerDoSEQ()
+  if(cores > 1){
+    if(Sys.info()["sysname"] != 'Windows'){
+      models <- mclapply(seq_along(cv_data), par_fun, mc.cores = cores)
+    } else {
+      cl <- makePSOCKcluster(cores, outfile = "")
+      setDefaultCluster(cl)
+      clusterExport(cl, c('fit_model', 'cv_data', 'mesh', 'model.args', 'predict_model', 'predict_uncertainty', 'iidDraw',
+                          'make_startend_index', 'MakeField', 'PrevIncConversion', 'extractFieldProperties', 'makeLinearPredictor'))
+      clusterEvalQ(NULL, library(magrittr))
+      clusterEvalQ(NULL, library(INLA))
+      clusterEvalQ(NULL, library(TMB))
+      clusterEvalQ(NULL, library(raster))
+      models <- parLapply(cl, seq_along(cv_data), par_fun)
+      stopCluster(cl)
+      registerDoSEQ()
+    }
+  } else { 
+    for(i in seq_along(cv_data)){
+      models[[i]] <- par_fun(i)
+    }
   }
   
 
