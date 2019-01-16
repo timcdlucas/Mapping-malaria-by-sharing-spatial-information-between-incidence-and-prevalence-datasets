@@ -129,7 +129,7 @@ data_mdg <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs,
   useiso3 = 'MDG',
-  transform = c(3:6))
+  transform = 4:7)
 save(data_mdg, file = 'model_outputs/mdg_full_data.RData')
 
 autoplot(data_mdg)

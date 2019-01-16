@@ -133,7 +133,7 @@ data_sen <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs,
   useiso3 = 'SEN',
-  transform = NULL)
+  transform = 4:7)
 save(data_sen, file = 'model_outputs/sen_full_data.RData')
 
 autoplot(data_sen)
