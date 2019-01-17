@@ -33,7 +33,7 @@ cv_spatial_folds <- function(data, k = 5, keep_pr = FALSE){
   class(data_cv) <- c('ppj_cv', 'list')
   
   for(i in 1:k){
-    data_cv[[i]] <- subset_data_cv_spat(data, polygon_folds, foldspr, i, keep_pr)
+    data_cv[[i]] <- subset_data_cv_spat(data, polygon_folds, i, keep_pr)
   }
   
   return(data_cv)
