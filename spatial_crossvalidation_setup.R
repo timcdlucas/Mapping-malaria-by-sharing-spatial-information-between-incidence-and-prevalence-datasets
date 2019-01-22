@@ -47,7 +47,9 @@ subset_data_cv_spat <- function(data, polygon_folds, pr_folds, k, keep_pr){
   
   if(keep_pr){
     data_fold$train$pr <- data$pr
+    data_fold$train$pr_covs <- data$pr_covs
   } else { 
+    data_fold$train$pr <- data$pr[pr_folds != k, ]
     data_fold$train$pr_covs <- data$pr_covs[pr_folds != k, ]
   }
 
