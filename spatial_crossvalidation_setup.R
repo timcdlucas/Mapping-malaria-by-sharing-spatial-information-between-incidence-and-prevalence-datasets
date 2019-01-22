@@ -52,8 +52,6 @@ subset_data_cv_spat <- function(data, polygon_folds, pr_folds, k, keep_pr){
     data_fold$train$pr <- data$pr[pr_folds != k, ]
     data_fold$train$pr_covs <- data$pr_covs[pr_folds != k, ]
   }
-
-  data_fold$train$pr_covs <- data$pr_covs
     
   data_fold$train$polygon <- data$polygon[polygon_folds != k, ]
   cov_rows <- data$covs$area_id %in% data_fold$train$polygon$shapefile_id
