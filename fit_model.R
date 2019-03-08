@@ -23,7 +23,7 @@
 #' use_points = 1
 
 
-fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 100){
+fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 100, fix_p2i = TRUE){
 
   
   startendindex <- make_startend_index(data)
@@ -120,13 +120,19 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      use_polygons = use_polygons,
                      use_points = use_points)
   
+  # Setup up map arg to fix certain parameters
+  fix1 <- NULL
+  if(fix_p2i){ fix1 <- list(prev_inc_par = factor(rep(NA, 3))) }
+  fix2 <- NULL
+
   if(!use_points){
-    fix <- list(iideffect_pr_log_tau = factor(NA), 
+    fix2 <- list(iideffect_pr_log_tau = factor(NA), 
                 iideffect_pr = factor(rep(NA, nrow(data$pr))))
     parameters$iideffect_pr_log_tau <- -100
-  } else {
-    fix <- list()
   }
+  fix <- c(fix1, fix2)
+
+
 
   obj <- MakeADFun(
     data = input_data, 
