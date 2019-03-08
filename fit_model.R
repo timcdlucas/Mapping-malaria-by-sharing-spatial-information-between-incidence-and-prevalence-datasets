@@ -23,7 +23,7 @@
 #' use_points = 1
 
 
-fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 100, fix_p2i = TRUE){
+fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 100){
 
   
   startendindex <- make_startend_index(data)
@@ -42,23 +42,23 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   cov_matrix <- as.matrix(data$covs[, -c(1:2)])
   
   
-
-  prior_rho_min = 3
-  prior_rho_prob = 0.00001
-  prior_sigma_max = 1
-  prior_sigma_prob = 0.00001
-  prior_iideffect_sd_max = 0.05
-  prior_iideffect_sd_prob = 0.00001
-  prior_iideffect_pr_sd_max = 0.05
-  prior_iideffect_pr_sd_prob = 0.00001
-  priormean_intercept = -2
-  priorsd_intercept = 2
-  priormean_slope = 0 
-  priorsd_slope = 0.4
-  use_polygons = 0
-  use_points = 1
-
-
+  
+   prior_rho_min = 3
+   prior_rho_prob = 0.00001
+   prior_sigma_max = 1
+   prior_sigma_prob = 0.00001
+   prior_iideffect_sd_max = 0.05
+   prior_iideffect_sd_prob = 0.00001
+   prior_iideffect_pr_sd_max = 0.05
+   prior_iideffect_pr_sd_prob = 0.00001
+   priormean_intercept = -2
+   priorsd_intercept = 2
+   priormean_slope = 0 
+   priorsd_slope = 0.4
+   use_polygons = 0
+   use_points = 1
+  
+  
   # Replace defaults with anything given in model.args
   if(!is.null(model.args)){
     here <- environment()
@@ -73,7 +73,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   }
   # For each PR point (ordered), the map gives the corresponding index in overlap
   # map is length of PR data. Ordering of polygon data shapefile_id
-  pointtopolygonmap <- match(data$pr$shapefile_id, overlap)
+  pointtopolygonmap <- match(data_idn$pr$shapefile_id, overlap)
   
   # Compile and load the model
 
@@ -89,7 +89,6 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      iideffect_pr_log_tau = 1,
                      log_sigma = 0,
                      log_rho = 4,
-                     prev_inc_par = c(2.616, -3.596, 1.594),
                      nodemean = rep(0, n_s))
 
   input_data <- list(x = cov_matrix, 
@@ -103,8 +102,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      startendindex = startendindex,
                      polygon_cases = data$polygon$response * data$polygon$population / 1000,
                      pointtopolygonmap = pointtopolygonmap,
-                     prev_inc_mean = c(2.616, -3.596, 1.594),
-                     prev_inc_sd = c(0.2, 0.1, 0.1),
+                     prev_inc_par = c(2.616, -3.596, 1.594),
                      prior_rho_min = prior_rho_min,
                      prior_rho_prob = prior_rho_prob,
                      prior_sigma_max = prior_sigma_max,
@@ -120,25 +118,11 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      use_polygons = use_polygons,
                      use_points = use_points)
   
-  # Setup up map arg to fix certain parameters
-  fix1 <- NULL
-  if(fix_p2i){ fix1 <- list(prev_inc_par = factor(rep(NA, 3))) }
-  fix2 <- NULL
-
-  if(!use_points){
-    fix2 <- list(iideffect_pr_log_tau = factor(NA), 
-                iideffect_pr = factor(rep(NA, nrow(data$pr))))
-    parameters$iideffect_pr_log_tau <- -100
-  }
-  fix <- c(fix1, fix2)
-
-
 
   obj <- MakeADFun(
     data = input_data, 
     parameters = parameters,
-    random = c('nodemean', 'iideffect', 'iideffect_pr'),
-    map = fix,
+    random = c('nodemean','iideffect','iideffect_pr'),
     DLL = "joint_model")
   
   
@@ -147,41 +131,20 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
            control = list(iter.max = its, eval.max = 2*its, trace = 0))
     },
     error = function(e) {
-      cat('Error in model. Stopping')
+      cat(paste('Error in model, trying again.'))
       return('error')
     }
   )
   
-  # Rerun if needed.
-  if(opt$convergence != 0){ 
-    warning('Model did not converge on first try.')
-    
-    opt <- tryCatch({
-      nlminb(obj$par + rnorm(length(obj$par)), obj$fn, obj$gr, 
-             control = list(iter.max = its, eval.max = 2*its, trace = 0))
-      },
-      error = function(e) {
-        cat('Error in model. Stopping')
-        return('error')
-      }
-    )
-    
-    # Soft check
-    if(opt$convergence != 0){ 
-      warning('Model did not converge on second try.')
-    }  
-    
-  } 
+  # Soft check.
+  if(opt$convergence != 0) warning('Model did not converge.')
 
-  cat("Optimisation has finished. Now moving onto sdreport.\n")
-  
   sd_out <- sdreport(obj, getJointPrecision = TRUE)
   
   # Check sdreport worked.
   if(anyNA(sd_out$cov.fixed) | anyNA(sd_out$jointPrecision)) stop('sdreport failed. NAs in fixed SDs or joinPrecision')
   
-  cat("Model fitting has finished. Now moving onto prediction.\n")
-  
+  cat("Optimisation has finished. Now moving onto prediction.")
   
   predictions <- predict_model(pars = obj$env$last.par.best, data, mesh, overlap)
   uncertainty <- predict_uncertainty(pars = obj$env$last.par.best, 
@@ -244,18 +207,9 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, shapefile_ids, N, 
   quant <- function(x) quantile(x, probs = probs, na.rm = TRUE)
   
   prevalence_ci <- calc(prevalence, fun = quant)
-
-  # Copy for a template.
-  api <- prevalence
-
-  for(r in seq_len(N)){
-    p <- split(par_draws[r, ], names(pars))
-    api[[r]] <- 1000 * PrevIncConversionFitted(prevalence[[r]], p$prev_inc_par)
-  }
-
-  api_ci <- calc(api, fun = quant)
-
-
+  api_ci <- 1000 * PrevIncConversion(prevalence_ci)
+  
+  api <- 1000 * PrevIncConversion(prevalence)
   incidence_count <- api * data$pop_raster / 1000
   
   predictions <- list(api_ci = api_ci, 
@@ -271,8 +225,8 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, shapefile_ids, N, 
 
 iidDraw <- function(linear_pred, pars, shapefile_raster, shapefile_ids){
 
-  oos_shapefile_ids <- unique(shapefile_raster)
-  #oos_shapefile_ids <- unique_shapefile_ids[!unique_shapefile_ids %in% shapefile_ids]
+  unique_shapefile_ids <- unique(shapefile_raster)
+  oos_shapefile_ids <- unique_shapefile_ids[!unique_shapefile_ids %in% shapefile_ids]
 
   iid_samples <- rnorm(length(oos_shapefile_ids), 0, 1 / sqrt(exp(pars$iideffect_log_tau)))
   iid_ras <- shapefile_raster
@@ -309,7 +263,7 @@ predict_model <- function(pars, data, mesh, shapefile_ids){
   linear_pred <- linear_pred_result$linear_pred
   
   prevalence <- 1 / (1 + exp(-1 * linear_pred))
-  api <- 1000 * PrevIncConversionFitted(prevalence, pars$prev_inc_par)
+  api <- 1000 * PrevIncConversion(prevalence)
   
   incidence_count <- api * data$pop_raster / 1000
   
@@ -323,14 +277,6 @@ predict_model <- function(pars, data, mesh, shapefile_ids){
                       )
   class(predictions) <- c('ppj_preds', 'list')
   return(predictions)
-}
-
-
-
-PrevIncConversionFitted <- function(prev, pars){
-  prev * pars[1] -
-    prev^2 * pars[2] +
-    prev^3 * pars[3]
 }
 
 
@@ -371,7 +317,7 @@ makeLinearPredictor <- function(pars, data, field_ras, shapefile_ras, shapefile_
   iid_ras[!shapefile_ras %in% shapefile_ids & !is.na(iid_ras)] <- 0
   
 
-  linear_pred <- cov_contribution + field_ras #+ iid_ras
+  linear_pred <- cov_contribution + field_ras + iid_ras
   
   return(list(linear_pred = linear_pred, 
               covariates = cov_contribution,
@@ -379,26 +325,13 @@ makeLinearPredictor <- function(pars, data, field_ras, shapefile_ras, shapefile_
 }
 
 
-cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_points, serial_extract = FALSE){
+cv_performance <- function(predictions, holdout, model_params, CI = 0.95){
 
   # Extract raster data
   rasters <- stack(predictions$pop, predictions$incidence_count)
   names(rasters) <- c('population', 'incidence_count')
   
-  if(serial_extract){
-    extracted <- raster::extract(rasters, holdout$shapefiles, cellnumbers = TRUE, df = TRUE)
-    extracted[, 1] <- shapefiles$area_id[extracted[, 1]]
-    names(extracted)[1] <- 'area_id'
-  } else {
-    cl <- makeCluster(min(detectCores() - 1, 20))
-    registerDoParallel(cl)
-    extracted <- parallelExtract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
-    stopCluster(cl)
-    registerDoSEQ()
-  }
-  
-  # extracted <- parallelExtract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
-  #extracted <- extract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
+  extracted <- parallelExtract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
   
   # Calc pred incidence and API
   
@@ -432,20 +365,8 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_po
   rasters_real <- stack(predictions$pop, predictions$incidence_count_realisations)
   names(rasters_real)[1] <- 'population'
   
-  
-  if(serial_extract){
-    extracted_reals <- raster::extract(rasters_real, holdout$shapefiles, cellnumbers = TRUE, df = TRUE)
-    extracted_reals[, 1] <- shapefiles$area_id[extracted_reals[, 1]]
-    names(extracted_reals)[1] <- 'area_id'
-  } else {
-    cl <- makeCluster(min(detectCores() - 1, 20))
-    registerDoParallel(cl)
-    extracted_reals <- parallelExtract(rasters_real, 
-                                       holdout$shapefiles, fun = NULL, id = 'area_id')
-    stopCluster(cl)
-    registerDoSEQ()
-  }
-  
+  extracted_reals <- parallelExtract(rasters_real, 
+                               holdout$shapefiles, fun = NULL, id = 'area_id')
   
   #extracted_reals[, -c(1:3)] <- as.matrix(extracted_reals[, -c(1:3)]) * extracted_reals$population
   
@@ -454,28 +375,17 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_po
   # Calc pred incidence and API
   probs <- c((1 - CI) / 2, 1 - (1 - CI) / 2)
   
-  aggregated_reals <- extract_reals_tidy %>%
-    na.omit %>%
-    group_by(area_id, layer) %>%
+  aggregated_reals <- extract_reals_tidy %>% 
+    na.omit %>% 
+    group_by(area_id, layer) %>% 
     summarise(pred_incidence_count = sum(incidence_count),
               pred_pop = sum(population),
-              pred_api = 1000 * sum(pred_incidence_count) / sum(population))
-  
-  #pred_incidence_count_noise <- sapply(aggregated_reals$pred_incidence_count, function(x) rpois(1, x))
-  pred_incidence_count_noise <- rpois(rep(1, nrow(aggregated_reals)), aggregated_reals$pred_incidence_count)
-    #rpois(length(aggregated_reals$pred_incidence_count), aggregated_reals$pred_incidence_count)
-  pred_api_noise <- 1000 * pred_incidence_count_noise / aggregated_reals$pred_pop
-  
-  aggregated_reals <- cbind(aggregated_reals, 
-                            pred_incidence_count_noise = pred_incidence_count_noise,
-                            pred_api_noise = pred_api_noise)
-  
-  aggregated_reals <- aggregated_reals %>%
-    group_by(area_id) %>%
-    summarise(pred_incidence_count_lower = quantile(pred_incidence_count_noise, probs[1]),
-              pred_incidence_count_upper = quantile(pred_incidence_count_noise, probs[2]),
-              pred_api_lower = quantile(pred_api_noise, probs[1]),
-              pred_api_upper = quantile(pred_api_noise, probs[2])) %>%
+              pred_api = 1000 * sum(incidence_count) / sum(population)) %>% 
+    group_by(area_id) %>% 
+    summarise(pred_incidence_count_lower = quantile(pred_incidence_count, probs[1]),
+              pred_incidence_count_upper = quantile(pred_incidence_count, probs[2]),
+              pred_api_lower = quantile(pred_api, probs[1]),
+              pred_api_upper = quantile(pred_api, probs[2])) %>% 
     left_join(aggregated, by = c('area_id'))
   
   polygon_metrics_unc <- aggregated_reals %>% 
@@ -499,40 +409,34 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_po
   
   # Convert prev to linear predictor, sum with iid and then convert back
   pr_preds_reals_lp <- log(pr_preds_reals/(1 - pr_preds_reals))
-  pr_reals_lp <- pr_preds_reals_lp
   
   # Calculate additional uncertainty from point iid effect
-  if(use_points) { 
-    iid_par_index <- which(names(model_params$obj$env$last.par.best) == 'iideffect_pr_log_tau')
-    pr_iid_log_tau_reals <- predictions$par_draws[, iid_par_index] # vector of N realisations
-    pr_iid_sd_reals <- 1/sqrt(exp(pr_iid_log_tau_reals)) # vector of N realisations
-    
-    pr_iid_reals <- sapply(pr_iid_sd_reals, function(x) rnorm(length(pr_coords), 0, x)) # matrix of n(pr) by N
-    
-    # Total uncertainty in linear predictor
-    pr_reals_lp <- pr_preds_reals_lp + pr_iid_reals
-  }
+  iid_par_index <- which(names(model_params$obj$env$last.par.best) == 'iideffect_pr_log_tau')
+  pr_iid_log_tau_reals <- predictions$par_draws[, iid_par_index] # vector of N realisations
+  pr_iid_sd_reals <- 1/sqrt(exp(pr_iid_log_tau_reals)) # vector of N realisations
   
+  pr_iid_reals <- sapply(pr_iid_sd_reals, function(x) rnorm(length(pr_coords), 0, x)) # matrix of n(pr) by N
+  
+  # Total uncertainty in linear predictor
+  pr_reals_lp <- pr_preds_reals_lp + pr_iid_reals
   # Transform back to prevelance
   pr_reals_prev <- 1 / (1 + exp(-1 * pr_reals_lp))
   
-  positive_reals_noise <- sapply(seq_len(nrow(pr_pred_obs)), 
-                                 function(i) 
-                                   rbinom(ncol(pr_reals_prev), pr_pred_obs$examined[i], pr_reals_prev[i, ])
-                                 )
-  pr_reals_prev_noise <- t(positive_reals_noise) / pr_pred_obs$examined
+  # TODO calulate additional uncertainty from binomial noise
   
-  pr_conf <- apply(pr_reals_prev_noise, 1, function(x) quantile(x, probs = probs, na.rm = TRUE))
+  
+  
+  pr_conf <- apply(pr_reals_prev, 1, function(x) quantile(x, probs = probs, na.rm = TRUE))
   
   pr_pred_obs <- cbind(pr_pred_obs, t(pr_conf))
-  names(pr_pred_obs)[c(8, 9)] <- c('prevalence_lower',  'prevalence_upper')
-
+  names(pr_pred_obs)[names(pr_pred_obs) == '2.5%'] <- 'prevalence_lower'
+  names(pr_pred_obs)[names(pr_pred_obs) == '97.5%'] <- 'prevalence_upper'
+  
   pr_pred_obs <- na.omit(pr_pred_obs)
   
   pr_metrics <- pr_pred_obs %>% 
     mutate(inCI = prevalence > prevalence_lower & prevalence < prevalence_upper) %>% 
     summarise(RMSE = sqrt(mean((pred_prev - prevalence) ^ 2)),
-              wMAE = weighted.mean(abs(pred_prev - prevalence), w = examined),
               MAE = mean(abs(pred_prev - prevalence)),
               pearson = cor(pred_prev, prevalence, method = 'pearson'),
               spearman = cor(pred_prev, prevalence, method = 'spearman'),
