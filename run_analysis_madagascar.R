@@ -244,21 +244,21 @@ obspred_map(data_cv1_mdg, cv1_output1, trans = 'log10', column = FALSE)
 ggsave('figs/mdg_points_only_obspred_map_log.png')
 autoplot(cv1_output1, type = 'obs_preds', CI = TRUE)
 ggsave('figs/mdg_points_only_obspred.png')
-
+save(cv1_output1, file = 'model_outputs/mdg_points_cv_1.RData')
 
 
 cat('Start cv1 model 2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      parallel_delay = delay, cores = 1)
+                      parallel_delay = delay, cores = 10)
 obspred_map(data_cv1_mdg, cv1_output2, column = FALSE)
 ggsave('figs/mdg_polygons_only_obspred_map.png')
 obspred_map(data_cv1_mdg, cv1_output2, trans = 'log10', column = FALSE)
 ggsave('figs/mdg_polygons_only_obspred_map_log.png')
 autoplot(cv1_output2, type = 'obs_preds', CI = TRUE)
 ggsave('figs/mdg_polygons_only_obspred.png')
-
+save(cv1_output2, file = 'model_outputs/mdg_polygon_cv_1.RData')
 
 cat('Start cv1 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
@@ -272,8 +272,6 @@ ggsave('figs/mdg_both_obspred_map_log.png')
 autoplot(cv1_output3, type = 'obs_preds', CI = TRUE)
 ggsave('figs/mdg_both_obspred.png')
 
-save(cv1_output1, file = 'model_outputs/mdg_points_cv_1.RData')
-save(cv1_output2, file = 'model_outputs/mdg_polygon_cv_1.RData')
 save(cv1_output3, file = 'model_outputs/mdg_joint_cv_1.RData')
 
 cv1_output1$summary$polygon_metrics
@@ -299,7 +297,7 @@ cat('Start cv2 model1')
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv2_output1 <- run_cv(data_cv2_mdg, mesh_mdg, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 1)
+                      model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 10)
 obspred_map(data_cv2_mdg, cv2_output1, column = FALSE)
 ggsave('figs/mdg_points_only_obspred_map2.png')
 obspred_map(data_cv2_mdg, cv2_output1, trans = 'log10', column = FALSE)

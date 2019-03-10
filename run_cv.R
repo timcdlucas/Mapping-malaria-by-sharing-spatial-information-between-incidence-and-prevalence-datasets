@@ -38,7 +38,9 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, parall
   }
   
 
+  print('Model performance')
   for(i in seq_along(cv_data)){
+    print(i)
     results[[i]] <- cv_performance(models[[i]]$predictions, 
                                    cv_data[[i]]$test, 
                                    models[[i]]$model,
