@@ -76,8 +76,10 @@ set.seed(i + 20)
 
 if(cv_type == 'random'){
   cv_data <- get(load('model_outputs/idn_cv_1.RData'))
-} else {
+} else if(cv_type == 'spatial'){
   cv_data <- get(load('model_outputs/idn_cv_2.RData'))
+} else {
+  cv_data <- get(load('model_outputs/idn_cv_3.RData'))
 }
 
 load('model_outputs/idn_mesh.RData')

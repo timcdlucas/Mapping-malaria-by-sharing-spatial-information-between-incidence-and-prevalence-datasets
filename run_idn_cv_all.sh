@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a cv_type=("random" "spatial")
+declare -a cv_type=("random" "spatial" "spatialkeeppr")
 declare -a model_type=("points" "polygons" "joint")
 
 for i in "${cv_type[@]}" 

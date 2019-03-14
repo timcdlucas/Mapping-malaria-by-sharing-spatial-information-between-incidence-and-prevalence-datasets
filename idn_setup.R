@@ -151,6 +151,11 @@ autoplot(data_cv2_idn, jitter = 0.7)
 ggsave('figs/idn_cv_spatial2.png')
 save(data_cv2_idn, file = 'model_outputs/idn_cv_2.RData')
 
+# Spatial keep_pr
+data_cv3_idn <- cv_spatial_folds(data_idn, k = 7, keep_pr = TRUE)
+
+save(data_cv3_idn, file = 'model_outputs/idn_cv_3.RData')
+
 
 #autoplot(data_cv1_idn[[1]]$train, pr_limits = c(0, 0.3))
 
