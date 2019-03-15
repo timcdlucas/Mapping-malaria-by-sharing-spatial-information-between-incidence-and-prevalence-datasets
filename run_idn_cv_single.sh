@@ -5,7 +5,7 @@ if [ $# -ne 2 ]; then
   exit 1
 fi
 
-if [[ "$1" != @(random|spatial) ]]; then
+if [[ "$1" != @(random|spatial|spatialkeeppr) ]]; then
   echo "cv_type must be random or spatial"
   exit 1
 fi
@@ -20,6 +20,8 @@ N=10
 if [ "$1" == "random" ]; then
    END=10
 elif [ "$1" == "spatial" ]; then
+   END=7
+elif [ "$1" == "spatialkeeppr" ]; then
    END=7
 fi
 
