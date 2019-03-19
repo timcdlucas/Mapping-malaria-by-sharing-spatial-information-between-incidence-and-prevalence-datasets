@@ -87,6 +87,7 @@ DATA_VECTOR(pointtested);
 // regression slopes
 // (log of) empirical mean incidence to guide intercept
 PARAMETER(intercept); // intercept
+PARAMETER(prev_intercept); // intercept just for prev.
 PARAMETER_VECTOR(slope); 
 
 
@@ -186,6 +187,7 @@ Type nll = 0.0;
 
 // Likelihood of slope parameters given priors
 nll -= dnorm(intercept, priormean_intercept, priorsd_intercept, true);
+nll -= dnorm(prev_intercept, 0, priorsd_intercept, true);
 for(int s = 0; s < slope.size(); s++){
   nll -= dnorm(slope[s], priormean_slope, priorsd_slope, true);
 }
@@ -255,7 +257,7 @@ logit_prevalence_point_field = Apoint * nodemean;
 
 // Point data likelihood
 vector<Type> point_linear_pred(pointn);
-point_linear_pred = intercept + pointx*slope +
+point_linear_pred = intercept + prev_intercept + pointx*slope +
   logit_prevalence_point_field.array();
 
 // Hopefully vectorised dbinom.

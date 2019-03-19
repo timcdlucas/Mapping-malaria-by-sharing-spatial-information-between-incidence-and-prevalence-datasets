@@ -82,6 +82,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   
   
   parameters <- list(intercept = -5,
+                     prev_intercept = 0,
                      slope = rep(0, nlayers(data$cov_rasters)),
                      iideffect = rep(0, length(overlap)),
                      iideffect_log_tau = 1,
