@@ -89,6 +89,7 @@ DATA_VECTOR(pointtested);
 PARAMETER(intercept); // intercept
 PARAMETER(prev_intercept); // intercept just for prev.
 PARAMETER_VECTOR(slope); 
+Type prev_intercept_mean = 0.0;
 
 
 
@@ -187,7 +188,7 @@ Type nll = 0.0;
 
 // Likelihood of slope parameters given priors
 nll -= dnorm(intercept, priormean_intercept, priorsd_intercept, true);
-nll -= dnorm(prev_intercept, 0, priorsd_intercept, true);
+nll -= dnorm(prev_intercept, prev_intercept_mean, priorsd_intercept, true);
 for(int s = 0; s < slope.size(); s++){
   nll -= dnorm(slope[s], priormean_slope, priorsd_slope, true);
 }
@@ -344,7 +345,7 @@ for (int s = 0; s < n; s++) {
   reportinc[s] = 1000 * shapeincidence / shapepop;
   reportpop[s] = shapepop;
 
-  
+
  
   nll -= polygon_weight * dpois(polygon_cases[s], shapeincidence, true); 
   reportnll[s] = - polygon_weight * dpois(polygon_cases[s], shapeincidence, true); 
