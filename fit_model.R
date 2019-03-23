@@ -57,6 +57,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   priorsd_slope = 0.4
   use_polygons = 0
   use_points = 1
+  priormean_log_prev_inc_extra_slope = 0
+  priorsd_log_prev_inc_extra_slope = 0.001
 
 
   # Replace defaults with anything given in model.args
@@ -90,6 +92,7 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      iideffect_pr_log_tau = 1,
                      log_sigma = 0,
                      log_rho = 4,
+                     log_prev_inc_extra_slope = 0,
                      nodemean = rep(0, n_s))
 
   input_data <- list(x = cov_matrix, 
@@ -116,6 +119,8 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
                      priorsd_intercept = priorsd_intercept,
                      priormean_slope = priormean_slope, 
                      priorsd_slope = priorsd_slope,
+                     priormean_log_prev_inc_extra_slope = priormean_log_prev_inc_extra_slope,
+                     priorsd_log_prev_inc_extra_slope = priorsd_log_prev_inc_extra_slope,
                      use_polygons = use_polygons,
                      use_points = use_points)
   
@@ -162,9 +167,9 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
     # Soft check
     if(opt$convergence != 0){ 
       warning('Model did not converge on second try.')
-    }  
+    } 
     
-  } 
+  }
 
   cat("Optimisation has finished. Now moving onto sdreport.\n")
   
@@ -237,9 +242,9 @@ predict_uncertainty <- function(pars, joint_pred, data, mesh, shapefile_ids, N, 
   quant <- function(x) quantile(x, probs = probs, na.rm = TRUE)
   
   prevalence_ci <- calc(prevalence, fun = quant)
-  api_ci <- 1000 * PrevIncConversion(prevalence_ci)
+  api_ci <- exp(pars['log_prev_inc_extra_slope']) * 1000 * PrevIncConversion(prevalence_ci)
   
-  api <- 1000 * PrevIncConversion(prevalence)
+  api <- exp(pars['log_prev_inc_extra_slope']) * 1000 * PrevIncConversion(prevalence)
   incidence_count <- api * data$pop_raster / 1000
   
   predictions <- list(api_ci = api_ci, 
@@ -293,7 +298,7 @@ predict_model <- function(pars, data, mesh, shapefile_ids){
   linear_pred <- linear_pred_result$linear_pred
   
   prevalence <- 1 / (1 + exp(-1 * linear_pred))
-  api <- 1000 * PrevIncConversion(prevalence)
+  api <- exp(pars$log_prev_inc_extra_slope) * 1000 * PrevIncConversion(prevalence)
   
   incidence_count <- api * data$pop_raster / 1000
   
