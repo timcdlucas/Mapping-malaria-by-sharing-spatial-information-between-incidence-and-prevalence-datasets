@@ -165,7 +165,11 @@ PARAMETER_VECTOR(nodemean);
 
 // Prevalence to incidence conversion parameters 
 DATA_VECTOR(prev_inc_par); // length: 3 
+PARAMETER(log_prev_inc_extra_slope);
+DATA_SCALAR(priormean_log_prev_inc_extra_slope); // = -4.0; 
+DATA_SCALAR(priorsd_log_prev_inc_extra_slope);// = 2.0
 
+Type prev_inc_extra_slope = exp(log_prev_inc_extra_slope);
 
 // get number of data points to loop over
 // y (cases) length
@@ -193,6 +197,9 @@ for(int s = 0; s < slope.size(); s++){
   nll -= dnorm(slope[s], priormean_slope, priorsd_slope, true);
 }
 
+
+// Likelihood of prev2inc extra slope parameter given priors
+nll -= dnorm(log_prev_inc_extra_slope, priormean_log_prev_inc_extra_slope, priorsd_log_prev_inc_extra_slope, true);
 
 // Likelihood of hyperparameter of polygon iid random effect.
 //nll -= dgamma(iideffect_sd, prior_iideffect_sd_shape, prior_iideffect_sd_scale, true);
@@ -330,9 +337,10 @@ for (int s = 0; s < n; s++) {
     
   // Push through ewans prevalence to incidence rate model
   inshape_incidencerate = inshape_prev * prev_inc_par[0] +
-                          inshape_prev.pow(2) * prev_inc_par[1] +
-                          inshape_prev.pow(3) * prev_inc_par[2];
-  
+                            inshape_prev.pow(2) * prev_inc_par[1] +
+                            inshape_prev.pow(3) * prev_inc_par[2];
+  inshape_incidencerate = prev_inc_extra_slope * inshape_incidencerate;
+    
   // Calculate pixel incidence and then polyogn incidence
   inshape_incidence = (inshape_incidencerate * xpop.segment(startendindex(s, 0), startendindex(s, 1)).array());
   shapeincidence = sum(inshape_incidence);
