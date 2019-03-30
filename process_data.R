@@ -88,9 +88,16 @@ process_data <- function(binomial_positive,
   
   
   # Crop rasters
+
+  # Find combined extent.
+  combined_extent <- extent(shapefiles_idn)
+  combined_extent[1] <- min(combined_extent[1], min(pr$longitude))
+  combined_extent[2] <- max(combined_extent[2], max(pr$longitude))
+  combined_extent[3] <- min(combined_extent[3], min(pr$latitude))
+  combined_extent[4] <- max(combined_extent[4], max(pr$latitude))
   
   # Make pop raster that will be raster template.
-  pop_raster <- crop(pop_raster, extent(shapefiles_idn))
+  pop_raster <- crop(pop_raster, combined_extent)
   cov_rasters <- crop(cov_rasters, extent(pop_raster))
   cov_rasters <- mask(cov_rasters, cov_rasters[[1]])
   

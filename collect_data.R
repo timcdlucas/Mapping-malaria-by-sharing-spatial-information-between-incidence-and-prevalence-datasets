@@ -49,7 +49,7 @@ load_data <- function(PR_path,
                       pr_pos_column = 'positive',
                       pr_n_column = 'examined',
                       pr_latlon = c('latitude', 'longitude'),
-                      pr_country = 'country',
+                      pr_country = NULL,   
                       pr_age_low = 'lower_age',
                       pr_age_high = 'upper_age',
                       shapefile_column = 'shapefile_id',
@@ -86,8 +86,13 @@ load_data <- function(PR_path,
   
   # Read PR data
   pr <- readr::read_csv(PR_path, guess_max  = 1e5)
-  
-  usecountries <- find_country_from_iso3(useiso3, api_full$iso3, api_full$country_name)
+
+  if(is.null(pr_country)){
+    usecountries <- find_country_from_iso3(pr_iso3, api_full$iso3, api_full$country_name)
+  } else {
+    usecountries <- pr_country
+  }
+
   pr <- pr %>% filter(country %in% usecountries, year_start %in% pr_year)
   
   pr_clean <- data_frame(
@@ -187,11 +192,11 @@ find_smallest_extent <- function(raster_list){
 
 
 
-find_country_from_iso3 <- function(useiso3, iso3, country){
+find_country_from_iso3 <- function(pr_iso3, iso3, country){
   
   
   # Need to find a country name because PR data doesn't have iso3 codes... 
-  usecountries <- country[match(useiso3, iso3)]
+  usecountries <- country[match(pr_iso3, iso3)]
   
   if(is.na(usecountries)) stop('No matching iso3')
   # if(!all(usecountries %in% pr$country)) stop('At least one country not in PR data. Probably a name mismatch')
