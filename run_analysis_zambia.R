@@ -258,7 +258,7 @@ arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_zam, mesh_zam, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
                       cores = 10, parallel_delay = delay)
-obspred_map(data_cv1_zam, cv1_output2, column = FALSE)
+obspred_map(data_cv1_zam, cv1_output2, column = FALSE, mask = TRUE)
 ggsave('figs/zam_polygons_only_obspred_map.png')
 obspred_map(data_cv1_zam, cv1_output2, trans = 'log10', column = FALSE)
 ggsave('figs/zam_polygons_only_obspred_map_log.png')

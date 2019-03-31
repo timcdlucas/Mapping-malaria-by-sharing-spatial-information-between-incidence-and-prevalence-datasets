@@ -139,7 +139,7 @@ save(data_sen, file = 'model_outputs/sen_full_data.RData')
 
 autoplot(data_sen)
 
-mesh_sen <- build_mesh(data_sen, mesh.args = list(max.edge = c(0.1, 0.8), cut = 0.1, offset = c(2, 2)))
+mesh_sen <- build_mesh(data_sen, mesh.args = list(max.edge = c(0.1, 0.8), cut = 0.1, offset = c(2, 2), concave = -0.03))
 
 data_cv1_sen <- cv_random_folds(data_sen, k = 10) # todo
 autoplot(data_cv1_sen, jitter = 0)
