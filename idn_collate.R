@@ -66,6 +66,7 @@ arg_list <- list()
 
 load('model_outputs/idn_cv_1.RData')
 load('model_outputs/idn_cv_2.RData')
+load('model_outputs/idn_cv_3.RData')
 
 # Run 3 x models on cv1.
 cat('Start cv1 model 1')
@@ -191,22 +192,10 @@ cv2_output3$summary$pr_metrics
 
 
 # Run 3 x models on cv3.
-cat('Start cv3 model 1')
-
-files4 <- paste0('model_outputs/idn-spatialkeeppr-points-', 1:7, '.RData')
-cv3_output1_list <- lapply(files4, function(x) get(load(x)))
-cv3_output1 <- collate(cv3_output1_list)
-
-obspred_map(data_cv3_idn, cv3_output1, column = FALSE)
-ggsave('figs/idn_points_only_obspred_map3.png')
-obspred_map(data_cv3_idn, cv3_output1, trans = 'log10', column = FALSE)
-ggsave('figs/idn_points_only_obspred_map_log3.png')
-autoplot(cv3_output1, type = 'obs_preds', CI = TRUE)
-ggsave('figs/idn_points_only_obspred3.png')
 
 cat('Start cv3 model 2')
 
-files5 <- paste0('model_outputs/idn-spatialkeeppr-polygons', 1:7, '.RData')
+files5 <- paste0('model_outputs/idn-spatialkeeppr-polygons-', 1:7, '.RData')
 cv3_output2_list <- lapply(files5, function(x) get(load(x)))
 cv3_output2 <- collate(cv3_output2_list)
 
@@ -231,18 +220,12 @@ autoplot(cv3_output3, type = 'obs_preds', CI = TRUE)
 ggsave('figs/idn_joint_obspred3.png')
 
 
-save(cv3_output1, file = 'model_outputs/idn_points_cv_3.RData')
+
 save(cv3_output2, file = 'model_outputs/idn_polygon_cv_3.RData')
 save(cv3_output3, file = 'model_outputs/idn_joint_cv_3.RData')
 
-cv3_output1$summary$polygon_metrics
 cv3_output2$summary$polygon_metrics
 cv3_output3$summary$polygon_metrics
-
-cv3_output1$summary$pr_metrics
-cv3_output2$summary$pr_metrics
-cv3_output3$summary$pr_metrics
-
 
 
 

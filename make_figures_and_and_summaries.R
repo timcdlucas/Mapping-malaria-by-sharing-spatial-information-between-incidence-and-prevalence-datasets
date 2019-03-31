@@ -53,19 +53,19 @@ data_cv3_idn_path <- 'model_outputs/idn_cv_3.RData'
 
 ### CV 1 output
 
-#cv1_points_idn_path <- 'model_outputs/idn_points_cv_1.RData'
+cv1_points_idn_path <- 'model_outputs/idn_points_cv_1.RData'
 cv1_polys_idn_path <- 'model_outputs/idn_polygon_cv_1.RData'
 cv1_both_idn_path <- 'model_outputs/idn_joint_cv_1.RData'
 
 ### CV 2 output
 
-#cv2_points_idn_path <- 'model_outputs/idn_points_cv_2.RData'
+cv2_points_idn_path <- 'model_outputs/idn_points_cv_2.RData'
 cv2_polys_idn_path <- 'model_outputs/idn_polygon_cv_2.RData'
 cv2_both_idn_path <- 'model_outputs/idn_joint_cv_2.RData'
 
 ### CV 3 output
 
-#cv2_points_idn_path <- 'model_outputs/idn_points_cv_2.RData'
+cv3_points_idn_path <- 'model_outputs/idn_points_cv_2.RData'
 cv3_polys_idn_path <- 'model_outputs/idn_polygon_cv_3.RData'
 cv3_both_idn_path <- 'model_outputs/idn_joint_cv_3.RData'
 
@@ -84,24 +84,24 @@ data_cv2_sen_path <- 'model_outputs/sen_cv_3.RData'
 
 ### CV 1 output
 
-#cv1_points_sen_path <- 'model_outputs/sen_points_cv_1.RData'
+cv1_points_sen_path <- 'model_outputs/sen_points_cv_1.RData'
 cv1_polys_sen_path <- 'model_outputs/sen_polygon_cv_1.RData'
 cv1_both_sen_path <- 'model_outputs/sen_joint_cv_1.RData'
 
 
 ### CV 2 output
 
-#cv2_points_sen_path <- 'model_outputs/sen_points_cv_2.RData'
+cv2_points_sen_path <- 'model_outputs/sen_points_cv_2.RData'
 cv2_polys_sen_path <- 'model_outputs/sen_polygon_cv_2.RData'
 cv2_both_sen_path <- 'model_outputs/sen_joint_cv_2.RData' 
-
+# cv2_both_sen_path <- 'model_outputs/sen_joint_cv_2_fitp2i.RData' 
 
 ### CV 3 output
 
-#cv2_points_sen_path <- 'model_outputs/sen_points_cv_2.RData'
+cv3_points_sen_path <- 'model_outputs/sen_points_cv_3.RData'
 cv3_polys_sen_path <- 'model_outputs/sen_polygon_cv_3.RData'
 cv3_both_sen_path <- 'model_outputs/sen_joint_cv_3.RData'
-
+# cv3_both_sen_path <- 'model_outputs/sen_joint_cv_3_fitp2i.RData'
 
 
 ## MDG
@@ -120,14 +120,14 @@ data_cv3_mdg_path <- 'model_outputs/mdg_cv_3.RData'
 
 ### CV 1 output
 
-#cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
+cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
 cv1_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_1.RData'
 cv1_both_mdg_path <- 'model_outputs/mdg_joint_cv_1.RData'
 
 
 ### CV 2 output
 
-#cv2_points_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
+cv2_points_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
 cv2_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_2.RData'
 cv2_both_mdg_path <- 'model_outputs/mdg_joint_cv_2.RData'
 
@@ -135,7 +135,7 @@ cv2_both_mdg_path <- 'model_outputs/mdg_joint_cv_2.RData'
 
 ### CV 3 output
 
-#cv2_points_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
+cv3_points_mdg_path <- 'model_outputs/mdg_points_cv_3.RData'
 cv3_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_3.RData'
 cv3_both_mdg_path <- 'model_outputs/mdg_joint_cv_3.RData'
 
@@ -210,7 +210,7 @@ cv2_both_idn <- get(load(cv2_both_idn_path))
 p1 <- obspred_map(data_cv1_idn, cv1_both_idn, trans = 'log1p', 
                   legend_title = 'API', 
                   breaks = c(1, 10, 100, 300, 500))
-p2 <- obspred_map(xx, cv2_both_idn, trans = 'log1p', legend_title = 'API')
+p2 <- obspred_map(data_cv2_idn, cv2_both_idn, trans = 'log1p', legend_title = 'API')
 
 
 panel1 <- p1[[1]] +
@@ -469,7 +469,7 @@ idn_poly <- ggplot(idn_cv1_poly_df, aes(response, pred_api, colour = model)) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-idn_poly_facet <- ggplot(idn_cv1_poly_df, aes(response, pred_api, colour = model)) + 
+idn_poly_facet <- ggplot(idn_cv1_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
   geom_point(alpha = a, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
@@ -581,7 +581,7 @@ sen_poly <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-sen_poly_facet <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) + 
+sen_poly_facet <- ggplot(sen_cv1_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
   geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
@@ -638,7 +638,7 @@ mdg_points <- mdg_cv1_pr_df %>%
     guides(colour = FALSE)
 
 
-mdg_poly_facet <- ggplot(mdg_cv1_poly_df, aes(response, pred_api, colour = model)) + 
+mdg_poly_facet <- ggplot(mdg_cv1_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
   geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
@@ -742,7 +742,7 @@ idn_cv2_new_metrics <-
   )
 
 
-
+names(cv2_both_idn$summary$pr_metrics) <- names(cv2_polys_idn$summary$pr_metrics)
 
 idn_cv2_metrics <- list(rbind(cv2_points_idn$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv2_polys_idn$summary$polygon_metrics %>% cbind(model = 'polygons'),
@@ -867,7 +867,7 @@ idn_poly <- ggplot(idn_cv2_poly_df, aes(response, pred_api, colour = model)) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-idn_poly_facet <- ggplot(idn_cv2_poly_df, aes(response, pred_api, colour = model)) + 
+idn_poly_facet <- ggplot(idn_cv2_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
   geom_point(alpha = a, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
@@ -979,7 +979,7 @@ sen_poly <- ggplot(sen_cv2_poly_df, aes(response, pred_api, colour = model)) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-sen_poly_facet <- ggplot(sen_cv2_poly_df, aes(response, pred_api, colour = model)) + 
+sen_poly_facet <- ggplot(sen_cv2_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
   geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
@@ -1036,7 +1036,7 @@ mdg_points <- mdg_cv2_pr_df %>%
     guides(colour = FALSE)
 
 
-mdg_poly_facet <- ggplot(mdg_cv2_poly_df, aes(response, pred_api, colour = model)) + 
+mdg_poly_facet <- ggplot(mdg_cv2_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
   geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
@@ -1147,7 +1147,8 @@ idn_cv3_new_metrics <-
   )
 
 
-
+# Hack to get names to match. If we're not caring about pr metrics anymore this is all moot.
+names(cv3_points_idn$summary$pr_metrics) <- names(cv3_both_idn$summary$pr_metrics)
 
 idn_cv3_metrics <- list(rbind(cv3_points_idn$summary$polygon_metrics %>% cbind(model = 'points'),
                               cv3_polys_idn$summary$polygon_metrics %>% cbind(model = 'polygons'),
@@ -1272,7 +1273,7 @@ idn_poly <- ggplot(idn_cv3_poly_df, aes(response, pred_api, colour = model)) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-idn_poly_facet <- ggplot(idn_cv3_poly_df, aes(response, pred_api, colour = model)) + 
+idn_poly_facet <- ggplot(idn_cv3_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
   geom_point(alpha = a, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
@@ -1318,7 +1319,7 @@ sen_poly <- ggplot(sen_cv3_poly_df, aes(response, pred_api, colour = model)) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-sen_poly_facet <- ggplot(sen_cv3_poly_df, aes(response, pred_api, colour = model)) + 
+sen_poly_facet <- ggplot(sen_cv3_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
   geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
@@ -1375,7 +1376,7 @@ mdg_points <- mdg_cv3_pr_df %>%
     guides(colour = FALSE)
 
 
-mdg_poly_facet <- ggplot(mdg_cv3_poly_df, aes(response, pred_api, colour = model)) + 
+mdg_poly_facet <- ggplot(mdg_cv3_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
   geom_point(alpha = a + 0.2, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
@@ -1452,19 +1453,19 @@ dev.off()
 
 # Useful summary tables
 table1_skeleton <- 
-  "Random & Indonesia & %s & %s &  %s\\\\
-& Senegal & %s & %s &  %s\\\\
-& Madagascar & %s & %s &  %s\\vspace{3mm}\\\\
-Spatial 1 & Indonesia & %s & %s &  %s\\\\
-& Senegal & %s & %s &  %s\\\\
-& Madagascar & %s & %s &  %s\\vspace{3mm}\\\\
-Spatial 2 & Indonesia & %s & %s &  %s\\\\
-& Senegal & %s & %s &  %s\\\\
-& Madagascar & %s & %s &  %s\\\\"
+  "Random & Indonesia  & %s &  %s\\\\
+& Senegal  & %s &  %s\\\\
+& Madagascar  & %s &  %s\\vspace{3mm}\\\\
+Spatial 1 & Indonesia & %s &  %s\\\\
+& Senegal  & %s &  %s\\\\
+& Madagascar  & %s &  %s\\vspace{3mm}\\\\
+Spatial 2 & Indonesia & %s &  %s\\\\
+& Senegal  & %s &  %s\\\\
+& Madagascar & %s &  %s\\\\"
 
-r <- c(idn_cv1_metrics[[1]]$MAE, sen_cv1_metrics[[1]]$MAE, mdg_cv1_metrics[[1]]$MAE,
-       idn_cv2_metrics[[1]]$MAE, sen_cv2_metrics[[1]]$MAE, mdg_cv2_metrics[[1]]$MAE,
-       idn_cv3_metrics[[1]]$MAE, sen_cv3_metrics[[1]]$MAE, mdg_cv3_metrics[[1]]$MAE)
+r <- c(idn_cv1_metrics[[1]]$MAE[2:3], sen_cv1_metrics[[1]]$MAE[2:3], mdg_cv1_metrics[[1]]$MAE[2:3],
+       idn_cv2_metrics[[1]]$MAE[2:3], sen_cv2_metrics[[1]]$MAE[2:3], mdg_cv2_metrics[[1]]$MAE[2:3],
+       idn_cv3_metrics[[1]]$MAE[2:3], sen_cv3_metrics[[1]]$MAE[2:3], mdg_cv3_metrics[[1]]$MAE[2:3])
 
 r <- format(round(r, 2), nsmall = 2)
 
@@ -1476,20 +1477,20 @@ write(table1, 'figs/summaries/table1.txt')
 
 
 coverage_skeleton <-
-  "Incidence & Random & Indonesia & %s & %s &  %s\\\\
-&& Senegal & %s & %s &  %s\\\\
-&& Madagascar & %s & %s &  %s\\vspace{1mm}\\\\
-& Spatial 1 & Indonesia & %s & %s &  %s\\\\
-&& Senegal & %s & %s &  %s\\\\
-&& Madagascar & %s & %s &  %s\\vspace{1mm} \\\\
-& Spatial 2 & Indonesia & %s & %s &  %s\\\\
-&& Senegal & %s & %s &  %s\\\\
-&& Madagascar & %s & %s &  %s\\\\
+  "Random & Indonesia  & %s &  %s\\\\
+& Senegal  & %s &  %s\\\\
+& Madagascar  & %s &  %s\\vspace{1mm}\\\\
+ Spatial 1 & Indonesia & %s &  %s\\\\
+& Senegal  & %s &  %s\\\\
+& Madagascar  & %s &  %s\\vspace{1mm} \\\\
+ Spatial 2 & Indonesia  & %s &  %s\\\\
+& Senegal  & %s &  %s\\\\
+& Madagascar  & %s &  %s\\\\
 "
 
-cov <- c(idn_cv1_metrics[[1]]$coverage, sen_cv1_metrics[[1]]$coverage, mdg_cv1_metrics[[1]]$coverage,
-         idn_cv2_metrics[[1]]$coverage, sen_cv2_metrics[[1]]$coverage, mdg_cv2_metrics[[1]]$coverage,
-         idn_cv3_metrics[[1]]$coverage, sen_cv3_metrics[[1]]$coverage, mdg_cv3_metrics[[1]]$coverage)
+cov <- c(idn_cv1_metrics[[1]]$coverage[2:3], sen_cv1_metrics[[1]]$coverage[2:3], mdg_cv1_metrics[[1]]$coverage[2:3],
+         idn_cv2_metrics[[1]]$coverage[2:3], sen_cv2_metrics[[1]]$coverage[2:3], mdg_cv2_metrics[[1]]$coverage[2:3],
+         idn_cv3_metrics[[1]]$coverage[2:3], sen_cv3_metrics[[1]]$coverage[2:3], mdg_cv3_metrics[[1]]$coverage[2:3])
 
 cov <- format(round(cov, 2), nsmall = 2)
 

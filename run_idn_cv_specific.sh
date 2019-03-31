@@ -9,7 +9,7 @@ if [ $# -ne 3 ]; then
   exit 1
 fi
 
-if [[ "$1" != @(random|spatial) ]]; then
+if [[ "$1" != @(random|spatial|spatialkeeppr) ]]; then
   echo "cv_type must be random or spatial"
   exit 1
 fi
