@@ -16,8 +16,7 @@ cv_spatial_folds <- function(data, k = 5, keep_pr = FALSE){
   centroids <- t(centroids)
   colnames(centroids) <- c('longitude', 'latitude')
   
-  all_coords <- rbind(cbind(centroids, id = 1), 
-                      cbind(data$pr[, c('longitude', 'latitude')], id = 0))
+  all_coords <- centroids
   
   # Do k means
   folds <- kmeans(all_coords[, 1:2], k, algorithm = 'MacQueen', iter.max = 1000)
@@ -27,7 +26,15 @@ cv_spatial_folds <- function(data, k = 5, keep_pr = FALSE){
   # fold is length nrow(polygons), foldspr is length nrow(points)
   #   Should be values 1 to k.
   polygon_folds <- folds[seq_len(nrow(data$polygon))]
-  foldspr <- folds[(nrow(data$polygon) + 1):length(folds)]
+
+
+  # Find which pr are in which polygons.
+  pr_spatial_points <- SpatialPoints(data$pr[, c('longitude', 'latitude')], CRS(projection(sorted_shapes)))
+
+  d <- over(pr_spatial_points, sorted_shapes)
+
+  foldspr <- polygon_folds[match(d$area_id, data$polygon$shapefile_id)]
+  foldspr[is.na(foldspr)] <- 0
   
   data_cv <- list()
   class(data_cv) <- c('ppj_cv', 'list')
