@@ -140,7 +140,7 @@ save(data_zam, file = 'model_outputs/zam_full_data.RData')
 
 autoplot(data_zam)
 
-mesh_zam <- build_mesh(data_zam, mesh.args = list(max.edge = c(0.1, 0.8), cut = 0.1, offset = c(2, 2)))
+mesh_zam <- build_mesh(data_zam, mesh.args = list(max.edge = c(0.2, 0.8), cut = 0.2, offset = c(2, 2)))
 
 data_cv1_zam <- cv_random_folds(data_zam, k = 10) # todo
 autoplot(data_cv1_zam, jitter = 0)
@@ -321,7 +321,7 @@ cat('Start cv2 model2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv2_output2 <- run_cv(data_cv2_zam, mesh_zam, its = 1000, 
                       model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 5)
-obspred_map(data_cv2_zam, cv2_output2, column = FALSE)
+obspred_map(data_cv2_zam, cv2_output2, column = FALSE, mask = TRUE)
 ggsave('figs/zam_polygons_only_obspred_map2.png')
 obspred_map(data_cv2_zam, cv2_output2, trans = 'log10', column = FALSE)
 ggsave('figs/zam_polygons_only_obspred_map_log2.png')
@@ -333,7 +333,7 @@ cat('Start cv2 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv2_output3 <- run_cv(data_cv2_zam, mesh_zam, its = 1000, 
                       model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 5)
-obspred_map(data_cv2_zam, cv2_output3, column = FALSE)
+obspred_map(data_cv2_zam, cv2_output3, column = FALSE, mask = TRUE)
 ggsave('figs/zam_both_obspred_map2.png')
 obspred_map(data_cv2_zam, cv2_output3, trans = 'log10', column = FALSE)
 ggsave('figs/zam_both_obspred_map_log2.png')
