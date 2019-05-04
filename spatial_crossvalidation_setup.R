@@ -5,6 +5,8 @@
 
 cv_spatial_folds <- function(data, k = 5, keep_pr = FALSE){
   
+
+  set.seed(12341)
   # Polygons to points
   # Sort shapefiles to match order of polygon dataframe
   
