@@ -3,10 +3,10 @@
 #'@return a 'ppj_cv' object. Which is a list of paired train/test 'ppf_data' objects
 #'
 
-cv_spatial_folds <- function(data, k = 5, keep_pr = FALSE){
+cv_spatial_folds <- function(data, k = 5, keep_pr = FALSE, seed = 141414){
   
 
-  set.seed(12341)
+  set.seed(seed)
   # Polygons to points
   # Sort shapefiles to match order of polygon dataframe
   
