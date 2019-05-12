@@ -1453,19 +1453,42 @@ dev.off()
 
 # Useful summary tables
 table1_skeleton <- 
-  "Random & Indonesia  & %s &  %s\\\\
-& Senegal  & %s &  %s\\\\
-& Madagascar  & %s &  %s\\vspace{3mm}\\\\
-Spatial 1 & Indonesia & %s &  %s\\\\
-& Senegal  & %s &  %s\\\\
-& Madagascar  & %s &  %s\\vspace{3mm}\\\\
-Spatial 2 & Indonesia & %s &  %s\\\\
-& Senegal  & %s &  %s\\\\
-& Madagascar & %s &  %s\\\\"
+  "Random & Indonesia  & %s &  %s &  %s\\\\
+& Senegal  & %s &  %s &  %s\\\\
+& Madagascar  & %s &  %s &  %s\\vspace{3mm}\\\\
+Spatial 1 & Indonesia & %s &  %s &  %s\\\\
+& Senegal  & %s &  %s &  %s\\\\
+& Madagascar  & %s &  %s &  %s\\vspace{3mm}\\\\
+Spatial 2 & Indonesia & %s &  %s &  %s\\\\
+& Senegal  & %s &  %s &  %s\\\\
+& Madagascar & %s &  %s &  %s\\\\"
 
-r <- c(idn_cv1_metrics[[1]]$MAE[2:3], sen_cv1_metrics[[1]]$MAE[2:3], mdg_cv1_metrics[[1]]$MAE[2:3],
-       idn_cv2_metrics[[1]]$MAE[2:3], sen_cv2_metrics[[1]]$MAE[2:3], mdg_cv2_metrics[[1]]$MAE[2:3],
-       idn_cv3_metrics[[1]]$MAE[2:3], sen_cv3_metrics[[1]]$MAE[2:3], mdg_cv3_metrics[[1]]$MAE[2:3])
+mdg_cv1_poly_df <- mdg_cv1_poly_df %>% mutate(error = abs(pred_api - response))
+mdg_cv2_poly_df <- mdg_cv2_poly_df %>% mutate(error = abs(pred_api - response))
+mdg_cv3_poly_df <- mdg_cv3_poly_df %>% mutate(error = abs(pred_api - response))
+idn_cv1_poly_df <- idn_cv1_poly_df %>% mutate(error = abs(pred_api - response))
+idn_cv2_poly_df <- idn_cv2_poly_df %>% mutate(error = abs(pred_api - response))
+idn_cv3_poly_df <- idn_cv3_poly_df %>% mutate(error = abs(pred_api - response))
+mdg_cv1_poly_df <- mdg_cv1_poly_df %>% mutate(error = abs(pred_api - response))
+mdg_cv2_poly_df <- mdg_cv2_poly_df %>% mutate(error = abs(pred_api - response))
+mdg_cv3_poly_df <- mdg_cv3_poly_df %>% mutate(error = abs(pred_api - response))
+
+wilc <- function(x){
+  x$error <- x$pred_api - x$response
+  wilcox.test(x$error[x$model == 'both'] - x$error[x$model == 'polygons'])$p.value
+}
+
+# wilcox.test(mdg_cv1_poly_df$error[mdg_cv1_poly_df$model == 'both'] - mdg_cv1_poly_df$error[mdg_cv1_poly_df$model == 'polygons'])$p.value
+
+r <- c(idn_cv1_metrics[[1]]$MAE[2:3], wilc(idn_cv1_poly_df),
+       sen_cv1_metrics[[1]]$MAE[2:3], wilc(sen_cv1_poly_df),
+       mdg_cv1_metrics[[1]]$MAE[2:3], wilc(mdg_cv1_poly_df),
+       idn_cv2_metrics[[1]]$MAE[2:3], wilc(idn_cv2_poly_df),
+       sen_cv2_metrics[[1]]$MAE[2:3], wilc(sen_cv2_poly_df), 
+       mdg_cv2_metrics[[1]]$MAE[2:3], wilc(mdg_cv2_poly_df),
+       idn_cv3_metrics[[1]]$MAE[2:3], wilc(idn_cv3_poly_df), 
+       sen_cv3_metrics[[1]]$MAE[2:3], wilc(sen_cv3_poly_df), 
+        mdg_cv3_metrics[[1]]$MAE[2:3],wilc(mdg_cv3_poly_df))
 
 r <- format(round(r, 2), nsmall = 2)
 
@@ -1500,3 +1523,9 @@ write(table3, 'figs/summaries/table3.txt')
 
 
 # Further SI figures.
+
+
+
+
+
+# Stats tests.

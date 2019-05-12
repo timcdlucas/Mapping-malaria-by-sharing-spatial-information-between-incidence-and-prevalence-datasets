@@ -4,7 +4,7 @@
 # Tim Lucas
 # 2018-05-30
 ###########
-
+Woohoo! You've read all the messages in your inbox.
 if(Sys.info()["user"] != 'anita'){
   setwd('~/timz/timothy/point_polygon_joint_comparison')
 } else {
@@ -157,7 +157,8 @@ arg_list <- list(prior_rho_min = 1, #
                  prior_sigma_prob = 0.00001,
                  prior_iideffect_sd_max = 0.05, 
                  # The difference between m_low_pf and LCI(pois(m_mean_pf)), then converted to inc rate, then to prev ranges around 0-0.025. 
-                 # The 0.975 quantile of that (two sided) distribution is 0.005 prevalence. 
+                 # The 0.975 quantile of th
+at (two sided) distribution is 0.005 prevalence. 
                  # To explain 0.005 prevalence, we need a norm of 0.05. Fin.
                  prior_iideffect_sd_prob = 0.000001, # Made this stronger because too much iid.
                  prior_iideffect_pr_sd_max = 0.05,
@@ -275,7 +276,7 @@ obspred_map(data_cv1_zam, cv1_output3, column = FALSE)
 ggsave('figs/zam_both_obspred_map.png')
 obspred_map(data_cv1_zam, cv1_output3, trans = 'log10', column = FALSE)
 ggsave('figs/zam_both_obspred_map_log.png')
-autoplot(cv1_output3, type = 'obs_preds', CI = TRUE)
+autoplot(cv1_output3, type = 'obs_preds', CI = FALSE)
 ggsave('figs/zam_both_obspred.png')
 save(cv1_output3, file = 'model_outputs/zam_joint_cv_1.RData')
 
@@ -363,7 +364,7 @@ cat('Start cv3')
 data_cv3_zam <- cv_spatial_folds(data_zam, k = 5, keep_pr = TRUE)
 save(data_cv3_zam, file = 'model_outputs/zam_cv_3.RData')
 autoplot(data_cv3_zam, jitter = 0.0)
-ggsave('figs/zam_cv_spatial.png')
+ggsave('figs/zam_cv_spatial2.png')
 
 
 cat('Start cv3 model1')
@@ -372,11 +373,11 @@ arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv3_output1 <- run_cv(data_cv3_zam, mesh_zam, its = 1000, 
                       model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 5)
 obspred_map(data_cv3_zam, cv3_output1, column = FALSE)
-ggsave('figs/zam_points_only_obspred_map3,png')
+ggsave('figs/zam_points_only_obspred_map3.png')
 obspred_map(data_cv3_zam, cv3_output1, trans = 'log10', column = FALSE)
-ggsave('figs/zam_points_only_obspred_map_log3,png')
+ggsave('figs/zam_points_only_obspred_map_log3.png')
 autoplot(cv3_output1, type = 'obs_preds', CI = TRUE)
-ggsave('figs/zam_points_only_obspred3,png')
+ggsave('figs/zam_points_only_obspred3.png')
 save(cv3_output1, file = 'model_outputs/zam_points_cv_3.RData')
 
 cat('Start cv3 model2')
@@ -384,11 +385,11 @@ arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv3_output2 <- run_cv(data_cv3_zam, mesh_zam, its = 1000, 
                       model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 5)
 obspred_map(data_cv3_zam, cv3_output2, column = FALSE)
-ggsave('figs/zam_polygons_only_obspred_map3,png')
+ggsave('figs/zam_polygons_only_obspred_map3.png')
 obspred_map(data_cv3_zam, cv3_output2, trans = 'log10', column = FALSE)
-ggsave('figs/zam_polygons_only_obspred_map_log3,png')
+ggsave('figs/zam_polygons_only_obspred_map_log3.png')
 autoplot(cv3_output2, type = 'obs_preds', CI = FALSE)
-ggsave('figs/zam_polygons_only_obspred3,png')
+ggsave('figs/zam_polygons_only_obspred3.png')
 save(cv3_output2, file = 'model_outputs/zam_polygon_cv_3.RData')
 
 cat('Start cv3 model3')
@@ -396,11 +397,11 @@ arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv3_output3 <- run_cv(data_cv3_zam, mesh_zam, its = 1000, 
                       model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 5)
 obspred_map(data_cv3_zam, cv3_output3, column = FALSE)
-ggsave('figs/zam_both_obspred_map3,png')
+ggsave('figs/zam_both_obspred_map3.png')
 obspred_map(data_cv3_zam, cv3_output3, trans = 'log10', column = FALSE)
-ggsave('figs/zam_both_obspred_map_log3,png')
+ggsave('figs/zam_both_obspred_map_log3.png')
 autoplot(cv3_output3, type = 'obs_preds', CI = FALSE)
-ggsave('figs/zam_both_obspred3,png')
+ggsave('figs/zam_both_obspred3.png')
 
 save(cv3_output3, file = 'model_outputs/zam_joint_cv_3.RData')
 
@@ -416,3 +417,7 @@ cv3_output3$summary$pr_metrics
 
 
 print('Finished')
+
+
+
+
