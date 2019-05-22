@@ -12,7 +12,7 @@ if(Sys.info()["user"] != 'anita'){
 }
 
 source("setUserInfo.R")
-
+  
 
 # define paths
 
@@ -110,7 +110,7 @@ data <- load_data(PR_path,
                   shapefile_path, 
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'SEN', 
-                  pr_country = c('Senegal', 'The Gambia', 'Guinea-Bissau', 'Guinea', 'Mali'),
+                  pr_country = NULL,
                   admin_unit_level = 'ADMIN2', # todo
                   pr_year = c(2007:2011),
                   api_year = 2009)

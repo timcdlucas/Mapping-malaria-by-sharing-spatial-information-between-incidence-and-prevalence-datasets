@@ -104,7 +104,7 @@ data <- load_data(PR_path,
                   shapefile_path, 
                   shapefile_pattern = '.shp$', 
                   useiso3 = 'IDN', 
-                  pr_country = c('Indonesia', 'Malaysia', 'Timor-Leste', 'Papua New Guinea', 'Phillipines'),
+                  pr_country = NULL,
                   # pr_year = 2008,
                   # api_year = 2014)
                   pr_year = 2010:2015,
