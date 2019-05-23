@@ -23,7 +23,7 @@
 #' use_points = 1
 
 
-fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 100){
+fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 100, drop_covs = NULL){
 
   
   startendindex <- make_startend_index(data)
@@ -40,6 +40,14 @@ fit_model <- function(data, mesh, its = 10, model.args = NULL, CI = 0.95, N = 10
   data$pr_covs[is.na(data$pr_covs)] <- 0
   
   cov_matrix <- as.matrix(data$covs[, -c(1:2)])
+
+  if(!is.null(drop_covs)){
+    data$covs <- data$covs[, !(seq_len(ncol(data$covs)) %in% (drop_covs + 2))]
+    data$pr_covs <- data$pr_covs[, !(seq_len(ncol(data$pr_covs)) %in% drop_covs)]
+    cov_matrix <- cov_matrix[, !(seq_len(ncol(cov_matrix)) %in% drop_covs)]
+
+    data$cov_rasters <- data$cov_rasters[[which(!(seq_len(ncol(cov_matrix)) %in% drop_covs))]]
+  }
   
   
 

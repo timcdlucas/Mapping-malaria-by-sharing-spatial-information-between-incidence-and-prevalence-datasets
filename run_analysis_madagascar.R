@@ -130,7 +130,7 @@ data_mdg <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs,
   useiso3 = 'MDG',
-  add_pr_gp = FALSE,
+  add_pr_gp = TRUE,
   transform = 4:7)
 save(data_mdg, file = 'model_outputs/mdg_full_data.RData')
 
@@ -163,11 +163,10 @@ arg_list <- list(prior_rho_min = 1, #
                  priormean_slope = 0, 
                  priorsd_slope = 0.4, # Explains between 0.004 and 0.27 prevalence. 1 covariate shouldn't explain between 0 and 0.6 (range of prev).
                  use_polygons = 1,
-                 # use_polygons = 1,
                  use_points = 1)
 
 if(FALSE){
-  full_model <- fit_model(data_mdg, mesh_mdg, its = 1000, model.args = arg_list)
+  full_model <- fit_model(data_mdg, mesh_mdg, its = 30, model.args = arg_list)
   autoplot(full_model)
   
   png('figs/mdg_full_model_in_sample_map.png')
