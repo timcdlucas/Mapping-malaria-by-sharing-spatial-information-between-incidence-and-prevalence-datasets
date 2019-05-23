@@ -14,7 +14,8 @@ process_data <- function(binomial_positive,
                          na.rm = FALSE,
                          transform = NULL,
                          skip_extract = FALSE,
-                         serial_extract = FALSE){
+                         serial_extract = FALSE,
+                         add_pr_gp = FALSE){
   
   
   stopifnot(inherits(shapefiles, 'SpatialPolygonsDataFrame'))
@@ -107,6 +108,10 @@ process_data <- function(binomial_positive,
   cov_rasters <- scale(cov_rasters)
   
   plot_raster_histograms(cov_rasters)
+
+  if(add_pr_gp){
+    cov_rasters <- create_prev_gp(pr, cov_rasters)
+  }
   
   # Extract covariates
   extracted <- NULL
@@ -231,5 +236,71 @@ test_pr <- function(pr){
 }
 
 
+
+
+
+
+create_prev_gp <- function(pr, cov_rasters){
+
+
+  coords <- pr[, c('longitude', 'latitude')]
+  pr$positive <- round(pr$positive)
+
+  mesh <- inla.mesh.2d(coords, 
+                       max.edge = c(0.2, 3),  
+                       cut = 0.2, 
+                       offset = c(2, 5))
+
+  # Build weight matrix
+  A <- inla.spde.make.A(mesh = mesh, loc = as.matrix(coords))
+
+  # Define penalised complexity priors for random field. 
+  spde <- inla.spde2.pcmatern(mesh = mesh, alpha = 2, prior.range = c(1, 0.00001), prior.sigma = c(1, 0.00001))
+
+
+  # Get data ready for INLA model
+
+  stk.env <- inla.stack(tag = 'estimation', ## tag
+                        data = list(positive = pr$positive, examined = pr$examined),
+                        A = list(A),  ## Projector matrix for space, fixed, then sum to one fixed.
+                        effects = list(space = 1:spde$n.spde))
+
+
+
+
+  # run inl
+
+  form <- positive ~ 0 + f(space, model = spde)
+
+
+  model <- inla(form, 
+                family = 'binomial',  
+                Ntrials = pr$examined,
+                data = inla.stack.data(stk.env), 
+                control.predictor = list(A = inla.stack.A(stk.env), compute=TRUE), 
+                control.compute = list(config = TRUE))  # This defaults to all cores. But probably better to be explicit.
+
+
+  
+  # Predict random field
+  # Get raster coords
+  raster_pts <- rasterToPoints(cov_rasters, spatial = TRUE)
+  coords_pred <- raster_pts@coords
+
+  # Get random field predicted
+
+  Amatrix <- inla.mesh.project(mesh, loc = as.matrix(coords_pred))$A
+
+  field <- (Amatrix %*% model$summary.random[[1]]$mode)[, 1]
+
+  field_ras <- rasterFromXYZ(cbind(coords_pred, field))
+
+  field_ras <- extend(field_ras, cov_rasters)
+
+  cov_rasters <- stack(cov_rasters, field_ras)
+
+  return(cov_rasters)
+
+}
 
 
