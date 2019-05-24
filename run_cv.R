@@ -1,6 +1,6 @@
 
 
-run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, parallel_delay = 0, cores = 5){
+run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, drop_covs = NULL, parallel_delay = 0, cores = 5){
 
   stopifnot(inherits(cv_data, 'ppj_cv'))
 
@@ -11,7 +11,7 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, parall
   par_fun <- function(i){  
     message('Fitting model: ', i)
     Sys.sleep(parallel_delay * (i - 1))
-    fit_model(cv_data[[i]]$train, mesh, its, model.args)
+    fit_model(cv_data[[i]]$train, mesh, its, model.args, drop_covs = drop_covs)
   }
   
 
