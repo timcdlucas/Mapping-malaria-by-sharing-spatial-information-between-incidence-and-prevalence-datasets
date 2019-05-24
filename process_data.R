@@ -15,7 +15,9 @@ process_data <- function(binomial_positive,
                          transform = NULL,
                          skip_extract = FALSE,
                          serial_extract = FALSE,
-                         add_pr_gp = FALSE){
+                         add_pr_gp = FALSE,
+                         range_tail = 1, 
+                         range_prob = 0.00001){
   
   
   stopifnot(inherits(shapefiles, 'SpatialPolygonsDataFrame'))
@@ -110,7 +112,7 @@ process_data <- function(binomial_positive,
   plot_raster_histograms(cov_rasters)
 
   if(add_pr_gp){
-    cov_rasters <- create_prev_gp(pr, cov_rasters)
+    cov_rasters <- create_prev_gp(pr, cov_rasters, range_tail, range_prob)
   }
   
   # Extract covariates
@@ -240,7 +242,7 @@ test_pr <- function(pr){
 
 
 
-create_prev_gp <- function(pr, cov_rasters){
+create_prev_gp <- function(pr, cov_rasters, range_tail, range_prob){
 
 
   coords <- pr[, c('longitude', 'latitude')]
@@ -255,7 +257,7 @@ create_prev_gp <- function(pr, cov_rasters){
   A <- inla.spde.make.A(mesh = mesh, loc = as.matrix(coords))
 
   # Define penalised complexity priors for random field. 
-  spde <- inla.spde2.pcmatern(mesh = mesh, alpha = 2, prior.range = c(1, 0.00001), prior.sigma = c(1, 0.00001))
+  spde <- inla.spde2.pcmatern(mesh = mesh, alpha = 2, prior.range = c(range_tail, range_prob), prior.sigma = c(1, 0.00001))
 
 
   # Get data ready for INLA model
