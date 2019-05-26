@@ -94,10 +94,19 @@ if(model_type == 'points'){
 } else if(model_type == 'joint'){
   use_points <- 1
   use_polygons <- 1
+} else if(model_type == 'prgp'){
+  use_points <- 1
+  use_polygons <- 0
 } else {
   stop('Wrong type of model requested')
 }
 
+
+if(model_type != 'prgp'){
+  skip_covs <- 9 
+} else { 
+  skip_covs <- NULL
+}
 
 # run models
 # Run full model to get a handle on things.
@@ -124,7 +133,7 @@ arg_list <- list(prior_rho_min = 3, #
 data <- cv_data[[i]]$train
 
 
-model <- fit_model(data, mesh_idn, its = 400, model.args = arg_list)
+model <- fit_model(data, mesh_idn, its = 400, model.args = arg_list, skip_covs = skip_covs)
 #save(full_model, file = 'model_outputs/full_model_idn.RData')
 
 

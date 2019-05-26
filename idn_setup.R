@@ -127,6 +127,8 @@ data_idn <- process_data(
   pop_raster = data$pop,
   cov_rasters = data$covs,
   useiso3 = 'IDN',
+  add_pr_gp = TRUE,
+  range_tail = 3,
   transform = c(4:7))
 save(data_idn, file = 'model_outputs/idn_full_data.RData')
 
