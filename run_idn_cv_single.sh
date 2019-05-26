@@ -10,8 +10,8 @@ if [[ "$1" != @(random|spatial|spatialkeeppr) ]]; then
   exit 1
 fi
 
-if [[ "$2" != @(points|polygons|joint) ]]; then
-  echo "model_type must be points, polygons or joint"
+if [[ "$2" != @(points|polygons|joint|prgp) ]]; then
+  echo "model_type must be points, polygons, joint or prgp"
   exit 1
 fi
 

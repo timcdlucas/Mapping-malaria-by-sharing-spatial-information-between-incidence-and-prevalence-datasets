@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare -a cv_type=("random" "spatial" "spatialkeeppr")
-declare -a model_type=("points" "polygons" "joint")
+declare -a model_type=("points" "polygons" "joint" "prgp")
 
 for i in "${cv_type[@]}" 
 do
