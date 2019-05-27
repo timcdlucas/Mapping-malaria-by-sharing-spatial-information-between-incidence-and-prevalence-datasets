@@ -95,8 +95,8 @@ if(model_type == 'points'){
   use_points <- 1
   use_polygons <- 1
 } else if(model_type == 'prgp'){
-  use_points <- 1
-  use_polygons <- 0
+  use_points <- 0
+  use_polygons <- 1
 } else {
   stop('Wrong type of model requested')
 }
