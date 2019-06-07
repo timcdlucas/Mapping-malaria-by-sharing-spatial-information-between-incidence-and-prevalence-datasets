@@ -349,12 +349,12 @@ cv1_prgp_idn <- get(load(cv1_prgp_idn_path))
 cv1_both_idn <- get(load(cv1_both_idn_path))
 
 
-idn_cv1_poly_df <- rbind(cv1_prgp_idn$summary$combined_aggregated %>% cbind(model = 'points'),
-                         cv1_polys_idn$summary$combined_aggregated %>% cbind(model = 'polygons'),
-                         cv1_both_idn$summary$combined_aggregated %>% cbind(model = 'both'))
-idn_cv1_pr_df <-  rbind(cv1_prgp_idn$summary$combined_pr %>% cbind(model = 'points'),
-                        cv1_polys_idn$summary$combined_pr %>% cbind(model = 'polygons'),
-                        cv1_both_idn$summary$combined_pr %>% cbind(model = 'both'))
+idn_cv1_poly_df <- rbind(cv1_polys_idn$summary$combined_aggregated %>% cbind(model = 'Baseline'),
+                         cv1_prgp_idn$summary$combined_aggregated %>% cbind(model = 'Prev GP'),
+                         cv1_both_idn$summary$combined_aggregated %>% cbind(model = 'Joint'))
+idn_cv1_pr_df <-  rbind(cv1_polys_idn$summary$combined_pr %>% cbind(model = 'Baseline'),
+                        cv1_prgp_idn$summary$combined_pr %>% cbind(model = 'Prev GP'),                        
+                        cv1_both_idn$summary$combined_pr %>% cbind(model = 'Joint'))
 # 
 # 
 # idn_cv1_new_metrics <- 
@@ -375,12 +375,12 @@ idn_cv1_pr_df <-  rbind(cv1_prgp_idn$summary$combined_pr %>% cbind(model = 'poin
 
 
 
-idn_cv1_metrics <- list(rbind(cv1_prgp_idn$summary$polygon_metrics %>% cbind(model = 'points'),
-                              cv1_polys_idn$summary$polygon_metrics %>% cbind(model = 'polygons'),
-                              cv1_both_idn$summary$polygon_metrics %>% cbind(model = 'both')),
-                        rbind(cv1_prgp_idn$summary$pr_metrics %>% cbind(model = 'points'),
-                              cv1_polys_idn$summary$pr_metrics %>% cbind(model = 'polygons'),
-                              cv1_both_idn$summary$pr_metrics %>% cbind(model = 'both')))
+idn_cv1_metrics <- list(rbind(cv1_polys_idn$summary$polygon_metrics %>% cbind(model = 'Baseline'),
+                              cv1_prgp_idn$summary$polygon_metrics %>% cbind(model = 'Prev GP'),
+                              cv1_both_idn$summary$polygon_metrics %>% cbind(model = 'Joint')),
+                        rbind(cv1_polys_idn$summary$pr_metrics %>% cbind(model = 'Baseline'),
+                              cv1_prgp_idn$summary$pr_metrics %>% cbind(model = 'Prev GP'),                              
+                              cv1_both_idn$summary$pr_metrics %>% cbind(model = 'Joint')))
 
 
 rm(cv1_prgp_idn)
@@ -394,12 +394,12 @@ cv1_polys_sen <- get(load(cv1_polys_sen_path))
 cv1_both_sen <- get(load(cv1_both_sen_path))
 
 
-sen_cv1_poly_df <- rbind(cv1_prgp_sen$summary$combined_aggregated %>% cbind(model = 'points'),
-                         cv1_polys_sen$summary$combined_aggregated %>% cbind(model = 'polygons'),
-                         cv1_both_sen$summary$combined_aggregated %>% cbind(model = 'both'))
-sen_cv1_pr_df <-  rbind(cv1_prgp_sen$summary$combined_pr %>% cbind(model = 'points'),
-                        cv1_polys_sen$summary$combined_pr %>% cbind(model = 'polygons'),
-                        cv1_both_sen$summary$combined_pr %>% cbind(model = 'both'))
+sen_cv1_poly_df <- rbind(cv1_polys_sen$summary$combined_aggregated %>% cbind(model = 'Baseline'),
+                         cv1_prgp_sen$summary$combined_aggregated %>% cbind(model = 'Prev GP'),
+                         cv1_both_sen$summary$combined_aggregated %>% cbind(model = 'Joint'))
+sen_cv1_pr_df <-  rbind(cv1_polys_sen$summary$combined_pr %>% cbind(model = 'Baseline'),
+                        cv1_prgp_sen$summary$combined_pr %>% cbind(model = 'Prev GP'),
+                        cv1_both_sen$summary$combined_pr %>% cbind(model = 'Joint'))
 # 
 # sen_cv1_new_metrics <- 
 #   rbind(cv1_points_sen$summary$combined_pr %>%
@@ -419,12 +419,12 @@ sen_cv1_pr_df <-  rbind(cv1_prgp_sen$summary$combined_pr %>% cbind(model = 'poin
 
 
 
-sen_cv1_metrics <- list(rbind(cv1_prgp_sen$summary$polygon_metrics %>% cbind(model = 'points'),
-                              cv1_polys_sen$summary$polygon_metrics %>% cbind(model = 'polygons'),
-                              cv1_both_sen$summary$polygon_metrics %>% cbind(model = 'both')),
-                        rbind(cv1_prgp_sen$summary$pr_metrics %>% cbind(model = 'points'),
-                              cv1_polys_sen$summary$pr_metrics %>% cbind(model = 'polygons'),
-                              cv1_both_sen$summary$pr_metrics %>% cbind(model = 'both')))
+sen_cv1_metrics <- list(rbind(cv1_polys_sen$summary$polygon_metrics %>% cbind(model = 'Baseline'),
+                              cv1_prgp_sen$summary$polygon_metrics %>% cbind(model = 'Prev GP'),
+                              cv1_both_sen$summary$polygon_metrics %>% cbind(model = 'Joint')),
+                        rbind(cv1_polys_sen$summary$pr_metrics %>% cbind(model = 'Baseline'),
+                              cv1_prgp_sen$summary$pr_metrics %>% cbind(model = 'Prev GP'),
+                              cv1_both_sen$summary$pr_metrics %>% cbind(model = 'Joint')))
 
 
 
@@ -441,21 +441,21 @@ cv1_both_mdg <- get(load(cv1_both_mdg_path))
 
 
 
-mdg_cv1_poly_df <- rbind(cv1_prgp_mdg$summary$combined_aggregated %>% cbind(model = 'points'),
-                         cv1_polys_mdg$summary$combined_aggregated %>% cbind(model = 'polygons'),
-                         cv1_both_mdg$summary$combined_aggregated %>% cbind(model = 'both'))
-mdg_cv1_pr_df <-  rbind(cv1_prgp_mdg$summary$combined_pr %>% cbind(model = 'points'),
-                        cv1_polys_mdg$summary$combined_pr %>% cbind(model = 'polygons'),
-                        cv1_both_mdg$summary$combined_pr %>% cbind(model = 'both'))
+mdg_cv1_poly_df <- rbind(cv1_polys_mdg$summary$combined_aggregated %>% cbind(model = 'Baseline'),
+                         cv1_prgp_mdg$summary$combined_aggregated %>% cbind(model = 'Prev GP'),
+                         cv1_both_mdg$summary$combined_aggregated %>% cbind(model = 'Joint'))
+mdg_cv1_pr_df <-  rbind(cv1_polys_mdg$summary$combined_pr %>% cbind(model = 'Baseline'),
+                        cv1_prgp_mdg$summary$combined_pr %>% cbind(model = 'Prev GP'),                        
+                        cv1_both_mdg$summary$combined_pr %>% cbind(model = 'Joint'))
 
 
 
-mdg_cv1_metrics <- list(rbind(cv1_prgp_mdg$summary$polygon_metrics %>% cbind(model = 'points'),
-                              cv1_polys_mdg$summary$polygon_metrics %>% cbind(model = 'polygons'),
-                              cv1_both_mdg$summary$polygon_metrics %>% cbind(model = 'both')),
-                        rbind(cv1_prgp_mdg$summary$pr_metrics %>% cbind(model = 'points'),
-                              cv1_polys_mdg$summary$pr_metrics %>% cbind(model = 'polygons'),
-                              cv1_both_mdg$summary$pr_metrics %>% cbind(model = 'both')))
+mdg_cv1_metrics <- list(rbind(cv1_polys_mdg$summary$polygon_metrics %>% cbind(model = 'Baseline'),
+                              cv1_prgp_mdg$summary$polygon_metrics %>% cbind(model = 'Prev GP'),
+                              cv1_both_mdg$summary$polygon_metrics %>% cbind(model = 'Joint')),
+                        rbind(cv1_polys_mdg$summary$pr_metrics %>% cbind(model = 'Baseline'),
+                              cv1_prgp_mdg$summary$pr_metrics %>% cbind(model = 'Prev GP'),
+                              cv1_both_mdg$summary$pr_metrics %>% cbind(model = 'Joint')))
 
 
 rm(cv1_points_mdg)
@@ -478,7 +478,7 @@ idn_poly <- ggplot(idn_cv1_poly_df, aes(response, pred_api, colour = model)) +
   guides(colour = FALSE)
 
 idn_poly_facet <- ggplot(idn_cv1_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a, size = 3, shape = s) + 
+  geom_point(alpha = a, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +
@@ -488,101 +488,9 @@ idn_poly_facet <- ggplot(idn_cv1_poly_df, aes(response, pred_api, colour = model
   guides(colour = FALSE)
 
 
-idn_points <- ggplot(idn_cv1_pr_df, aes(prevalence, pred_prev, colour = model, size = examined)) + 
-  geom_point(alpha = a, shape = s) + 
-  geom_abline(slope = 1, intercept = 0)  +
-  scale_y_sqrt() + 
-  scale_x_sqrt() +
-  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-  guides(colour = FALSE)
-
-
-idn_points2 <- 
-idn_cv1_pr_df %>% 
-  mutate(positive = round(positive), pred_positive = round(pred_prev * examined)) %>% 
-  ggplot(., aes(positive, pred_positive, colour = model)) + 
-    geom_count() +
-    geom_abline(slope = 1, intercept = 0)  +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = NULL))
-
-
-idn_points3 <- 
-idn_cv1_pr_df %>% 
-  filter(positive > 8) %>% 
-  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
-    geom_point() +
-    geom_abline(slope = 1, intercept = 0)  +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-
-idn_points4 <- 
-idn_cv1_pr_df %>% 
-  filter(positive > 5) %>% 
-  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
-    geom_point() +
-    geom_abline(slope = 1, intercept = 0)  +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-
-idn_points5 <- 
-  idn_cv1_pr_df %>% 
-    filter(positive > 5 | (positive == 0 & examined > 200)) %>% 
-    ggplot(., aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-      geom_point(alpha = a, shape = s) +
-      geom_abline(slope = 1, intercept = 0)  +
-      #facet_wrap(~ model) +
-      geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-      scale_y_sqrt() + 
-      scale_x_sqrt() +
-      labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-      guides(colour = FALSE)
-
-
-idn_points6 <- 
-idn_cv1_pr_df %>% 
-  filter(positive > 1) %>% 
-  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
-    geom_point() +
-    geom_abline(slope = 1, intercept = 0)  +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-
-
-idn_points_facet <- 
-  idn_cv1_pr_df %>% 
-    filter(positive > 2 | (positive == 0 & examined > 200)) %>% 
-    ggplot(., aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-      geom_point(alpha = a, shape = s) +
-      geom_abline(slope = 1, intercept = 0)  +
-      facet_wrap(~ model) +
-      geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-      scale_y_sqrt() + 
-      scale_x_sqrt() +
-      labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-      guides(colour = FALSE)
-
-
-
-
 
 sen_poly <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_point(alpha = a + 0.2, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +
@@ -590,7 +498,7 @@ sen_poly <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) +
   guides(colour = FALSE)
 
 sen_poly_facet <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_point(alpha = a + 0.2, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +
@@ -599,55 +507,18 @@ sen_poly_facet <- ggplot(sen_cv1_poly_df, aes(response, pred_api, colour = model
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-sen_points <- sen_cv1_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-sen_points_facet <- sen_cv1_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
 
 mdg_poly <- ggplot(mdg_cv1_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_point(alpha = a + 0.2, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-mdg_points <- mdg_cv1_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
 
 mdg_poly_facet <- ggplot(mdg_cv1_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_point(alpha = a + 0.2, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +  
@@ -655,34 +526,6 @@ mdg_poly_facet <- ggplot(mdg_cv1_poly_df, aes(response, pred_api, colour = model
   geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
-
-mdg_points_facet <- mdg_cv1_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    facet_wrap(~ model) + 
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-
-scatter_list <- list(idn_poly, idn_points5, sen_poly, sen_points, mdg_poly, mdg_points)
-full_obs_pred_scatter <- plot_grid(plotlist = scatter_list,
-                                   labels = LETTERS[1:6], ncol = 2)
-
-png('figs/summaries/random_cv_scatter.png', height = 1500, width = 1100)
-print(full_obs_pred_scatter)
-dev.off()
-
-
-
-pdf('figs/summaries/random_cv_scatter.pdf', height = 15, width = 11)
-print(full_obs_pred_scatter)
-dev.off()
 
 
 
@@ -696,434 +539,14 @@ dev.off()
 
 
 
-pdf('figs/summaries/random_cv_poly_facet.pdf', height = 15, width = 11)
+pdf('figs/summaries/random_cv_poly_facet.pdf', height = 10, width = 7)
 print(full_obs_pred_poly_facet)
 dev.off()
 
 
-pdf('figs/summaries/random_cv_poly_facet_big.pdf', height = 6, width = 6)
+pdf('figs/summaries/random_cv_poly_facet_big.pdf', height = 7, width = 6)
 print(full_obs_pred_poly_facet)
 dev.off()
-
-
-
-
-points_facet_list <- list(idn_points_facet, sen_points_facet, mdg_points_facet)
-full_obs_pred_points_facet <- plot_grid(plotlist = points_facet_list,
-                                   labels = LETTERS[1:3], ncol = 1)
-
-png('figs/summaries/random_cv_points_facet.png', height = 1500, width = 1100)
-print(full_obs_pred_points_facet)
-dev.off()
-
-
-
-pdf('figs/summaries/random_cv_points_facet.pdf', height = 15, width = 11)
-print(full_obs_pred_points_facet)
-dev.off()
-
-
-# Fig 4 and 6
-#################################################################################
-## Make model comparisons. Spatial CV.                                         ##
-#################################################################################
-
-cv2_points_idn <- get(load(cv2_points_idn_path))
-cv2_polys_idn <- get(load(cv2_polys_idn_path))
-cv2_both_idn <- get(load(cv2_both_idn_path))
-
-idn_cv2_poly_df <- rbind(cv2_points_idn$summary$combined_aggregated %>% cbind(model = 'points'),
-                         cv2_polys_idn$summary$combined_aggregated %>% cbind(model = 'polygons'),
-                         cv2_both_idn$summary$combined_aggregated %>% cbind(model = 'both'))
-idn_cv2_pr_df <-  rbind(cv2_points_idn$summary$combined_pr %>% cbind(model = 'points'),
-                        cv2_polys_idn$summary$combined_pr %>% cbind(model = 'polygons'),
-                        cv2_both_idn$summary$combined_pr %>% cbind(model = 'both'))
-
-
-idn_cv2_new_metrics <- 
-  rbind(cv2_points_idn$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'points'),
-        cv2_polys_idn$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'polygons'),
-        cv2_both_idn$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'both')
-  )
-
-
-names(cv2_both_idn$summary$pr_metrics) <- names(cv2_polys_idn$summary$pr_metrics)
-
-idn_cv2_metrics <- list(rbind(cv2_points_idn$summary$polygon_metrics %>% cbind(model = 'points'),
-                              cv2_polys_idn$summary$polygon_metrics %>% cbind(model = 'polygons'),
-                              cv2_both_idn$summary$polygon_metrics %>% cbind(model = 'both')),
-                        rbind(cv2_points_idn$summary$pr_metrics %>% cbind(model = 'points'),
-                              cv2_polys_idn$summary$pr_metrics %>% cbind(model = 'polygons'),
-                              cv2_both_idn$summary$pr_metrics %>% cbind(model = 'both')))
-idn_cv2_metrics[[2]] <- left_join(idn_cv2_metrics[[2]], idn_cv2_new_metrics)
-
-rm(cv2_points_idn)
-rm(cv2_polys_idn)
-rm(cv2_both_idn)
-gc()
-
-
-cv2_points_sen <- get(load(cv2_points_sen_path))
-cv2_polys_sen <- get(load(cv2_polys_sen_path))
-cv2_both_sen <- get(load(cv2_both_sen_path))
-
-
-sen_cv2_poly_df <- rbind(cv2_points_sen$summary$combined_aggregated %>% cbind(model = 'points'),
-                         cv2_polys_sen$summary$combined_aggregated %>% cbind(model = 'polygons'),
-                         cv2_both_sen$summary$combined_aggregated %>% cbind(model = 'both'))
-sen_cv2_pr_df <-  rbind(cv2_points_sen$summary$combined_pr %>% cbind(model = 'points'),
-                        cv2_polys_sen$summary$combined_pr %>% cbind(model = 'polygons'),
-                        cv2_both_sen$summary$combined_pr %>% cbind(model = 'both'))
-
-
-sen_cv2_new_metrics <- 
-  rbind(cv2_points_sen$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'points'),
-        cv2_polys_sen$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'polygons'),
-        cv2_both_sen$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'both')
-  )
-
-
-
-
-sen_cv2_metrics <- list(rbind(cv2_points_sen$summary$polygon_metrics %>% cbind(model = 'points'),
-                              cv2_polys_sen$summary$polygon_metrics %>% cbind(model = 'polygons'),
-                              cv2_both_sen$summary$polygon_metrics %>% cbind(model = 'both')),
-                        rbind(cv2_points_sen$summary$pr_metrics %>% cbind(model = 'points'),
-                              cv2_polys_sen$summary$pr_metrics %>% cbind(model = 'polygons'),
-                              cv2_both_sen$summary$pr_metrics %>% cbind(model = 'both')))
-sen_cv2_metrics[[2]] <- left_join(sen_cv2_metrics[[2]], sen_cv2_new_metrics)
-
-
-
-rm(cv2_points_sen)
-rm(cv2_polys_sen)
-rm(cv2_both_sen)
-gc()
-
-
-cv2_points_mdg <- get(load(cv2_points_mdg_path))
-cv2_polys_mdg <- get(load(cv2_polys_mdg_path))
-cv2_both_mdg <- get(load(cv2_both_mdg_path))
-
-
-
-mdg_cv2_poly_df <- rbind(cv2_points_mdg$summary$combined_aggregated %>% cbind(model = 'points'),
-                         cv2_polys_mdg$summary$combined_aggregated %>% cbind(model = 'polygons'),
-                         cv2_both_mdg$summary$combined_aggregated %>% cbind(model = 'both'))
-mdg_cv2_pr_df <-  rbind(cv2_points_mdg$summary$combined_pr %>% cbind(model = 'points'),
-                        cv2_polys_mdg$summary$combined_pr %>% cbind(model = 'polygons'),
-                        cv2_both_mdg$summary$combined_pr %>% cbind(model = 'both'))
-
-
-mdg_cv2_new_metrics <- 
-  rbind(cv2_points_mdg$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'points'),
-        cv2_polys_mdg$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'polygons'),
-        cv2_both_mdg$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'both')
-  )
-
-
-
-
-mdg_cv2_metrics <- list(rbind(cv2_points_mdg$summary$polygon_metrics %>% cbind(model = 'points'),
-                              cv2_polys_mdg$summary$polygon_metrics %>% cbind(model = 'polygons'),
-                              cv2_both_mdg$summary$polygon_metrics %>% cbind(model = 'both')),
-                        rbind(cv2_points_mdg$summary$pr_metrics %>% cbind(model = 'points'),
-                              cv2_polys_mdg$summary$pr_metrics %>% cbind(model = 'polygons'),
-                              cv2_both_mdg$summary$pr_metrics %>% cbind(model = 'both')))
-mdg_cv2_metrics[[2]] <- left_join(mdg_cv2_metrics[[2]], mdg_cv2_new_metrics)
-
-rm(cv2_points_mdg)
-rm(cv2_polys_mdg)
-rm(cv2_both_mdg)
-gc()
-
-
-
-
-
-
-
-a <- 0.5
-s <- 16
-
-idn_poly <- ggplot(idn_cv2_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a, size = 3, shape = s) + 
-  geom_abline(slope = 1, intercept = 0) +
-  scale_y_sqrt() + 
-  scale_x_sqrt() +
-  labs(x = 'Observed API', y = 'Predicted API') +
-  guides(colour = FALSE)
-
-idn_poly_facet <- ggplot(idn_cv2_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a, size = 3, shape = s) + 
-  geom_abline(slope = 1, intercept = 0) +
-  scale_y_sqrt() + 
-  scale_x_sqrt() +
-  facet_wrap(~model) + 
-  geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-  labs(x = 'Observed API', y = 'Predicted API') +
-  guides(colour = FALSE)
-
-
-idn_points <- ggplot(idn_cv2_pr_df, aes(prevalence, pred_prev, colour = model, size = examined)) + 
-  geom_point(alpha = a, shape = s) + 
-  geom_abline(slope = 1, intercept = 0)  +
-  scale_y_sqrt() + 
-  scale_x_sqrt() +
-  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-  guides(colour = FALSE)
-
-
-idn_points2 <- 
-idn_cv2_pr_df %>% 
-  mutate(positive = round(positive), pred_positive = round(pred_prev * examined)) %>% 
-  ggplot(., aes(positive, pred_positive, colour = model)) + 
-    geom_count() +
-    geom_abline(slope = 1, intercept = 0)  +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = NULL))
-
-
-idn_points3 <- 
-idn_cv2_pr_df %>% 
-  filter(positive > 8) %>% 
-  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
-    geom_point() +
-    geom_abline(slope = 1, intercept = 0)  +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-
-idn_points4 <- 
-idn_cv2_pr_df %>% 
-  filter(positive > 5) %>% 
-  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
-    geom_point() +
-    geom_abline(slope = 1, intercept = 0)  +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-
-idn_points5 <- 
-  idn_cv2_pr_df %>% 
-    filter(positive > 5 | (positive == 0 & examined > 200)) %>% 
-    ggplot(., aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-      geom_point(alpha = a, shape = s) +
-      geom_abline(slope = 1, intercept = 0)  +
-      #facet_wrap(~ model) +
-      geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-      scale_y_sqrt() + 
-      scale_x_sqrt() +
-      labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-      guides(colour = FALSE)
-
-
-idn_points6 <- 
-idn_cv2_pr_df %>% 
-  filter(positive > 1) %>% 
-  ggplot(., aes(prevalence, pred_prev, colour = model, size = examined)) + 
-    geom_point() +
-    geom_abline(slope = 1, intercept = 0)  +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = NULL), se = FALSE) +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-
-
-idn_points_facet <- 
-  idn_cv2_pr_df %>% 
-    filter(positive > 2 | (positive == 0 & examined > 200)) %>% 
-    ggplot(., aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-      geom_point(alpha = a, shape = s) +
-      geom_abline(slope = 1, intercept = 0)  +
-      facet_wrap(~ model) +
-      geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-      scale_y_sqrt() + 
-      scale_x_sqrt() +
-      labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-      guides(colour = FALSE)
-
-
-
-
-
-sen_poly <- ggplot(sen_cv2_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
-  geom_abline(slope = 1, intercept = 0) +
-  scale_y_sqrt() + 
-  scale_x_sqrt() +
-  labs(x = 'Observed API', y = 'Predicted API') +
-  guides(colour = FALSE)
-
-sen_poly_facet <- ggplot(sen_cv2_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
-  geom_abline(slope = 1, intercept = 0) +
-  scale_y_sqrt() + 
-  scale_x_sqrt() +
-  facet_wrap(~ model) +
-  geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-  labs(x = 'Observed API', y = 'Predicted API') +
-  guides(colour = FALSE)
-
-sen_points <- sen_cv2_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-sen_points_facet <- sen_cv2_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-
-mdg_poly <- ggplot(mdg_cv2_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
-  geom_abline(slope = 1, intercept = 0) +
-  scale_y_sqrt() + 
-  scale_x_sqrt() +
-  labs(x = 'Observed API', y = 'Predicted API') +
-  guides(colour = FALSE)
-
-mdg_points <- mdg_cv2_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-
-mdg_poly_facet <- ggplot(mdg_cv2_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
-  geom_abline(slope = 1, intercept = 0) +
-  scale_y_sqrt() + 
-  scale_x_sqrt() +  
-  facet_wrap(~ model) + 
-  geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-  labs(x = 'Observed API', y = 'Predicted API') +
-  guides(colour = FALSE)
-
-mdg_points_facet <- mdg_cv2_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    facet_wrap(~ model) + 
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-
-scatter_list <- list(idn_poly, idn_points5, sen_poly, sen_points, mdg_poly, mdg_points)
-full_obs_pred_scatter <- plot_grid(plotlist = scatter_list,
-                                   labels = LETTERS[1:6], ncol = 2)
-
-png('figs/summaries/spatial_cv_scatter.png', height = 1500, width = 1100)
-print(full_obs_pred_scatter)
-dev.off()
-
-
-
-pdf('figs/summaries/spatial_cv_scatter.pdf', height = 15, width = 11)
-print(full_obs_pred_scatter)
-dev.off()
-
-
-
-poly_facet_list <- list(idn_poly_facet, sen_poly_facet, mdg_poly_facet)
-full_obs_pred_poly_facet <- plot_grid(plotlist = poly_facet_list,
-                                   labels = LETTERS[1:3], ncol = 1)
-
-png('figs/summaries/spatial_cv_poly_facet.png', height = 1500, width = 1100)
-print(full_obs_pred_poly_facet)
-dev.off()
-
-
-
-pdf('figs/summaries/spatial_cv_poly_facet.pdf', height = 15, width = 11)
-print(full_obs_pred_poly_facet)
-dev.off()
-
-
-
-points_facet_list <- list(idn_points_facet, sen_points_facet, mdg_points_facet)
-full_obs_pred_points_facet <- plot_grid(plotlist = points_facet_list,
-                                   labels = LETTERS[1:3], ncol = 1)
-
-png('figs/summaries/spatial_cv_points_facet.png', height = 1500, width = 1100)
-print(full_obs_pred_points_facet)
-dev.off()
-
-
-
-pdf('figs/summaries/spatial_cv_points_facet.pdf', height = 15, width = 11)
-print(full_obs_pred_points_facet)
-dev.off()
-
-
-
-
-
 
 
 
@@ -1133,89 +556,89 @@ dev.off()
 ## Make model comparisons. Spatial CV keeppr                                   ##
 #################################################################################
 
-cv3_points_idn <- get(load(cv3_points_idn_path))
+
+#cv3_points_idn <- get(load(cv3_points_idn_path))
 cv3_polys_idn <- get(load(cv3_polys_idn_path))
+cv3_prgp_idn <- get(load(cv3_prgp_idn_path))
 cv3_both_idn <- get(load(cv3_both_idn_path))
 
-idn_cv3_poly_df <- rbind(cv3_points_idn$summary$combined_aggregated %>% cbind(model = 'points'),
-                         cv3_polys_idn$summary$combined_aggregated %>% cbind(model = 'polygons'),
-                         cv3_both_idn$summary$combined_aggregated %>% cbind(model = 'both'))
-idn_cv3_pr_df <-  rbind(cv3_points_idn$summary$combined_pr %>% cbind(model = 'points'),
-                        cv3_polys_idn$summary$combined_pr %>% cbind(model = 'polygons'),
-                        cv3_both_idn$summary$combined_pr %>% cbind(model = 'both'))
+
+idn_cv3_poly_df <- rbind(cv3_polys_idn$summary$combined_aggregated %>% cbind(model = 'Baseline'),
+                         cv3_prgp_idn$summary$combined_aggregated %>% cbind(model = 'Prev GP'),
+                         cv3_both_idn$summary$combined_aggregated %>% cbind(model = 'Joint'))
+idn_cv3_pr_df <-  rbind(cv3_polys_idn$summary$combined_pr %>% cbind(model = 'Baseline'),
+                        cv3_prgp_idn$summary$combined_pr %>% cbind(model = 'Prev GP'),                        
+                        cv3_both_idn$summary$combined_pr %>% cbind(model = 'Joint'))
+# 
+# 
+# idn_cv3_new_metrics <- 
+#   rbind(cv3_points_idn$summary$combined_pr %>%
+#           mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+#           summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+#           cbind(model = 'points'),
+#         cv3_polys_idn$summary$combined_pr %>%
+#           mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+#           summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+#           cbind(model = 'polygons'),
+#         cv3_both_idn$summary$combined_pr %>%
+#           mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+#           summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+#           cbind(model = 'both')
+#   )
+# 
 
 
-idn_cv3_new_metrics <- 
-  rbind(cv3_points_idn$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'points'),
-        cv3_polys_idn$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'polygons'),
-        cv3_both_idn$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'both')
-  )
+
+idn_cv3_metrics <- list(rbind(cv3_polys_idn$summary$polygon_metrics %>% cbind(model = 'Baseline'),
+                              cv3_prgp_idn$summary$polygon_metrics %>% cbind(model = 'Prev GP'),
+                              cv3_both_idn$summary$polygon_metrics %>% cbind(model = 'Joint')),
+                        rbind(cv3_polys_idn$summary$pr_metrics %>% cbind(model = 'Baseline'),
+                              cv3_prgp_idn$summary$pr_metrics %>% cbind(model = 'Prev GP'),                              
+                              cv3_both_idn$summary$pr_metrics %>% cbind(model = 'Joint')))
 
 
-# Hack to get names to match. If we're not caring about pr metrics anymore this is all moot.
-names(cv3_points_idn$summary$pr_metrics) <- names(cv3_both_idn$summary$pr_metrics)
-
-idn_cv3_metrics <- list(rbind(cv3_points_idn$summary$polygon_metrics %>% cbind(model = 'points'),
-                              cv3_polys_idn$summary$polygon_metrics %>% cbind(model = 'polygons'),
-                              cv3_both_idn$summary$polygon_metrics %>% cbind(model = 'both')),
-                        rbind(cv3_points_idn$summary$pr_metrics %>% cbind(model = 'points'),
-                              cv3_polys_idn$summary$pr_metrics %>% cbind(model = 'polygons'),
-                              cv3_both_idn$summary$pr_metrics %>% cbind(model = 'both')))
-idn_cv3_metrics[[2]] <- left_join(idn_cv3_metrics[[2]], idn_cv3_new_metrics)
-
-rm(cv3_points_idn)
+rm(cv3_prgp_idn)
 rm(cv3_polys_idn)
 rm(cv3_both_idn)
 gc()
 
 
-cv3_points_sen <- get(load(cv3_points_sen_path))
+cv3_prgp_sen <- get(load(cv3_prgp_sen_path))
 cv3_polys_sen <- get(load(cv3_polys_sen_path))
 cv3_both_sen <- get(load(cv3_both_sen_path))
 
 
-sen_cv3_poly_df <- rbind(cv3_points_sen$summary$combined_aggregated %>% cbind(model = 'points'),
-                         cv3_polys_sen$summary$combined_aggregated %>% cbind(model = 'polygons'),
-                         cv3_both_sen$summary$combined_aggregated %>% cbind(model = 'both'))
-sen_cv3_pr_df <-  rbind(cv3_points_sen$summary$combined_pr %>% cbind(model = 'points'),
-                        cv3_polys_sen$summary$combined_pr %>% cbind(model = 'polygons'),
-                        cv3_both_sen$summary$combined_pr %>% cbind(model = 'both'))
+sen_cv3_poly_df <- rbind(cv3_polys_sen$summary$combined_aggregated %>% cbind(model = 'Baseline'),
+                         cv3_prgp_sen$summary$combined_aggregated %>% cbind(model = 'Prev GP'),
+                         cv3_both_sen$summary$combined_aggregated %>% cbind(model = 'Joint'))
+sen_cv3_pr_df <-  rbind(cv3_polys_sen$summary$combined_pr %>% cbind(model = 'Baseline'),
+                        cv3_prgp_sen$summary$combined_pr %>% cbind(model = 'Prev GP'),
+                        cv3_both_sen$summary$combined_pr %>% cbind(model = 'Joint'))
+# 
+# sen_cv3_new_metrics <- 
+#   rbind(cv3_points_sen$summary$combined_pr %>%
+#           mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+#           summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+#           cbind(model = 'points'),
+#         cv3_polys_sen$summary$combined_pr %>%
+#           mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+#           summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+#           cbind(model = 'polygons'),
+#         cv3_both_sen$summary$combined_pr %>%
+#           mutate(abs_error = abs(prevalence - pred_prev)) %>% 
+#           summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
+#           cbind(model = 'both')
+#   )
 
 
-sen_cv3_new_metrics <- 
-  rbind(cv3_points_sen$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'points'),
-        cv3_polys_sen$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'polygons'),
-        cv3_both_sen$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'both')
-  )
 
 
-
-
-sen_cv3_metrics <- list(rbind(cv3_points_sen$summary$polygon_metrics %>% cbind(model = 'points'),
-                              cv3_polys_sen$summary$polygon_metrics %>% cbind(model = 'polygons'),
-                              cv3_both_sen$summary$polygon_metrics %>% cbind(model = 'both')),
-                        rbind(cv3_points_sen$summary$pr_metrics %>% cbind(model = 'points'),
-                              cv3_polys_sen$summary$pr_metrics %>% cbind(model = 'polygons'),
-                              cv3_both_sen$summary$pr_metrics %>% cbind(model = 'both')))
-sen_cv3_metrics[[2]] <- left_join(sen_cv3_metrics[[2]], sen_cv3_new_metrics)
+sen_cv3_metrics <- list(rbind(cv3_polys_sen$summary$polygon_metrics %>% cbind(model = 'Baseline'),
+                              cv3_prgp_sen$summary$polygon_metrics %>% cbind(model = 'Prev GP'),
+                              cv3_both_sen$summary$polygon_metrics %>% cbind(model = 'Joint')),
+                        rbind(cv3_polys_sen$summary$pr_metrics %>% cbind(model = 'Baseline'),
+                              cv3_prgp_sen$summary$pr_metrics %>% cbind(model = 'Prev GP'),
+                              cv3_both_sen$summary$pr_metrics %>% cbind(model = 'Joint')))
 
 
 
@@ -1225,53 +648,34 @@ rm(cv3_both_sen)
 gc()
 
 
-cv3_points_mdg <- get(load(cv3_points_mdg_path))
+
+cv3_prgp_mdg <- get(load(cv3_prgp_mdg_path))
 cv3_polys_mdg <- get(load(cv3_polys_mdg_path))
 cv3_both_mdg <- get(load(cv3_both_mdg_path))
 
 
 
-mdg_cv3_poly_df <- rbind(cv3_points_mdg$summary$combined_aggregated %>% cbind(model = 'points'),
-                         cv3_polys_mdg$summary$combined_aggregated %>% cbind(model = 'polygons'),
-                         cv3_both_mdg$summary$combined_aggregated %>% cbind(model = 'both'))
-mdg_cv3_pr_df <-  rbind(cv3_points_mdg$summary$combined_pr %>% cbind(model = 'points'),
-                        cv3_polys_mdg$summary$combined_pr %>% cbind(model = 'polygons'),
-                        cv3_both_mdg$summary$combined_pr %>% cbind(model = 'both'))
-
-
-mdg_cv3_new_metrics <- 
-  rbind(cv3_points_mdg$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'points'),
-        cv3_polys_mdg$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'polygons'),
-        cv3_both_mdg$summary$combined_pr %>%
-          mutate(abs_error = abs(prevalence - pred_prev)) %>% 
-          summarise(weightMAE = weighted.mean(abs_error, w = examined)) %>% 
-          cbind(model = 'both')
-  )
+mdg_cv3_poly_df <- rbind(cv3_polys_mdg$summary$combined_aggregated %>% cbind(model = 'Baseline'),
+                         cv3_prgp_mdg$summary$combined_aggregated %>% cbind(model = 'Prev GP'),
+                         cv3_both_mdg$summary$combined_aggregated %>% cbind(model = 'Joint'))
+mdg_cv3_pr_df <-  rbind(cv3_polys_mdg$summary$combined_pr %>% cbind(model = 'Baseline'),
+                        cv3_prgp_mdg$summary$combined_pr %>% cbind(model = 'Prev GP'),                        
+                        cv3_both_mdg$summary$combined_pr %>% cbind(model = 'Joint'))
 
 
 
+mdg_cv3_metrics <- list(rbind(cv3_polys_mdg$summary$polygon_metrics %>% cbind(model = 'Baseline'),
+                              cv3_prgp_mdg$summary$polygon_metrics %>% cbind(model = 'Prev GP'),
+                              cv3_both_mdg$summary$polygon_metrics %>% cbind(model = 'Joint')),
+                        rbind(cv3_polys_mdg$summary$pr_metrics %>% cbind(model = 'Baseline'),
+                              cv3_prgp_mdg$summary$pr_metrics %>% cbind(model = 'Prev GP'),
+                              cv3_both_mdg$summary$pr_metrics %>% cbind(model = 'Joint')))
 
-mdg_cv3_metrics <- list(rbind(cv3_points_mdg$summary$polygon_metrics %>% cbind(model = 'points'),
-                              cv3_polys_mdg$summary$polygon_metrics %>% cbind(model = 'polygons'),
-                              cv3_both_mdg$summary$polygon_metrics %>% cbind(model = 'both')),
-                        rbind(cv3_points_mdg$summary$pr_metrics %>% cbind(model = 'points'),
-                              cv3_polys_mdg$summary$pr_metrics %>% cbind(model = 'polygons'),
-                              cv3_both_mdg$summary$pr_metrics %>% cbind(model = 'both')))
-mdg_cv3_metrics[[2]] <- left_join(mdg_cv3_metrics[[2]], mdg_cv3_new_metrics)
 
 rm(cv3_points_mdg)
 rm(cv3_polys_mdg)
 rm(cv3_both_mdg)
 gc()
-
-
-
 
 
 
@@ -1287,8 +691,8 @@ idn_poly <- ggplot(idn_cv3_poly_df, aes(response, pred_api, colour = model)) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-idn_poly_facet <- ggplot(idn_cv3_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a, size = 3, shape = s) + 
+idn_poly_facet <- ggplot(idn_cv3_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +
@@ -1298,43 +702,17 @@ idn_poly_facet <- ggplot(idn_cv3_poly_df %>% filter(model != 'points'), aes(resp
   guides(colour = FALSE)
 
 
-idn_points <- ggplot(idn_cv3_pr_df, aes(prevalence, pred_prev, colour = model, size = examined)) + 
-  geom_point(alpha = a, shape = s) + 
-  geom_abline(slope = 1, intercept = 0)  +
-  scale_y_sqrt() + 
-  scale_x_sqrt() +
-  labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-  guides(colour = FALSE)
-
-
-
-idn_points_facet <- 
-  idn_cv3_pr_df %>% 
-    filter(positive > 2 | (positive == 0 & examined > 200)) %>% 
-    ggplot(., aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-      geom_point(alpha = a, shape = s) +
-      geom_abline(slope = 1, intercept = 0)  +
-      facet_wrap(~ model) +
-      geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-      scale_y_sqrt() + 
-      scale_x_sqrt() +
-      labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-      guides(colour = FALSE)
-
-
-
-
 
 sen_poly <- ggplot(sen_cv3_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_point(alpha = a + 0.2, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-sen_poly_facet <- ggplot(sen_cv3_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+sen_poly_facet <- ggplot(sen_cv3_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a + 0.2, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +
@@ -1343,55 +721,18 @@ sen_poly_facet <- ggplot(sen_cv3_poly_df %>% filter(model != 'points'), aes(resp
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-sen_points <- sen_cv3_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-sen_points_facet <- sen_cv3_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 2e-5))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    facet_wrap(~ model) +
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
 
 mdg_poly <- ggplot(mdg_cv3_poly_df, aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+  geom_point(alpha = a + 0.2, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
 
-mdg_points <- mdg_cv3_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
 
-
-mdg_poly_facet <- ggplot(mdg_cv3_poly_df %>% filter(model != 'points'), aes(response, pred_api, colour = model)) + 
-  geom_point(alpha = a + 0.2, size = 3, shape = s) + 
+mdg_poly_facet <- ggplot(mdg_cv3_poly_df, aes(response, pred_api, colour = model)) + 
+  geom_point(alpha = a + 0.2, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   scale_y_sqrt() + 
   scale_x_sqrt() +  
@@ -1399,34 +740,6 @@ mdg_poly_facet <- ggplot(mdg_cv3_poly_df %>% filter(model != 'points'), aes(resp
   geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
   labs(x = 'Observed API', y = 'Predicted API') +
   guides(colour = FALSE)
-
-mdg_points_facet <- mdg_cv3_pr_df %>% 
-  mutate(noise = abs(rnorm(nrow(.), 0, 1e-4))) %>% 
-  mutate(prevalence = ifelse(prevalence == min(prevalence), prevalence + noise, prevalence)) %>% 
-  ggplot(aes(prevalence, pred_prev, colour = model, size = examined, weight = examined)) + 
-    geom_point(alpha = a, shape = s) + 
-    geom_abline(slope = 1, intercept = 0)  +
-    scale_y_sqrt() + 
-    scale_x_sqrt() +
-    facet_wrap(~ model) + 
-    geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-    labs(x = 'Observed Prevalence', y = 'Predicted Prevalence', size = 'Sample size') +
-    guides(colour = FALSE)
-
-
-scatter_list <- list(idn_poly, idn_points5, sen_poly, sen_points, mdg_poly, mdg_points)
-full_obs_pred_scatter <- plot_grid(plotlist = scatter_list,
-                                   labels = LETTERS[1:6], ncol = 2)
-
-png('figs/summaries/spatialkeeppr_cv_scatter.png', height = 1500, width = 1100)
-print(full_obs_pred_scatter)
-dev.off()
-
-
-
-pdf('figs/summaries/spatialkeeppr_cv_scatter.pdf', height = 15, width = 11)
-print(full_obs_pred_scatter)
-dev.off()
 
 
 
@@ -1440,25 +753,15 @@ dev.off()
 
 
 
-pdf('figs/summaries/spatialkeeppr_cv_poly_facet.pdf', height = 15, width = 11)
+pdf('figs/summaries/spatialkeeppr_cv_poly_facet.pdf', height = 10, width = 7)
 print(full_obs_pred_poly_facet)
 dev.off()
 
 
-
-points_facet_list <- list(idn_points_facet, sen_points_facet, mdg_points_facet)
-full_obs_pred_points_facet <- plot_grid(plotlist = points_facet_list,
-                                   labels = LETTERS[1:3], ncol = 1)
-
-png('figs/summaries/spatialkeeppr_cv_points_facet.png', height = 1500, width = 1100)
-print(full_obs_pred_points_facet)
+pdf('figs/summaries/spatialkeeppr_cv_poly_facet_big.pdf', height = 7, width = 6)
+print(full_obs_pred_poly_facet)
 dev.off()
 
-
-
-pdf('figs/summaries/spatialkeeppr_cv_points_facet.pdf', height = 15, width = 11)
-print(full_obs_pred_points_facet)
-dev.off()
 
 
 
