@@ -115,13 +115,31 @@ autoplot(cv1_output3, type = 'obs_preds', CI = TRUE)
 ggsave('figs/idn_joint_obspred.png')
 
 
+
+cat('Start cv1 model 4')
+
+files4 <- paste0('model_outputs/idn-random-prgp-', 1:10, '.RData')
+cv1_output4_list <- lapply(files4, function(x) get(load(x)))
+cv1_output4 <- collate(cv1_output4_list)
+
+obspred_map(data_cv1_idn, cv1_output4, column = TRUE)
+ggsave('figs/idn_prgp_obspred_map.png')
+obspred_map(data_cv1_idn, cv1_output4, trans = 'log10', column = TRUE)
+ggsave('figs/idn_prgp_obspred_map_log.png')
+autoplot(cv1_output4, type = 'obs_preds', CI = TRUE)
+ggsave('figs/idn_prgp_obspred.png')
+
+
+
 save(cv1_output1, file = 'model_outputs/idn_points_cv_1.RData')
 save(cv1_output2, file = 'model_outputs/idn_polygon_cv_1.RData')
 save(cv1_output3, file = 'model_outputs/idn_joint_cv_1.RData')
+save(cv1_output4, file = 'model_outputs/idn_prgp_cv_1.RData')
 
 cv1_output1$summary$polygon_metrics
 cv1_output2$summary$polygon_metrics
 cv1_output3$summary$polygon_metrics
+cv1_output4$summary$polygon_metrics
 
 cv1_output1$summary$pr_metrics
 cv1_output2$summary$pr_metrics
@@ -221,12 +239,28 @@ ggsave('figs/idn_joint_obspred3.png')
 
 
 
+cat('Start cv3 model 4')
+
+files7 <- paste0('model_outputs/idn-spatialkeeppr-prgp-', 1:7, '.RData')
+cv3_output4_list <- lapply(files7, function(x) get(load(x)))
+cv3_output4 <- collate(cv3_output4_list)
+
+obspred_map(data_cv3_idn, cv3_output4, column = FALSE)
+ggsave('figs/idn_prgp_obspred_map3.png')
+obspred_map(data_cv3_idn, cv3_output4, trans = 'log10', column = FALSE)
+ggsave('figs/idn_prgp_obspred_map_log3.png')
+autoplot(cv3_output4, type = 'obs_preds', CI = TRUE)
+ggsave('figs/idn_prgp_obspred3.png')
+
+
+
 save(cv3_output2, file = 'model_outputs/idn_polygon_cv_3.RData')
 save(cv3_output3, file = 'model_outputs/idn_joint_cv_3.RData')
+save(cv3_output4, file = 'model_outputs/idn_prgp_cv_3.RData')
 
 cv3_output2$summary$polygon_metrics
 cv3_output3$summary$polygon_metrics
-
+cv3_output4$summary$polygon_metrics
 
 
 

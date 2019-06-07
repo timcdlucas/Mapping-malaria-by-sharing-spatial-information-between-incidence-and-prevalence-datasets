@@ -48,26 +48,24 @@ full_data_idn_path <- 'model_outputs/idn_full_data.RData'
 ### Cross validation object
 
 data_cv1_idn_path <- 'model_outputs/idn_cv_1.RData'
-data_cv2_idn_path <- 'model_outputs/idn_cv_2.RData'
+#data_cv2_idn_path <- 'model_outputs/idn_cv_2.RData'
 data_cv3_idn_path <- 'model_outputs/idn_cv_3.RData'
 
 ### CV 1 output
 
-cv1_points_idn_path <- 'model_outputs/idn_points_cv_1.RData'
+#cv1_points_idn_path <- 'model_outputs/idn_points_cv_1.RData'
 cv1_polys_idn_path <- 'model_outputs/idn_polygon_cv_1.RData'
 cv1_both_idn_path <- 'model_outputs/idn_joint_cv_1.RData'
+cv1_prgp_idn_path <- 'model_outputs/idn_prgp_cv_1.RData'
 
-### CV 2 output
-
-cv2_points_idn_path <- 'model_outputs/idn_points_cv_2.RData'
-cv2_polys_idn_path <- 'model_outputs/idn_polygon_cv_2.RData'
-cv2_both_idn_path <- 'model_outputs/idn_joint_cv_2.RData'
 
 ### CV 3 output
 
-cv3_points_idn_path <- 'model_outputs/idn_points_cv_2.RData'
+#cv3_points_idn_path <- 'model_outputs/idn_points_cv_2.RData'
 cv3_polys_idn_path <- 'model_outputs/idn_polygon_cv_3.RData'
 cv3_both_idn_path <- 'model_outputs/idn_joint_cv_3.RData'
+cv3_prgp_idn_path <- 'model_outputs/idn_prgp_cv_3.RData'
+
 
 ## SEN
 
@@ -79,29 +77,22 @@ full_data_sen_path <- 'model_outputs/sen_full_data.RData'
 ### Cross validation object
 
 data_cv1_sen_path <- 'model_outputs/sen_cv_1.RData'
-data_cv2_sen_path <- 'model_outputs/sen_cv_2.RData'
-data_cv2_sen_path <- 'model_outputs/sen_cv_3.RData'
+#data_cv2_sen_path <- 'model_outputs/sen_cv_2.RData'
+data_cv3_sen_path <- 'model_outputs/sen_cv_3.RData'
+
 
 ### CV 1 output
 
-cv1_points_sen_path <- 'model_outputs/sen_points_cv_1.RData'
 cv1_polys_sen_path <- 'model_outputs/sen_polygon_cv_1.RData'
-cv1_both_sen_path <- 'model_outputs/sen_joint_cv_1.RData'
-
-
-### CV 2 output
-
-cv2_points_sen_path <- 'model_outputs/sen_points_cv_2.RData'
-cv2_polys_sen_path <- 'model_outputs/sen_polygon_cv_2.RData'
-cv2_both_sen_path <- 'model_outputs/sen_joint_cv_2.RData' 
-# cv2_both_sen_path <- 'model_outputs/sen_joint_cv_2_fitp2i.RData' 
+cv1_both_sen_path <- 'model_outputs/sen_joint_cv_1.RData' 
+cv1_prgp_sen_path <- 'model_outputs/sen_prgp_cv_1.RData' 
 
 ### CV 3 output
 
-cv3_points_sen_path <- 'model_outputs/sen_points_cv_3.RData'
+#cv3_points_sen_path <- 'model_outputs/sen_points_cv_3.RData'
 cv3_polys_sen_path <- 'model_outputs/sen_polygon_cv_3.RData'
 cv3_both_sen_path <- 'model_outputs/sen_joint_cv_3.RData'
-# cv3_both_sen_path <- 'model_outputs/sen_joint_cv_3_fitp2i.RData'
+cv3_both_sen_path <- 'model_outputs/sen_prgp_cv_3.RData'
 
 
 ## MDG
@@ -115,29 +106,23 @@ full_data_mdg_path <- 'model_outputs/mdg_full_data.RData'
 ### Cross validation object
 
 data_cv1_mdg_path <- 'model_outputs/mdg_cv_1.RData'
-data_cv2_mdg_path <- 'model_outputs/mdg_cv_2.RData'
+#data_cv2_mdg_path <- 'model_outputs/mdg_cv_2.RData'
 data_cv3_mdg_path <- 'model_outputs/mdg_cv_3.RData'
 
 ### CV 1 output
 
-cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
+#cv1_points_mdg_path <- 'model_outputs/mdg_points_cv_1.RData'
 cv1_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_1.RData'
 cv1_both_mdg_path <- 'model_outputs/mdg_joint_cv_1.RData'
-
-
-### CV 2 output
-
-cv2_points_mdg_path <- 'model_outputs/mdg_points_cv_2.RData'
-cv2_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_2.RData'
-cv2_both_mdg_path <- 'model_outputs/mdg_joint_cv_2.RData'
-
+cv1_prgp_mdg_path <- 'model_outputs/mdg_prgp_cv_1.RData'
 
 
 ### CV 3 output
 
-cv3_points_mdg_path <- 'model_outputs/mdg_points_cv_3.RData'
+#cv3_points_mdg_path <- 'model_outputs/mdg_points_cv_3.RData'
 cv3_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_3.RData'
 cv3_both_mdg_path <- 'model_outputs/mdg_joint_cv_3.RData'
+cv3_prgp_mdg_path <- 'model_outputs/mdg_prgp_cv_3.RData'
 
 
 # figure 1.cross validation. %% Do fig 1 and 2, random and spatial cv. IDN on top, MDG and SEN below in each.
@@ -162,26 +147,21 @@ bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'), rel_widths = c(0.6, 0.4))
 
 full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''), rel_heights = c(0.45, 0.55))
 
-png('figs/summaries/random_crossvalidation_full.png', height = 100, width = 100, unit = 'mm', res = 720)
+png('figs/summaries/random_crossvalidation_full.png', height = 200, width = 200, unit = 'mm', res = 720)
 print(full_plot)
 dev.off()
 
-gc()
 
 
-# Fig 2 - spatial cross validation for each country
-data_cv2_idn <- get(load(data_cv2_idn_path))
-data_cv2_sen <- get(load(data_cv2_sen_path))
-data_cv2_mdg <- get(load(data_cv2_mdg_path))
 
 
-p1 <- autoplot(data_cv2_idn, jitter = 0, size = 0.7) + 
+p1 <- autoplot(data_cv1_idn, jitter = 0, size = 0.3) + 
   guides(fill = FALSE) + 
   labs(x = 'Longitude', y = 'Latitude')
-p2 <- autoplot(data_cv2_sen, jitter = 0, size = 0.7) + 
+p2 <- autoplot(data_cv1_sen, jitter = 0, size = 0.3) + 
   guides(fill = FALSE) + 
   labs(x = 'Longitude', y = 'Latitude')
-p3 <- autoplot(data_cv2_mdg, jitter = 0, size = 0.7) + 
+p3 <- autoplot(data_cv1_mdg, jitter = 0, size = 0.3) + 
   guides(fill = FALSE) + 
   labs(x = 'Longitude', y = 'Latitude')
 
@@ -189,13 +169,58 @@ bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'), rel_widths = c(0.6, 0.4))
 
 full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''), rel_heights = c(0.45, 0.55))
 
-png('figs/summaries/spatial_crossvalidation_full.png', height = 100, width = 100, unit = 'mm', res = 720)
+png('figs/summaries/random_crossvalidation_full_big.png', height = 100, width = 100, unit = 'mm', res = 720)
+print(full_plot)
+dev.off()
+
+
+
+# Fig 2 - spatial cross validation for each country
+data_cv3_idn <- get(load(data_cv3_idn_path))
+data_cv3_sen <- get(load(data_cv3_sen_path))
+data_cv3_mdg <- get(load(data_cv3_mdg_path))
+
+
+p1 <- autoplot(data_cv3_idn, jitter = 0, size = 0.7) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
+p2 <- autoplot(data_cv3_sen, jitter = 0, size = 0.7) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
+p3 <- autoplot(data_cv3_mdg, jitter = 0, size = 0.7) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
+
+bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'), rel_widths = c(0.6, 0.4))
+
+full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''), rel_heights = c(0.45, 0.55))
+
+png('figs/summaries/spatial_crossvalidation_full.png', height = 200, width = 200, unit = 'mm', res = 720)
 print(full_plot)
 dev.off()
 
 gc()
 
 
+
+
+p1 <- autoplot(data_cv3_idn, jitter = 0, size = 0.4) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
+p2 <- autoplot(data_cv3_sen, jitter = 0, size = 0.4) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
+p3 <- autoplot(data_cv3_mdg, jitter = 0, size = 0.4) + 
+  guides(fill = FALSE) + 
+  labs(x = 'Longitude', y = 'Latitude')
+
+bottom_row <- plot_grid(p2, p3, labels = c('B', 'C'), rel_widths = c(0.6, 0.4))
+
+full_plot <- plot_grid(p1, bottom_row, ncol = 1, labels = c('A', ''), rel_heights = c(0.45, 0.55))
+
+png('figs/summaries/spatial_crossvalidation_full_big.png', height = 100, width = 100, unit = 'mm', res = 720)
+print(full_plot)
+dev.off()
 
 # figure 3 data and predicted incidence maps. Indonesia only. Data, Rand, Spatial for best model? Joint model?
 # todo add prevalence points
