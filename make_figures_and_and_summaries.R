@@ -92,7 +92,7 @@ cv1_prgp_sen_path <- 'model_outputs/sen_pr_gp_cv_1.RData'
 #cv3_points_sen_path <- 'model_outputs/sen_points_cv_3.RData'
 cv3_polys_sen_path <- 'model_outputs/sen_polygon_cv_3.RData'
 cv3_both_sen_path <- 'model_outputs/sen_joint_cv_3.RData'
-cv3_both_sen_path <- 'model_outputs/sen_pr_gp_cv_3.RData'
+cv3_prgp_sen_path <- 'model_outputs/sen_pr_gp_cv_3.RData'
 
 
 ## MDG
@@ -224,117 +224,118 @@ dev.off()
 
 # figure 3 data and predicted incidence maps. Indonesia only. Data, Rand, Spatial for best model? Joint model?
 # todo add prevalence points
-# 
-# # Fig 3 - IDN: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
-# #full_data_idn <- get(load(full_data_idn_path))
-# cv1_both_idn <- get(load(cv1_both_idn_path))
-# cv3_both_idn <- get(load(cv3_both_idn_path))
-# 
-# #xx= data_cv2_idn[1:3]
-# #class(xx) = 'ppj_cv' #todo
-# p1 <- obspred_map(data_cv1_idn, cv1_both_idn, trans = 'log1p', 
-#                   legend_title = 'API', 
-#                   breaks = c(1, 10, 100, 300, 500))
-# p2 <- obspred_map(data_cv2_idn, cv2_both_idn, trans = 'log1p', legend_title = 'API')
-# 
-# 
-# panel1 <- p1[[1]] +
-#   guides(fill = FALSE) + 
-#   labs(x = '', y = '')
-# panel2 <- p1[[2]] + 
-#   guides(fill = FALSE) + 
-#   labs(x = '', y = 'Latitude')
-# panel3 <- p2[[2]] + 
-#   guides(fill = FALSE) + 
-#   labs(x = 'Longitude', y = '')
-# 
-# legend <- get_legend(p1[[1]])
-# 
-# idn_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 1)
-# full_plot <- plot_grid(idn_preds_plot, legend, ncol = 2, rel_widths = c(4, 1))
-# 
-# png('figs/summaries/idn_both_cv12_preds.png', height = 130, width = 100, unit = 'mm', res = 720)
-# print(full_plot)
-# dev.off()
-# 
-# 
-# #rm(full_data_idn)
-# rm(cv1_both_idn)
-# rm(cv2_both_idn)
-# gc()
-# 
-# # figure 4 data and predicted incidence maps. Senegal only. Data, Rand, Spatial for best model? Joint model?
-# 
-# # Fig 4 - SEN: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
-# #full_data_sen <- get(load(full_data_sen_path))
-# cv1_both_sen <- get(load(cv1_both_sen_path))
-# cv2_both_sen <- get(load(cv2_both_sen_path))
-# 
-# 
-# p1 <- obspred_map(data_cv1_sen, cv1_both_sen, trans = 'log1p', 
-#                   legend_title = 'API', 
-#                   mask = TRUE,
-#                   breaks = c(1, 10, 100, 300))
-# p2 <- obspred_map(data_cv2_sen, cv2_both_sen, 
-#                   trans = 'log1p', 
-#                   legend_title = 'API',
-#                   mask = TRUE)
-# 
-# 
-# panel1 <- p1[[1]] +
-#   guides(fill = FALSE) + 
-#   labs(x = '', y = '') +
-#   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
-# panel2 <- p1[[2]] + 
-#   guides(fill = FALSE) + 
-#   labs(x = '', y = 'Latitude') +
-#   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
-# panel3 <- p2[[2]] + 
-#   guides(fill = FALSE) + 
-#   labs(x = 'Longitude', y = '')+
-#   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
-# 
-# legend <- get_legend(p1[[1]])
-# 
-# sen_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 1)
-# full_plot <- plot_grid(sen_preds_plot, legend, ncol = 2, rel_widths = c(4, 1))
-# 
-# 
-# 
-# 
-# png('figs/summaries/sen_both_cv12_preds.png', height = 150, width = 100, unit = 'mm', res = 720)
-# print(full_plot)
-# dev.off()
-# 
-# 
-# #rm(full_data_sen)
-# rm(cv1_both_sen)
-# rm(cv2_both_sen)
-# gc()
-# 
+
+# Fig 3 - IDN: a) Data, predicted incidence from joint model for b) M2 , and c) M3
+full_data_idn <- get(load(full_data_idn_path))
+cv3_both_idn <- get(load(cv3_both_idn_path))
+cv3_prgp_idn <- get(load(cv3_prgp_idn_path))
+
+p1 <- obspred_map(data_cv3_idn, cv3_prgp_idn, trans = 'log1p',
+                  legend_title = 'API',
+                  breaks = c(1, 10, 100, 300, 500))
+p2 <- obspred_map(data_cv3_idn, cv3_both_idn, trans = 'log1p', legend_title = 'API')
+
+
+panel1 <- p1[[1]] +
+  guides(fill = FALSE) +
+  labs(x = '', y = '')
+panel2 <- p1[[2]] +
+  guides(fill = FALSE) +
+  labs(x = '', y = 'Latitude')
+panel3 <- p2[[2]] +
+  guides(fill = FALSE) +
+  labs(x = 'Longitude', y = '')
+
+legend <- get_legend(p1[[1]])
+
+idn_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 1)
+full_plot <- plot_grid(idn_preds_plot, legend, ncol = 2, rel_widths = c(4, 1))
+
+png('figs/summaries/idn_both_cv12_preds.png', height = 130, width = 100, unit = 'mm', res = 720)
+print(full_plot)
+dev.off()
+
+
+#rm(full_data_idn)
+rm(cv3_both_idn)
+rm(cv3_prgp_idn)
+gc()
+
+
+
+
+# figure 4 data and predicted incidence maps. Senegal only. Data, Rand, Spatial for best model? Joint model?
+
+# Fig 4 - SEN: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
+full_data_sen <- get(load(full_data_sen_path))
+cv3_both_sen <- get(load(cv3_both_sen_path))
+cv3_prgp_sen <- get(load(cv3_prgp_sen_path))
+
+
+p1 <- obspred_map(data_cv3_sen, cv3_prgp_sen, trans = 'log1p',
+                  legend_title = 'API',
+                  mask = TRUE,
+                  breaks = c(1, 10, 100, 300))
+p2 <- obspred_map(data_cv3_sen, cv3_both_sen,
+                  trans = 'log1p',
+                  legend_title = 'API',
+                  mask = TRUE)
+
+
+panel1 <- p1[[1]] +
+  guides(fill = FALSE) +
+  labs(x = '', y = '') +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+panel2 <- p1[[2]] +
+  guides(fill = FALSE) +
+  labs(x = '', y = 'Latitude') +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+panel3 <- p2[[2]] +
+  guides(fill = FALSE) +
+  labs(x = 'Longitude', y = '')+
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+
+legend <- get_legend(p1[[1]])
+
+sen_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 1)
+full_plot <- plot_grid(sen_preds_plot, legend, ncol = 2, rel_widths = c(4, 1))
+
+
+
+
+png('figs/summaries/sen_both_cv12_preds.png', height = 150, width = 100, unit = 'mm', res = 720)
+print(full_plot)
+dev.off()
+
+
+#rm(full_data_sen)
+rm(cv3_both_sen)
+rm(cv3_prgp_sen)
+gc()
+
 
 # Fig 5 - MDG: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
-#full_data_mdg <- get(load(full_data_mdg_path))
-# cv1_both_mdg <- get(load(cv1_both_mdg_path))
-# cv2_both_mdg <- get(load(cv2_both_mdg_path))
-# 
-# 
-# p1 <- obspred_map(data_cv1_mdg, cv1_both_mdg, trans = 'log1p')
-# p2 <- obspred_map(data_cv2_mdg, cv2_both_mdg, trans = 'log1p')
-# 
-# 
-# mdg_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 1)
-# 
-# png('figs/summaries/mdg_both_cv12_preds.png', height = 1500, width = 1200)
-# print(mdg_preds_plot)
-# dev.off()
-# 
-# 
-# #rm(full_data_mdg)
-# rm(cv1_both_mdg)
-# rm(cv2_both_mdg)
-# gc()
-# 
+full_data_mdg <- get(load(full_data_mdg_path))
+cv3_both_mdg <- get(load(cv3_both_mdg_path))
+cv3_prgp_mdg <- get(load(cv3_prgp_mdg_path))
+
+
+p1 <- obspred_map(data_cv3_mdg, cv3_prgp_mdg, trans = 'log1p')
+p2 <- obspred_map(data_cv3_mdg, cv3_both_mdg, trans = 'log1p')
+
+
+mdg_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 1)
+
+png('figs/summaries/mdg_both_cv12_preds.png', height = 1500, width = 1200)
+print(mdg_preds_plot)
+dev.off()
+
+
+#rm(full_data_mdg)
+rm(cv1_both_mdg)
+rm(cv2_both_mdg)
+gc()
+
 
 # figure 6, random cv. PR vs Poly columns, countries as rows, model as colour?
 
@@ -770,42 +771,21 @@ dev.off()
 
 # Useful summary tables
 table1_skeleton <- 
-  "Random & Indonesia  & %s &  %s &  %s\\\\
+"Random & Indonesia  & %s &  %s &  %s\\\\
 & Senegal  & %s &  %s &  %s\\\\
 & Madagascar  & %s &  %s &  %s\\vspace{3mm}\\\\
-Spatial 1 & Indonesia & %s &  %s &  %s\\\\
-& Senegal  & %s &  %s &  %s\\\\
-& Madagascar  & %s &  %s &  %s\\vspace{3mm}\\\\
-Spatial 2 & Indonesia & %s &  %s &  %s\\\\
+Spatial & Indonesia & %s &  %s &  %s\\\\
 & Senegal  & %s &  %s &  %s\\\\
 & Madagascar & %s &  %s &  %s\\\\"
 
-mdg_cv1_poly_df <- mdg_cv1_poly_df %>% mutate(error = abs(pred_api - response))
-mdg_cv2_poly_df <- mdg_cv2_poly_df %>% mutate(error = abs(pred_api - response))
-mdg_cv3_poly_df <- mdg_cv3_poly_df %>% mutate(error = abs(pred_api - response))
-idn_cv1_poly_df <- idn_cv1_poly_df %>% mutate(error = abs(pred_api - response))
-idn_cv2_poly_df <- idn_cv2_poly_df %>% mutate(error = abs(pred_api - response))
-idn_cv3_poly_df <- idn_cv3_poly_df %>% mutate(error = abs(pred_api - response))
-mdg_cv1_poly_df <- mdg_cv1_poly_df %>% mutate(error = abs(pred_api - response))
-mdg_cv2_poly_df <- mdg_cv2_poly_df %>% mutate(error = abs(pred_api - response))
-mdg_cv3_poly_df <- mdg_cv3_poly_df %>% mutate(error = abs(pred_api - response))
 
-wilc <- function(x){
-  x$error <- x$pred_api - x$response
-  wilcox.test(x$error[x$model == 'both'] - x$error[x$model == 'polygons'])$p.value
-}
 
-# wilcox.test(mdg_cv1_poly_df$error[mdg_cv1_poly_df$model == 'both'] - mdg_cv1_poly_df$error[mdg_cv1_poly_df$model == 'polygons'])$p.value
-
-r <- c(idn_cv1_metrics[[1]]$MAE[2:3], wilc(idn_cv1_poly_df),
-       sen_cv1_metrics[[1]]$MAE[2:3], wilc(sen_cv1_poly_df),
-       mdg_cv1_metrics[[1]]$MAE[2:3], wilc(mdg_cv1_poly_df),
-       idn_cv2_metrics[[1]]$MAE[2:3], wilc(idn_cv2_poly_df),
-       sen_cv2_metrics[[1]]$MAE[2:3], wilc(sen_cv2_poly_df), 
-       mdg_cv2_metrics[[1]]$MAE[2:3], wilc(mdg_cv2_poly_df),
-       idn_cv3_metrics[[1]]$MAE[2:3], wilc(idn_cv3_poly_df), 
-       sen_cv3_metrics[[1]]$MAE[2:3], wilc(sen_cv3_poly_df), 
-        mdg_cv3_metrics[[1]]$MAE[2:3],wilc(mdg_cv3_poly_df))
+r <- c(idn_cv1_metrics[[1]]$MAE,
+       sen_cv1_metrics[[1]]$MAE,
+       mdg_cv1_metrics[[1]]$MAE,
+       idn_cv3_metrics[[1]]$MAE, 
+       sen_cv3_metrics[[1]]$MAE, 
+       mdg_cv3_metrics[[1]]$MAE)
 
 r <- format(round(r, 2), nsmall = 2)
 
@@ -817,20 +797,16 @@ write(table1, 'figs/summaries/table1.txt')
 
 
 coverage_skeleton <-
-  "Random & Indonesia  & %s &  %s\\\\
-& Senegal  & %s &  %s\\\\
-& Madagascar  & %s &  %s\\vspace{1mm}\\\\
- Spatial 1 & Indonesia & %s &  %s\\\\
-& Senegal  & %s &  %s\\\\
-& Madagascar  & %s &  %s\\vspace{1mm} \\\\
- Spatial 2 & Indonesia  & %s &  %s\\\\
-& Senegal  & %s &  %s\\\\
-& Madagascar  & %s &  %s\\\\
+"Random & Indonesia  & %s &  %s &  %s\\\\
+& Senegal  & %s &  %s &  %s\\\\
+& Madagascar  & %s &  %s &  %s\\vspace{1mm}\\\\
+ Spatial  & Indonesia & %s &  %s &  %s\\\\
+& Senegal  & %s &  %s &  %s\\\\
+& Madagascar  & %s &  %s &  %s\\\\
 "
 
-cov <- c(idn_cv1_metrics[[1]]$coverage[2:3], sen_cv1_metrics[[1]]$coverage[2:3], mdg_cv1_metrics[[1]]$coverage[2:3],
-         idn_cv2_metrics[[1]]$coverage[2:3], sen_cv2_metrics[[1]]$coverage[2:3], mdg_cv2_metrics[[1]]$coverage[2:3],
-         idn_cv3_metrics[[1]]$coverage[2:3], sen_cv3_metrics[[1]]$coverage[2:3], mdg_cv3_metrics[[1]]$coverage[2:3])
+cov <- c(idn_cv1_metrics[[1]]$coverage, sen_cv1_metrics[[1]]$coverage, mdg_cv1_metrics[[1]]$coverage,
+         idn_cv3_metrics[[1]]$coverage, sen_cv3_metrics[[1]]$coverage, mdg_cv3_metrics[[1]]$coverage)
 
 cov <- format(round(cov, 2), nsmall = 2)
 
