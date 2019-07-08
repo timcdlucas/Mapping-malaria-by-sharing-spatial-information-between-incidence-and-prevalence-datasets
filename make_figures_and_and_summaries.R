@@ -324,7 +324,24 @@ p1 <- obspred_map(data_cv3_mdg, cv3_prgp_mdg, trans = 'log1p')
 p2 <- obspred_map(data_cv3_mdg, cv3_both_mdg, trans = 'log1p')
 
 
-mdg_preds_plot <- plot_grid(p1[[1]], p1[[2]], p2[[2]], labels = LETTERS[1:3], ncol = 1)
+panel1 <- p1[[1]] +
+  guides(fill = FALSE) +
+  labs(x = '', y = 'Latitude') +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+panel2 <- p1[[2]] +
+  guides(fill = FALSE) +
+  labs(x = 'Longitude', y = '') +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+panel3 <- p2[[2]] +
+  guides(fill = FALSE) +
+  labs(x = '', y = '')+
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+
+legend <- get_legend(p1[[1]])
+
+mdg_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 3)
+full_plot <- plot_grid(mdg_preds_plot, legend, ncol = 2, rel_widths = c(4, 1))
+
 
 png('figs/summaries/mdg_both_cv12_preds.png', height = 1500, width = 1200)
 print(mdg_preds_plot)
