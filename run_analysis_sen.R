@@ -30,7 +30,7 @@ cov_raster_paths <- c(
   Z('mastergrids/Other_Global_Covariates/Elevation/SRTM-Elevation/5km/Synoptic/SRTM_elevation.Synoptic.Overall.Data.5km.mean.tif'),
   Z('mastergrids/MODIS_Global/MOD11A2_v6_LST/LST_Day/5km/Synoptic/LST_Day_v6.Synoptic.Overall.SD.5km.mean.tif'),
   #Z('mastergrids/MODIS_Global/MCD43B4_BRDF_Reflectance/TCB/5km/Synoptic/TCB.Synoptic.Overall.mean.5km.mean.tif'),
-  Z('mastergrids/Other_Global_Covariates/NightTimeLights/VIIRS_DNB_Monthly/5km/Annual/VIIRS-SLC.2016.Annual.5km.MEDIAN.tif'),
+  Z('mastergrids/Other_Global_Covariates/NightTimeLights/VIIRS_DNB_Composites/5km/Annual/VIIRS-SLC.2016.Annual.5km.MEDIAN.tif'),
   #Z('mastergrids/Other_Global_Covariates/UrbanAreas/Global_Urban_Footprint/From_86m/5km/Global_Urban_Footprint_5km_PropUrban.tif'),
   Z('mastergrids/MODIS_Global/MCD43D6_v6_BRDF_Reflectance/TCW_v6/5km/Synoptic/TCW_v6.Synoptic.Overall.mean.5km.mean.tif')
 )
@@ -170,7 +170,7 @@ arg_list <- list(prior_rho_min = 1, #
                  use_points = 1)
 
 if(FALSE){
-  full_model <- fit_model(data_sen, mesh_sen, its = 1000, model.args = arg_list)
+  full_model <- fit_model(data_sen, mesh_sen, its = 1000, model.args = arg_list, drop_covs = 9)
   autoplot(full_model)
   
   png('figs/sen_full_model_in_sample_map.png')
@@ -181,7 +181,7 @@ if(FALSE){
                               holdout = data_sen,
                               model_params = full_model$model, 
                               CI = 0.8,
-                              use_points = use_points)
+                              use_points = arg_list$use_points)
   autoplot(in_sample, CI = TRUE)
   autoplot(in_sample, trans = 'log1p', CI = TRUE)
   ggsave('figs/sen_full_model_in_sample.png')
@@ -189,47 +189,48 @@ if(FALSE){
   save(full_model, file = 'model_outputs/full_model_sen.RData')
   
   
+  arg_list$use_points <- 0
+  prevgp_model <- fit_model(data_sen, mesh_sen, its = 1000, model.args = arg_list)
+  autoplot(prevgp_model)
   
-  arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
-  points_model <- fit_model(data_sen, mesh_sen, its = 1000, model.args = arg_list)
-  autoplot(points_model)
-  png('figs/sen_points_model_in_sample_map.png')
-  plot(points_model, layer = 'api')
+  png('figs/sen_prevgp_model_in_sample_map.png')
+  plot(prevgp_model, layer = 'api')
   dev.off()
   
-  points_in_sample <- cv_performance(predictions = points_model$predictions, 
-                                     holdout = data_sen,
-                                     model_params = points_model$model, 
-                                     CI = 0.8,
-                                     use_points = TRUE)
-  autoplot(points_in_sample, CI = TRUE)
-  autoplot(points_in_sample, trans = 'log1p', CI = TRUE)
-  ggsave('figs/sen_points_model_in_sample.png')
+  in_sample <- cv_performance(predictions = prevgp_model$predictions, 
+                              holdout = data_sen,
+                              model_params = prevgp_model$model, 
+                              CI = 0.8,
+                              use_points = arg_list$use_points)
+  autoplot(in_sample, CI = TRUE)
+  autoplot(in_sample, trans = 'log1p', CI = TRUE)
+  ggsave('figs/sen_prevgp_model_in_sample.png')
   
-  
-  save(points_model, file = 'model_outputs/points_model_sen.RData')
-  
-  
+  save(prevgp_model, file = 'model_outputs/full_prevgp_sen.RData')
   
   
   
-  arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
-  polygons_model <- fit_model(data_sen, mesh_sen, its = 1000, model.args = arg_list)
-  autoplot(polygons_model)
-  png('figs/sen_polygons_model_in_sample_map.png')
-  plot(polygons_model, layer = 'api')
+  
+  
+  arg_list$use_points <- 0
+  baseline_model <- fit_model(data_sen, mesh_sen, its = 1000, model.args = arg_list, drop_covs = 9)
+  autoplot(baseline_model)
+  
+  png('figs/sen_baseline_model_in_sample_map.png')
+  plot(baseline_model, layer = 'api')
   dev.off()
   
-  polygons_in_sample <- cv_performance(predictions = polygons_model$predictions, 
-                                       holdout = data_sen,
-                                       model_params = polygons_model$model, 
-                                       CI = 0.8,
-                                       use_points = FALSE)
-  autoplot(polygons_in_sample, CI = TRUE)
-  autoplot(polygons_in_sample, trans = 'log1p', CI = TRUE)
-  ggsave('figs/sen_polygon_model_in_sample.png')
+  in_sample <- cv_performance(predictions = baseline_model$predictions, 
+                              holdout = data_sen,
+                              model_params = baseline_model$model, 
+                              CI = 0.8,
+                              use_points = arg_list$use_points)
+  autoplot(in_sample, CI = TRUE)
+  autoplot(in_sample, trans = 'log1p', CI = TRUE)
+  ggsave('figs/sen_baseline_model_in_sample.png')
   
-  save(polygons_model, file = 'model_outputs/polygons_model_sen.RData')
+  save(baseline_model, file = 'model_outputs/full_baseline_sen.RData')
+  
   
   
   
