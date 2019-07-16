@@ -22,9 +22,11 @@ library(dplyr)
 library(readr)
 library(magrittr)
 library(tidyr)
+library(Matrix)
 
 library(malariaAtlas)
 
+library(xtable)
 library(ggplot2)
 library(cowplot)
 theme_set(theme_minimal())
@@ -67,6 +69,13 @@ cv3_both_idn_path <- 'model_outputs/idn_joint_cv_3.RData'
 cv3_prgp_idn_path <- 'model_outputs/idn_prgp_cv_3.RData'
 
 
+### Full models
+idn_baseline <- 'model_outputs/full_baseline_idn.RData'
+idn_prgp <- 'model_outputs/full_prevgp_idn.RData'
+idn_joint <- 'model_outputs/full_model_idn.RData'
+
+
+
 ## SEN
 
 ### Full data object
@@ -94,6 +103,10 @@ cv3_polys_sen_path <- 'model_outputs/sen_polygon_cv_3.RData'
 cv3_both_sen_path <- 'model_outputs/sen_joint_cv_3.RData'
 cv3_prgp_sen_path <- 'model_outputs/sen_pr_gp_cv_3.RData'
 
+### Full models
+sen_baseline <- 'model_outputs/full_baseline_sen.RData'
+sen_prgp <- 'model_outputs/full_prevgp_sen.RData'
+sen_joint <- 'model_outputs/full_model_sen.RData'
 
 ## MDG
 
@@ -123,6 +136,11 @@ cv1_prgp_mdg_path <- 'model_outputs/mdg_pr_gp__cv_1.RData'
 cv3_polys_mdg_path <- 'model_outputs/mdg_polygon_cv_3.RData'
 cv3_both_mdg_path <- 'model_outputs/mdg_joint_cv_3.RData'
 cv3_prgp_mdg_path <- 'model_outputs/mdg_pr_gp_cv_3.RData'
+
+### Full models
+mdg_baseline <- 'model_outputs/full_baseline_mdg.RData'
+mdg_prgp <- 'model_outputs/full_prevgp_mdg.RData'
+mdg_joint <- 'model_outputs/full_model_mdg.RData'
 
 
 # figure 1.cross validation. %% Do fig 1 and 2, random and spatial cv. IDN on top, MDG and SEN below in each.
@@ -272,38 +290,67 @@ cv3_both_sen <- get(load(cv3_both_sen_path))
 cv3_prgp_sen <- get(load(cv3_prgp_sen_path))
 
 
+sen_y_max <- 
+  max(
+   c(full_data_sen$polygon$response),
+     sapply(seq_along(cv3_both_sen$models), 
+       function(i) maxValue(cv3_both_sen$models[[i]]$predictions$api)),
+     sapply(seq_along(cv3_both_sen$models), 
+       function(i) maxValue(cv3_prgp_sen$models[[i]]$predictions$api))
+  )
+
 p1 <- obspred_map(data_cv3_sen, cv3_prgp_sen, trans = 'log1p',
                   legend_title = 'API',
                   mask = TRUE,
+                  lims = c(0, sen_y_max),
                   breaks = c(1, 10, 100, 300))
 p2 <- obspred_map(data_cv3_sen, cv3_both_sen,
                   trans = 'log1p',
                   legend_title = 'API',
+                  lims = c(0, sen_y_max),
                   mask = TRUE)
 
 
 panel1 <- p1[[1]] +
-  guides(fill = FALSE) +
-  labs(x = '', y = '') +
-  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
-panel2 <- p1[[2]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, sen_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
   guides(fill = FALSE) +
   labs(x = '', y = 'Latitude') +
   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
-panel3 <- p2[[2]] +
+panel2 <- p1[[2]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, sen_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
+  
   guides(fill = FALSE) +
-  labs(x = 'Longitude', y = '')+
+  labs(x = 'Longitude', y = '') +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+panel3 <- p2[[2]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, sen_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
+  
+  guides(fill = FALSE) +
+  labs(x = '', y = '')+
   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
 
-legend <- get_legend(p1[[1]])
+legend <- get_legend(p1[[1]] +
+                       scale_fill_viridis_c(trans = 'log1p', 
+                                            limits = c(0, sen_y_max), 
+                                            oob = scales::squish, 
+                                            name = 'Cases per 1000',
+                                            breaks = c(0, 10, 50, 100, 200)))
 
-sen_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 1)
-full_plot <- plot_grid(sen_preds_plot, legend, ncol = 2, rel_widths = c(4, 1))
+sen_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 3)
+full_plot <- plot_grid(sen_preds_plot, legend, ncol = 2, rel_widths = c(5, 1))
 
 
 
-
-png('figs/summaries/sen_both_cv12_preds.png', height = 150, width = 100, unit = 'mm', res = 720)
+png('figs/summaries/sen_both_cv12_preds.png', height = 90, width = 300, unit = 'mm', res = 720)
 print(full_plot)
 dev.off()
 
@@ -320,31 +367,71 @@ cv3_both_mdg <- get(load(cv3_both_mdg_path))
 cv3_prgp_mdg <- get(load(cv3_prgp_mdg_path))
 
 
-p1 <- obspred_map(data_cv3_mdg, cv3_prgp_mdg, trans = 'log1p')
-p2 <- obspred_map(data_cv3_mdg, cv3_both_mdg, trans = 'log1p')
+
+
+mdg_y_max <- 
+  max(
+    c(full_data_mdg$polygon$response),
+    sapply(seq_along(cv3_both_mdg$models), 
+           function(i) maxValue(cv3_both_mdg$models[[i]]$predictions$api)),
+    sapply(seq_along(cv3_both_mdg$models), 
+           function(i) maxValue(cv3_prgp_mdg$models[[i]]$predictions$api))
+  )
+
+p1 <- obspred_map(data_cv3_mdg, cv3_prgp_mdg, trans = 'log1p',
+                  legend_title = 'API',
+                  mask = TRUE,
+                  lims = c(0, sen_y_max),
+                  breaks = c(1, 10, 100, 300))
+p2 <- obspred_map(data_cv3_mdg, cv3_both_mdg,
+                  trans = 'log1p',
+                  legend_title = 'API',
+                  lims = c(0, sen_y_max),
+                  mask = TRUE)
 
 
 panel1 <- p1[[1]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, mdg_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
   guides(fill = FALSE) +
   labs(x = '', y = 'Latitude') +
   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
 panel2 <- p1[[2]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, mdg_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
+  
   guides(fill = FALSE) +
   labs(x = 'Longitude', y = '') +
   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
 panel3 <- p2[[2]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, mdg_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
+  
   guides(fill = FALSE) +
   labs(x = '', y = '')+
   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
 
-legend <- get_legend(p1[[1]])
+legend <- get_legend(p1[[1]] +
+                       scale_fill_viridis_c(trans = 'log1p', 
+                                            limits = c(0, mdg_y_max), 
+                                            oob = scales::squish, 
+                                            name = 'Cases per 1000',
+                                            breaks = c(0, 10, 25, 100, 250, 500)))
 
 mdg_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 3)
-full_plot <- plot_grid(mdg_preds_plot, legend, ncol = 2, rel_widths = c(4, 1))
+full_plot <- plot_grid(mdg_preds_plot, legend, ncol = 2, rel_widths = c(5, 1))
 
 
-png('figs/summaries/mdg_both_cv12_preds.png', height = 1500, width = 1200)
-print(mdg_preds_plot)
+
+
+png('figs/summaries/mdg_both_cv12_preds.png', height = 150, width = 300, unit = 'mm', res = 720)
+print(full_plot)
 dev.off()
 
 
@@ -352,6 +439,213 @@ dev.off()
 rm(cv1_both_mdg)
 rm(cv2_both_mdg)
 gc()
+
+
+
+
+# ------------------------------------------------------------------- #
+
+
+# figure 3 data and predicted incidence maps. Indonesia only. Data, Rand, Spatial for best model? Joint model?
+# todo add prevalence points
+
+# Fig 3 - IDN: a) Data, predicted incidence from joint model for b) M2 , and c) M3
+cv1_both_idn <- get(load(cv1_both_idn_path))
+cv1_prgp_idn <- get(load(cv1_prgp_idn_path))
+
+p1 <- obspred_map(data_cv1_idn, cv1_prgp_idn, trans = 'log1p',
+                  legend_title = 'API',
+                  breaks = c(1, 10, 100, 300, 500))
+p2 <- obspred_map(data_cv1_idn, cv1_both_idn, trans = 'log1p', legend_title = 'API')
+
+
+panel1 <- p1[[1]] +
+  guides(fill = FALSE) +
+  labs(x = '', y = '')
+panel2 <- p1[[2]] +
+  guides(fill = FALSE) +
+  labs(x = '', y = 'Latitude')
+panel3 <- p2[[2]] +
+  guides(fill = FALSE) +
+  labs(x = 'Longitude', y = '')
+
+legend <- get_legend(p1[[1]])
+
+idn_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 1)
+full_plot <- plot_grid(idn_preds_plot, legend, ncol = 2, rel_widths = c(4, 1))
+
+png('figs/summaries/idn_both_cv12_random_preds.png', height = 130, width = 100, unit = 'mm', res = 720)
+print(full_plot)
+dev.off()
+
+
+#rm(full_data_idn)
+rm(cv1_both_idn)
+rm(cv1_prgp_idn)
+gc()
+
+
+
+
+# figure 4 data and predicted incidence maps. Senegal only. Data, Rand, Spatial for best model? Joint model?
+
+# Fig 4 - SEN: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
+cv1_both_sen <- get(load(cv1_both_sen_path))
+cv1_prgp_sen <- get(load(cv1_prgp_sen_path))
+
+
+sen_y_max <- 
+  max(
+    c(full_data_sen$polygon$response),
+    sapply(seq_along(cv1_both_sen$models), 
+           function(i) maxValue(cv1_both_sen$models[[i]]$predictions$api)),
+    sapply(seq_along(cv3_both_sen$models), 
+           function(i) maxValue(cv1_prgp_sen$models[[i]]$predictions$api))
+  )
+
+p1 <- obspred_map(data_cv1_sen, cv1_prgp_sen, trans = 'log1p',
+                  legend_title = 'API',
+                  mask = TRUE,
+                  lims = c(0, sen_y_max),
+                  breaks = c(1, 10, 100, 300))
+p2 <- obspred_map(data_cv1_sen, cv1_both_sen,
+                  trans = 'log1p',
+                  legend_title = 'API',
+                  lims = c(0, sen_y_max),
+                  mask = TRUE)
+
+
+panel1 <- p1[[1]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, sen_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
+  guides(fill = FALSE) +
+  labs(x = '', y = 'Latitude') +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+panel2 <- p1[[2]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, sen_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
+  
+  guides(fill = FALSE) +
+  labs(x = 'Longitude', y = '') +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+panel3 <- p2[[2]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, sen_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
+  
+  guides(fill = FALSE) +
+  labs(x = '', y = '')+
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+
+legend <- get_legend(p1[[1]] +
+                       scale_fill_viridis_c(trans = 'log1p', 
+                                            limits = c(0, sen_y_max), 
+                                            oob = scales::squish, 
+                                            name = 'Cases per 1000',
+                                            breaks = c(0, 10, 50, 100, 200)))
+
+sen_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 3)
+full_plot <- plot_grid(sen_preds_plot, legend, ncol = 2, rel_widths = c(5, 1))
+
+
+
+png('figs/summaries/sen_both_cv12_random_preds.png', height = 90, width = 300, unit = 'mm', res = 720)
+print(full_plot)
+dev.off()
+
+
+#rm(full_data_sen)
+rm(cv1_both_sen)
+rm(cv1_prgp_sen)
+gc()
+
+
+# Fig 5 - MDG: a) Data, predicted incidence from joint model for b) random cv, and c) spatial cv
+cv1_both_mdg <- get(load(cv1_both_mdg_path))
+cv1_prgp_mdg <- get(load(cv1_prgp_mdg_path))
+
+
+
+
+mdg_y_max <- 
+  max(
+    c(full_data_mdg$polygon$response),
+    sapply(seq_along(cv1_both_mdg$models), 
+           function(i) maxValue(cv1_both_mdg$models[[i]]$predictions$api)),
+    sapply(seq_along(cv1_both_mdg$models), 
+           function(i) maxValue(cv1_prgp_mdg$models[[i]]$predictions$api))
+  )
+
+p1 <- obspred_map(data_cv1_mdg, cv1_prgp_mdg, trans = 'log1p',
+                  legend_title = 'API',
+                  mask = TRUE,
+                  lims = c(0, sen_y_max),
+                  breaks = c(1, 10, 100, 300))
+p2 <- obspred_map(data_cv1_mdg, cv1_both_mdg,
+                  trans = 'log1p',
+                  legend_title = 'API',
+                  lims = c(0, sen_y_max),
+                  mask = TRUE)
+
+
+panel1 <- p1[[1]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, mdg_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
+  guides(fill = FALSE) +
+  labs(x = '', y = 'Latitude') +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+panel2 <- p1[[2]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, mdg_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
+  
+  guides(fill = FALSE) +
+  labs(x = 'Longitude', y = '') +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+panel3 <- p2[[2]] +
+  scale_fill_viridis_c(trans = 'log1p', 
+                       limits = c(0, mdg_y_max), 
+                       oob = scales::squish, 
+                       name = 'Cases per 1000') +
+  
+  guides(fill = FALSE) +
+  labs(x = '', y = '')+
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+
+legend <- get_legend(p1[[1]] +
+                       scale_fill_viridis_c(trans = 'log1p', 
+                                            limits = c(0, mdg_y_max), 
+                                            oob = scales::squish, 
+                                            name = 'Cases per 1000',
+                                            breaks = c(0, 10, 25, 100, 250, 500)))
+
+mdg_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 3)
+full_plot <- plot_grid(mdg_preds_plot, legend, ncol = 2, rel_widths = c(5, 1))
+
+
+
+
+png('figs/summaries/mdg_both_cv12_random_preds.png', height = 150, width = 300, unit = 'mm', res = 720)
+print(full_plot)
+dev.off()
+
+
+#rm(full_data_mdg)
+rm(cv1_both_mdg)
+rm(cv1_prgp_mdg)
+gc()
+
+
+
+
 
 
 # figure 6, random cv. PR vs Poly columns, countries as rows, model as colour?
@@ -834,8 +1128,209 @@ write(table3, 'figs/summaries/table3.txt')
 
 # Further SI figures.
 
+## prevgp fields.
+
+sen_full <- get(load(full_data_sen_path))
+idn_full <- get(load(full_data_idn_path))
+mdg_full <- get(load(full_data_mdg_path))
+
+png('figs/summaries/sen_prevgp.png', height = 1000, width = 1100)
+plot(sen_full$cov_rasters[[9]])
+dev.off()
+png('figs/summaries/idn_prevgp.png', height = 800, width = 1100)
+plot(idn_full$cov_rasters[[9]])
+dev.off()
+png('figs/summaries/mdg_prevgp.png', height = 1500, width = 1100)
+plot(mdg_full$cov_rasters[[9]])
+dev.off()
+
+
+
+## Disaggregation field
+
+mdg_joint_model <- get(load(mdg_joint))
+mdg_baseline_model <- get(load(mdg_baseline))
+mdg_prgp_model <- get(load(mdg_prgp))
+
+
+png('figs/summaries/mdg_baseline_field.png', height = 1500, width = 1100)
+plot(mask(mdg_baseline_model$predictions$field, mdg_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/mdg_prgp_field.png', height = 1500, width = 1100)
+plot(mask(mdg_prgp_model$predictions$field, mdg_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/mdg_joint_field.png', height = 1500, width = 1100)
+plot(mask(mdg_joint_model$predictions$field, mdg_baseline_model$predictions$api))
+dev.off()
+
+
+
+sen_joint_model <- get(load(sen_joint))
+sen_baseline_model <- get(load(sen_baseline))
+sen_prgp_model <- get(load(sen_prgp))
+
+
+png('figs/summaries/sen_baseline_field.png', height = 1100, width = 1100)
+plot(mask(sen_baseline_model$predictions$field, sen_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/sen_prgp_field.png', height = 1100, width = 1100)
+plot(mask(sen_prgp_model$predictions$field, sen_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/sen_joint_field.png', height = 1100, width = 1100)
+plot(mask(sen_joint_model$predictions$field, sen_baseline_model$predictions$api))
+dev.off()
+
+
+
+idn_joint_model <- get(load(idn_joint))
+idn_baseline_model <- get(load(idn_baseline))
+idn_prgp_model <- get(load(idn_prgp))
+
+
+png('figs/summaries/idn_baseline_field.png', height = 800, width = 1100)
+plot(mask(idn_baseline_model$predictions$field, idn_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/idn_prgp_field.png', height = 800, width = 1100)
+plot(mask(idn_prgp_model$predictions$field, idn_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/idn_joint_field.png', height = 800, width = 1100)
+plot(mask(idn_joint_model$predictions$field, idn_baseline_model$predictions$api))
+dev.off()
+
+
+## Full model predictions
+
+png('figs/summaries/mdg_baseline_api.png', height = 1500, width = 1100)
+plot(mask(mdg_baseline_model$predictions$api, mdg_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/mdg_prgp_api.png', height = 1500, width = 1100)
+plot(mask(mdg_prgp_model$predictions$api, mdg_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/mdg_joint_api.png', height = 1500, width = 1100)
+plot(mask(mdg_joint_model$predictions$api, mdg_baseline_model$predictions$api))
+dev.off()
+
+
+
+png('figs/summaries/sen_baseline_api.png', height = 1100, width = 1100)
+plot(mask(sen_baseline_model$predictions$api, sen_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/sen_prgp_api.png', height = 1100, width = 1100)
+plot(mask(sen_prgp_model$predictions$api, sen_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/sen_joint_api.png', height = 1100, width = 1100)
+plot(mask(sen_joint_model$predictions$api, sen_baseline_model$predictions$api))
+dev.off()
+
+
+
+png('figs/summaries/idn_baseline_api.png', height = 800, width = 1100)
+plot(mask(idn_baseline_model$predictions$api, idn_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/idn_prgp_api.png', height = 800, width = 1100)
+plot(mask(sen_prgp_model$predictions$api, idn_baseline_model$predictions$api))
+dev.off()
+png('figs/summaries/idn_joint_api.png', height = 800, width = 1100)
+plot(mask(idn_joint_model$predictions$api, idn_baseline_model$predictions$api))
+dev.off()
+
+
+
+# parameters
+
+
+sen_sd_baseline <- summary(sen_baseline_model$model$sd_report, select= 'fixed')[, 2]
+sen_sd_prgp <- summary(sen_prgp_model$model$sd_report, select= 'fixed')[, 2]
+sen_sd_joint <- summary(sen_joint_model$model$sd_report, select= 'fixed')[, 2]
+
+sen_mean_baseline <- summary(sen_baseline_model$model$sd_report, select= 'fixed')[, 1]
+sen_mean_prgp <- summary(sen_prgp_model$model$sd_report, select= 'fixed')[, 1]
+sen_mean_joint <- summary(sen_joint_model$model$sd_report, select= 'fixed')[, 1]
+
+sen_df <- data.frame(Parameters = c('$\\beta_0$', '$\\beta_p$', 
+                                    'LST day mean', 'EVI', 'TSI', 'accessability', 'elevation', 'LST day SD', 'Night lights', 'TCW', 'Prev GP',
+                                    '$\\log(\\tau)$', '$\\log(\\tau_{prev})$', '$\\log(\\sigma_u)$', '$\\log(\\rho)$', '$\\log(\\alpha)$'),
+                     Baseline = c(sen_mean_baseline[1:10], NA, sen_mean_baseline[11], NA, sen_mean_baseline[12:14]),
+                     BaselineSD = c(sen_sd_baseline[1:10], NA, sen_sd_baseline[11], NA, sen_sd_baseline[12:14]),
+                     PrevalenceGP = c(sen_mean_prgp[1:12], NA, sen_mean_prgp[13:15]),
+                     PrevalenceGPSD = c(sen_sd_prgp[1:12], NA, sen_sd_prgp[13:15]),
+                     Joint = c(sen_mean_joint[1:10], NA, sen_mean_joint[11:15]),
+                     JointSD = c(sen_sd_joint[1:10], NA, sen_sd_joint[11:15]))
+
+sen_df[16, 2:5] <- NA
+sen_df[2, 2:5] <- NA
 
 
 
 
-# Stats tests.
+tableS1 <- xtable(sen_df)
+
+print(tableS1, file = 'figs/summaries/tableS1.txt', include.rownames = FALSE, sanitize.text.function = function(x)x)
+
+
+
+mdg_sd_baseline <- summary(mdg_baseline_model$model$sd_report, select= 'fixed')[, 2]
+mdg_sd_prgp <- summary(mdg_prgp_model$model$sd_report, select= 'fixed')[, 2]
+mdg_sd_joint <- summary(mdg_joint_model$model$sd_report, select= 'fixed')[, 2]
+
+mdg_mean_baseline <- summary(mdg_baseline_model$model$sd_report, select= 'fixed')[, 1]
+mdg_mean_prgp <- summary(mdg_prgp_model$model$sd_report, select= 'fixed')[, 1]
+mdg_mean_joint <- summary(mdg_joint_model$model$sd_report, select= 'fixed')[, 1]
+
+mdg_df <- data.frame(Parameters = c('$\\beta_0$', '$\\beta_p$', 
+                                    'LST day mean', 'EVI', 'TSI', 'accessability', 'elevation', 'LST day SD', 'Night lights', 'TCW', 'Prev GP',
+                                    '$\\log(\\tau)$', '$\\log(\\tau_{prev})$', '$\\log(\\sigma_u)$', '$\\log(\\rho)$', '$\\log(\\alpha)$'),
+                     Baseline = c(mdg_mean_baseline[1:10], NA, mdg_mean_baseline[11], NA, mdg_mean_baseline[12:14]),
+                     BaselineSD = c(mdg_sd_baseline[1:10], NA, mdg_sd_baseline[11], NA, mdg_sd_baseline[12:14]),
+                     PrevalenceGP = c(mdg_mean_prgp[1:12], NA, mdg_mean_prgp[13:15]),
+                     PrevalenceGPSD = c(mdg_sd_prgp[1:12], NA, mdg_sd_prgp[13:15]),
+                     Joint = c(mdg_mean_joint[1:10], NA, mdg_mean_joint[11:15]),
+                     JointSD = c(mdg_sd_joint[1:10], NA, mdg_sd_joint[11:15]),
+                     stringsAsFactors = FALSE)
+
+mdg_df[16, 2:5] <- NA
+mdg_df[2, 2:5] <- NA
+
+
+tableS2 <- xtable(mdg_df)
+
+print(tableS2, file = 'figs/summaries/tableS2.txt', include.rownames = FALSE, sanitize.text.function = function(x)x)
+
+
+
+
+
+idn_sd_baseline <- summary(idn_baseline_model$model$sd_report, select= 'fixed')[, 2]
+idn_sd_prgp <- summary(idn_prgp_model$model$sd_report, select= 'fixed')[, 2]
+idn_sd_joint <- summary(idn_joint_model$model$sd_report, select= 'fixed')[, 2]
+
+idn_mean_baseline <- summary(idn_baseline_model$model$sd_report, select= 'fixed')[, 1]
+idn_mean_prgp <- summary(idn_prgp_model$model$sd_report, select= 'fixed')[, 1]
+idn_mean_joint <- summary(idn_joint_model$model$sd_report, select= 'fixed')[, 1]
+
+idn_df <- data.frame(Parameters = c('$\\beta_0$', '$\\beta_p$', 
+                                    'LST day mean', 'EVI', 'TSI', 'accessability', 'elevation', 'LST day SD', 'Night lights', 'TCW', 'Prev GP',
+                                    '$\\log(\\tau)$', '$\\log(\\tau_{prev})$', '$\\log(\\sigma_u)$', '$\\log(\\rho)$', '$\\log(\\alpha)$'),
+                     Baseline = c(idn_mean_baseline[1:10], NA, idn_mean_baseline[11], NA, idn_mean_baseline[12:14]),
+                     BaselineSD = c(idn_sd_baseline[1:10], NA, idn_sd_baseline[11], NA, idn_sd_baseline[12:14]),
+                     PrevalenceGP = c(idn_mean_prgp[1:12], NA, idn_mean_prgp[13:15]),
+                     PrevalenceGPSD = c(idn_sd_prgp[1:12], NA, idn_sd_prgp[13:15]),
+                     Joint = c(idn_mean_joint[1:10], NA, idn_mean_joint[11:15]),
+                     JointSD = c(idn_sd_joint[1:10], NA, idn_sd_joint[11:15]),
+                     stringsAsFactors = FALSE)
+
+idn_df[16, 2:5] <- NA
+idn_df[2, 2:5] <- NA
+
+
+tableS2 <- xtable(idn_df)
+
+print(tableS3, file = 'figs/summaries/tableS3.txt', include.rownames = FALSE, sanitize.text.function = function(x)x)
+
+
+
+
+
+
+
+
