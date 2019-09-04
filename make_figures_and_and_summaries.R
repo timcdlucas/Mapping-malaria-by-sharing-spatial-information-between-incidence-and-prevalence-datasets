@@ -249,14 +249,26 @@ cv3_both_idn <- get(load(cv3_both_idn_path))
 cv3_prgp_idn <- get(load(cv3_prgp_idn_path))
 
 p1 <- obspred_map(data_cv3_idn, cv3_prgp_idn, trans = 'log1p',
-                  legend_title = 'API',
+                  legend_title = 'Cases per 1000',
                   breaks = c(1, 10, 100, 300, 500))
 p2 <- obspred_map(data_cv3_idn, cv3_both_idn, trans = 'log1p', legend_title = 'API')
 
+WorldData <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
+idn_extent <- extent(cv3_both_idn$models[[1]]$predictions$api)
+WorldData <- WorldData %>% 
+               filter(region == 'Indonesia')
 
 panel1 <- p1[[1]] +
   guides(fill = FALSE) +
-  labs(x = '', y = '')
+  labs(x = '', y = '') + 
+  geom_map(data = WorldData, map = WorldData,
+           aes(x = long, y = lat, group = group, map_id=region),
+           fill = NA, colour = 'darkgrey', size=0.5) +
+  lims(x = idn_extent[1:2], y = idn_extent[3:4])
+
+
+
+
 panel2 <- p1[[2]] +
   guides(fill = FALSE) +
   labs(x = '', y = 'Latitude')
@@ -267,9 +279,9 @@ panel3 <- p2[[2]] +
 legend <- get_legend(p1[[1]])
 
 idn_preds_plot <- plot_grid(panel1, panel2, panel3, labels = LETTERS[1:3], ncol = 1)
-full_plot <- plot_grid(idn_preds_plot, legend, ncol = 2, rel_widths = c(4, 1))
+full_plot <- plot_grid(idn_preds_plot, legend, ncol = 2, rel_widths = c(4, 1.2))
 
-png('figs/summaries/idn_both_cv12_preds.png', height = 130, width = 100, unit = 'mm', res = 720)
+png('figs/summaries/idn_both_cv12_preds.png', height = 130, width = 110, unit = 'mm', res = 720)
 print(full_plot)
 dev.off()
 
@@ -843,7 +855,7 @@ mdg_poly_facet <- ggplot(mdg_cv1_poly_df, aes(response, pred_api, colour = model
 
 poly_facet_list <- list(idn_poly_facet, sen_poly_facet, mdg_poly_facet)
 full_obs_pred_poly_facet <- plot_grid(plotlist = poly_facet_list,
-                                   labels = LETTERS[1:3], ncol = 1)
+                                       labels = c('A) Indonesia', 'B) Senegal', 'C) Madagascar'), ncol = 1, hjust = -0.1, label_size = 13)
 
 png('figs/summaries/random_cv_poly_facet.png', height = 1500, width = 1100)
 print(full_obs_pred_poly_facet)
@@ -1057,7 +1069,7 @@ mdg_poly_facet <- ggplot(mdg_cv3_poly_df, aes(response, pred_api, colour = model
 
 poly_facet_list <- list(idn_poly_facet, sen_poly_facet, mdg_poly_facet)
 full_obs_pred_poly_facet <- plot_grid(plotlist = poly_facet_list,
-                                   labels = LETTERS[1:3], ncol = 1)
+                                       labels = c('A) Indonesia', 'B) Senegal', 'C) Madagascar'), ncol = 1, hjust = -0.1, label_size = 13)
 
 png('figs/summaries/spatialkeeppr_cv_poly_facet.png', height = 1500, width = 1100)
 print(full_obs_pred_poly_facet)
@@ -1065,7 +1077,7 @@ dev.off()
 
 
 
-pdf('figs/summaries/spatialkeeppr_cv_poly_facet.pdf', height = 10, width = 7)
+pdf('figs/summaries/spatialkeeppr_cv_poly_facet.pdf', height = 10, width = 8)
 print(full_obs_pred_poly_facet)
 dev.off()
 
@@ -1194,7 +1206,7 @@ png('figs/summaries/idn_prgp_field.png', height = 800, width = 1100)
 plot(mask(idn_prgp_model$predictions$field, idn_baseline_model$predictions$api))
 dev.off()
 png('figs/summaries/idn_joint_field.png', height = 800, width = 1100)
-plot(mask(idn_joint_model$predictions$field, idn_baseline_model$predictions$api))
+plot(mask(idn_joint_model$predictions$field, idn_joint_model$predictions$api))
 dev.off()
 
 
@@ -1228,10 +1240,10 @@ png('figs/summaries/idn_baseline_api.png', height = 800, width = 1100)
 plot(mask(idn_baseline_model$predictions$api, idn_baseline_model$predictions$api))
 dev.off()
 png('figs/summaries/idn_prgp_api.png', height = 800, width = 1100)
-plot(mask(sen_prgp_model$predictions$api, idn_baseline_model$predictions$api))
+plot(mask(idn_prgp_model$predictions$api, idn_baseline_model$predictions$api))
 dev.off()
 png('figs/summaries/idn_joint_api.png', height = 800, width = 1100)
-plot(mask(idn_joint_model$predictions$api, idn_baseline_model$predictions$api))
+plot(mask(idn_joint_model$predictions$api, idn_joint_model$predictions$api))
 dev.off()
 
 
@@ -1249,7 +1261,7 @@ sen_mean_joint <- summary(sen_joint_model$model$sd_report, select= 'fixed')[, 1]
 
 sen_df <- data.frame(Parameters = c('$\\beta_0$', '$\\beta_p$', 
                                     'LST day mean', 'EVI', 'TSI', 'accessability', 'elevation', 'LST day SD', 'Night lights', 'TCW', 'Prev GP',
-                                    '$\\log(\\tau)$', '$\\log(\\tau_{prev})$', '$\\log(\\sigma_u)$', '$\\log(\\rho)$', '$\\log(\\alpha)$'),
+                                    '$\\omega_v$', '$\\omega_w$', '$\\log(\\sigma_u)$', '$\\log(\\rho)$', '$\\log(\\alpha)$'),
                      Baseline = c(sen_mean_baseline[1:10], NA, sen_mean_baseline[11], NA, sen_mean_baseline[12:14]),
                      BaselineSD = c(sen_sd_baseline[1:10], NA, sen_sd_baseline[11], NA, sen_sd_baseline[12:14]),
                      PrevalenceGP = c(sen_mean_prgp[1:12], NA, sen_mean_prgp[13:15]),
@@ -1263,7 +1275,8 @@ sen_df[2, 2:5] <- NA
 
 
 
-tableS1 <- xtable(sen_df)
+tableS1 <- xtable(sen_df,
+                  caption = 'Parameter estimates for Senegal. $\\omega_v = \\log\\left(\\frac{1}{{\\sigma_v}^2}\\right)$ and $\\omega_w = \\log\\left(\\frac{1}{{\\sigma_w}^2}\\right)$')
 
 print(tableS1, file = 'figs/summaries/tableS1.txt', include.rownames = FALSE, sanitize.text.function = function(x)x)
 
@@ -1279,7 +1292,7 @@ mdg_mean_joint <- summary(mdg_joint_model$model$sd_report, select= 'fixed')[, 1]
 
 mdg_df <- data.frame(Parameters = c('$\\beta_0$', '$\\beta_p$', 
                                     'LST day mean', 'EVI', 'TSI', 'accessability', 'elevation', 'LST day SD', 'Night lights', 'TCW', 'Prev GP',
-                                    '$\\log(\\tau)$', '$\\log(\\tau_{prev})$', '$\\log(\\sigma_u)$', '$\\log(\\rho)$', '$\\log(\\alpha)$'),
+                                    '$\\omega_v$', '$\\omega_w$', '$\\log(\\sigma_u)$', '$\\log(\\rho)$', '$\\log(\\alpha)$'),
                      Baseline = c(mdg_mean_baseline[1:10], NA, mdg_mean_baseline[11], NA, mdg_mean_baseline[12:14]),
                      BaselineSD = c(mdg_sd_baseline[1:10], NA, mdg_sd_baseline[11], NA, mdg_sd_baseline[12:14]),
                      PrevalenceGP = c(mdg_mean_prgp[1:12], NA, mdg_mean_prgp[13:15]),
@@ -1292,7 +1305,8 @@ mdg_df[16, 2:5] <- NA
 mdg_df[2, 2:5] <- NA
 
 
-tableS2 <- xtable(mdg_df)
+tableS2 <- xtable(mdg_df,
+                  caption = 'Parameter estimates for Madagascar. $\\omega_v = \\log\\left(\\frac{1}{{\\sigma_v}^2}\\right)$ and $\\omega_w = \\log\\left(\\frac{1}{{\\sigma_w}^2}\\right)$')
 
 print(tableS2, file = 'figs/summaries/tableS2.txt', include.rownames = FALSE, sanitize.text.function = function(x)x)
 
@@ -1310,7 +1324,7 @@ idn_mean_joint <- summary(idn_joint_model$model$sd_report, select= 'fixed')[, 1]
 
 idn_df <- data.frame(Parameters = c('$\\beta_0$', '$\\beta_p$', 
                                     'LST day mean', 'EVI', 'TSI', 'accessability', 'elevation', 'LST day SD', 'Night lights', 'TCW', 'Prev GP',
-                                    '$\\log(\\tau)$', '$\\log(\\tau_{prev})$', '$\\log(\\sigma_u)$', '$\\log(\\rho)$', '$\\log(\\alpha)$'),
+                                    '$\\omega_v$', '$\\omega_w$', '$\\log(\\sigma_u)$', '$\\log(\\rho)$', '$\\log(\\alpha)$'),
                      Baseline = c(idn_mean_baseline[1:10], NA, idn_mean_baseline[11], NA, idn_mean_baseline[12:14]),
                      BaselineSD = c(idn_sd_baseline[1:10], NA, idn_sd_baseline[11], NA, idn_sd_baseline[12:14]),
                      PrevalenceGP = c(idn_mean_prgp[1:12], NA, idn_mean_prgp[13:15]),
@@ -1323,7 +1337,8 @@ idn_df[16, 2:5] <- NA
 idn_df[2, 2:5] <- NA
 
 
-tableS2 <- xtable(idn_df)
+tableS3 <- xtable(idn_df,
+                  caption = 'Parameter estimates for Indonesia. $\\omega_v = \\log\\left(\\frac{1}{{\\sigma_v}^2}\\right)$ and $\\omega_w = \\log\\left(\\frac{1}{{\\sigma_w}^2}\\right)$')
 
 print(tableS3, file = 'figs/summaries/tableS3.txt', include.rownames = FALSE, sanitize.text.function = function(x)x)
 
@@ -1332,5 +1347,17 @@ print(tableS3, file = 'figs/summaries/tableS3.txt', include.rownames = FALSE, sa
 
 
 
+# Data summaries.
 
+full_data_mdg$pr %>% dim
+full_data_mdg$pr$examined %>% sum
+full_data_mdg$polygon %>% dim
+
+full_data_idn$pr %>% dim
+full_data_idn$pr$examined %>% sum
+full_data_idn$polygon %>% dim
+
+full_data_sen$pr %>% dim
+full_data_sen$pr$examined %>% sum
+full_data_sen$polygon %>% dim
 
