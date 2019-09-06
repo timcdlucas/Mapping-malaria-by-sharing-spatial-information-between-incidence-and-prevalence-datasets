@@ -250,8 +250,10 @@ cv3_prgp_idn <- get(load(cv3_prgp_idn_path))
 
 p1 <- obspred_map(data_cv3_idn, cv3_prgp_idn, trans = 'log1p',
                   legend_title = 'Cases per 1000',
-                  breaks = c(1, 10, 100, 300, 500))
-p2 <- obspred_map(data_cv3_idn, cv3_both_idn, trans = 'log1p', legend_title = 'API')
+                  breaks = c(1, 10, 100, 300, 500), mask = TRUE)
+p2 <- obspred_map(data_cv3_idn, cv3_both_idn, trans = 'log1p', 
+                  legend_title = 'API',
+                  mask = TRUE)
 
 WorldData <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
 idn_extent <- extent(cv3_both_idn$models[[1]]$predictions$api)
@@ -264,17 +266,27 @@ panel1 <- p1[[1]] +
   geom_map(data = WorldData, map = WorldData,
            aes(x = long, y = lat, group = group, map_id=region),
            fill = NA, colour = 'darkgrey', size=0.5) +
-  lims(x = idn_extent[1:2], y = idn_extent[3:4])
+  lims(x = idn_extent[1:2], y = idn_extent[3:4]) +
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
 
 
 
 
 panel2 <- p1[[2]] +
   guides(fill = FALSE) +
-  labs(x = '', y = 'Latitude')
+  geom_map(data = WorldData, map = WorldData,
+           aes(x = long, y = lat, group = group, map_id=region),
+           fill = NA, colour = 'darkgrey', size=0.5) +
+  labs(x = '', y = 'Latitude')+
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+
 panel3 <- p2[[2]] +
+  geom_map(data = WorldData, map = WorldData,
+           aes(x = long, y = lat, group = group, map_id=region),
+           fill = NA, colour = 'darkgrey', size=0.5) +
   guides(fill = FALSE) +
-  labs(x = 'Longitude', y = '')
+  labs(x = 'Longitude', y = '')+
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
 
 legend <- get_legend(p1[[1]])
 
@@ -311,6 +323,8 @@ sen_y_max <-
        function(i) maxValue(cv3_prgp_sen$models[[i]]$predictions$api))
   )
 
+
+
 p1 <- obspred_map(data_cv3_sen, cv3_prgp_sen, trans = 'log1p',
                   legend_title = 'API',
                   mask = TRUE,
@@ -322,21 +336,31 @@ p2 <- obspred_map(data_cv3_sen, cv3_both_sen,
                   lims = c(0, sen_y_max),
                   mask = TRUE)
 
+WorldData <- map_data('world') %>% filter(region != "Antarctica") %>% fortify
+sen_extent <- extent(cv3_both_sen$models[[1]]$predictions$api)
+WorldData <- WorldData %>% 
+               filter(region == 'Senegal')
 
 panel1 <- p1[[1]] +
   scale_fill_viridis_c(trans = 'log1p', 
                        limits = c(0, sen_y_max), 
                        oob = scales::squish, 
                        name = 'Cases per 1000') +
+  geom_map(data = WorldData, map = WorldData,
+           aes(x = long, y = lat, group = group, map_id=region),
+           fill = NA, colour = 'darkgrey', size=0.5) +
   guides(fill = FALSE) +
   labs(x = '', y = 'Latitude') +
   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+
 panel2 <- p1[[2]] +
   scale_fill_viridis_c(trans = 'log1p', 
                        limits = c(0, sen_y_max), 
                        oob = scales::squish, 
                        name = 'Cases per 1000') +
-  
+  geom_map(data = WorldData, map = WorldData,
+           aes(x = long, y = lat, group = group, map_id=region),
+           fill = NA, colour = 'darkgrey', size=0.5) +  
   guides(fill = FALSE) +
   labs(x = 'Longitude', y = '') +
   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
@@ -345,7 +369,9 @@ panel3 <- p2[[2]] +
                        limits = c(0, sen_y_max), 
                        oob = scales::squish, 
                        name = 'Cases per 1000') +
-  
+  geom_map(data = WorldData, map = WorldData,
+           aes(x = long, y = lat, group = group, map_id=region),
+           fill = NA, colour = 'darkgrey', size=0.5) +  
   guides(fill = FALSE) +
   labs(x = '', y = '')+
   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
