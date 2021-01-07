@@ -4,9 +4,6 @@
 # Tim Lucas
 # 2018-05-30
 ###########
-here::here()
-source("setUserInfo.R")
-  
 
 # define paths
 
@@ -134,7 +131,8 @@ cat('Start cv1 model 2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = delay, drop_covs = 9)
+                      cores = 10, parallel_delay = delay, 
+                      drop_covs = 9)
 obspred_map(data_cv1_sen, cv1_output2, column = FALSE)
 ggsave('figs/senpsn_polygons_only_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output2, trans = 'log10', column = FALSE)
@@ -245,6 +243,52 @@ save(cv3_output4, file = 'model_outputs/senpsn_pr_gp_cv_3.RData')
 cv3_output2$summary$polygon_metrics
 cv3_output4$summary$polygon_metrics
 cv3_output3$summary$polygon_metrics
+
+
+
+
+senpsn1df <- rbind(cv1_output2$summary$combined_aggregated %>% mutate(model = 'polys'),
+                  cv1_output3$summary$combined_aggregated %>% mutate(model = 'both'),
+                  cv1_output4$summary$combined_aggregated %>% mutate(model = 'prgp'))
+
+write.csv(senpsn1df, 'model_outputs/senpsn1df.csv')
+
+
+
+
+
+senpsn3df <- rbind(cv3_output2$summary$combined_aggregated %>% mutate(model = 'polys'),
+                  cv3_output3$summary$combined_aggregated %>% mutate(model = 'both'),
+                  cv3_output4$summary$combined_aggregated %>% mutate(model = 'prgp'))
+
+write.csv(senpsn3df, 'model_outputs/senpsn3df.csv')
+
+
+get_sigs <- function(df){
+  summary <- 
+    df %>% 
+      mutate(error = abs(pred_api - response)) %>% 
+      group_by(fold, model) %>% 
+      summarise(mae = mean(error))
+  
+  summary_prgp <- 
+    summary %>% 
+      filter(model != 'both') %>% 
+      pivot_wider(names_from = model, values_from = mae)
+  prgp <- t.test(summary_prgp$polys, summary_prgp$prgp, paired = TRUE)$p.value
+  
+  summary_both <- 
+    summary %>% 
+    filter(model != 'prgp') %>% 
+    pivot_wider(names_from = model, values_from = mae)
+  both <- t.test(summary_both$polys, summary_both$both, paired = TRUE)$p.value
+  c(prgp = prgp, both = both)
+}
+
+
+get_sigs(sen1k2df)
+get_sigs(sen3k2df)
+
 
 
 
