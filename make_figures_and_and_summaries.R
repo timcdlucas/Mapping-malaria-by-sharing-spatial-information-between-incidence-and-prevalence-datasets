@@ -824,7 +824,7 @@ idn_poly <- ggplot(idn_cv1_poly_df, aes(pred_api, response, colour = model)) +
   geom_abline(slope = 1, intercept = 0) +
   #scale_y_sqrt() + 
   #scale_x_sqrt() +
-  labs(x = 'Observed API', y = 'Predicted API') +
+  labs(y = 'Observed API', x = 'Predicted API') +
   guides(colour = FALSE)
 
 idn_poly_facet <- ggplot(idn_cv1_poly_df, aes(pred_api, response, colour = model)) + 
@@ -834,7 +834,7 @@ idn_poly_facet <- ggplot(idn_cv1_poly_df, aes(pred_api, response, colour = model
   #scale_x_sqrt() +
   facet_wrap(~model) + 
   geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-  labs(x = 'Observed API', y = 'Predicted API') +
+  labs(y = 'Observed API', x = 'Predicted API') +
   guides(colour = FALSE)
 
 
@@ -844,7 +844,7 @@ sen_poly <- ggplot(sen_cv1_poly_df, aes(pred_api, response, colour = model)) +
   geom_abline(slope = 1, intercept = 0) +
   #scale_y_sqrt() + 
   #scale_x_sqrt() +
-  labs(x = 'Observed API', y = 'Predicted API') +
+  labs(y = 'Observed API', x = 'Predicted API') +
   guides(colour = FALSE)
 
 sen_poly_facet <- ggplot(sen_cv1_poly_df, aes(pred_api, response, colour = model)) + 
@@ -854,7 +854,7 @@ sen_poly_facet <- ggplot(sen_cv1_poly_df, aes(pred_api, response, colour = model
   #scale_x_sqrt() +
   facet_wrap(~ model) +
   geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-  labs(x = 'Observed API', y = 'Predicted API') +
+  labs(y = 'Observed API', x = 'Predicted API') +
   guides(colour = FALSE)
 
 
@@ -874,7 +874,7 @@ mdg_poly_facet <- ggplot(mdg_cv1_poly_df, aes(pred_api, response, colour = model
   #scale_x_sqrt() +  
   facet_wrap(~ model) + 
   geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-  labs(x = 'Observed API', y = 'Predicted API') +
+  labs(y = 'Observed API', x = 'Predicted API') +
   guides(colour = FALSE)
 
 
@@ -1033,12 +1033,18 @@ gc()
 a <- 0.5
 s <- 16
 
+idn_cv3_poly_df <- 
+  idn_cv3_poly_df %>% 
+    mutate(model = 
+                factor(model, 
+            levels = unique(idn_cv3_poly_df$model)))
+
 idn_poly <- ggplot(idn_cv3_poly_df, aes(pred_api, response, colour = model)) + 
   geom_point(alpha = a, size = 3, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   #scale_y_sqrt() + 
   #scale_x_sqrt() +
-  labs(x = 'Observed API', y = 'Predicted API') +
+  labs(y = 'Observed API', x = 'Predicted API') +
   guides(colour = FALSE)
 
 idn_poly_facet <- ggplot(idn_cv3_poly_df, aes(pred_api, response, colour = model)) + 
@@ -1048,17 +1054,24 @@ idn_poly_facet <- ggplot(idn_cv3_poly_df, aes(pred_api, response, colour = model
   #scale_x_sqrt() +
   facet_wrap(~model) + 
   geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-  labs(x = 'Observed API', y = 'Predicted API') +
-  guides(colour = FALSE)
+  labs(y = 'Observed API', x = 'Predicted API') +
+  guides(colour = FALSE) 
 
 
+
+
+sen_cv3_poly_df <- 
+  sen_cv3_poly_df %>% 
+    mutate(model = 
+                factor(model, 
+            levels = unique(sen_cv3_poly_df$model)))
 
 sen_poly <- ggplot(sen_cv3_poly_df, aes(pred_api, response, colour = model)) + 
   geom_point(alpha = a + 0.2, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   #scale_y_sqrt() + 
   #scale_x_sqrt() +
-  labs(x = 'Observed API', y = 'Predicted API') +
+  labs(y = 'Observed API', x = 'Predicted API') +
   guides(colour = FALSE)
 
 sen_poly_facet <- ggplot(sen_cv3_poly_df, aes(pred_api, response, colour = model)) + 
@@ -1066,18 +1079,25 @@ sen_poly_facet <- ggplot(sen_cv3_poly_df, aes(pred_api, response, colour = model
   geom_abline(slope = 1, intercept = 0) +
   #scale_y_sqrt() + 
   #scale_x_sqrt() +
-  facet_wrap(~ model) +
+  facet_wrap(~ model, scales = 'free') +
   geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-  labs(x = 'Observed API', y = 'Predicted API') +
+  labs(y = 'Observed API', x = 'Predicted API') +
   guides(colour = FALSE)
 
+
+
+mdg_cv3_poly_df <- 
+  mdg_cv3_poly_df %>% 
+    mutate(model = 
+                factor(model, 
+            levels = unique(mdg_cv3_poly_df$model)))
 
 mdg_poly <- ggplot(mdg_cv3_poly_df, aes(pred_api, response, colour = model)) + 
   geom_point(alpha = a + 0.2, size = 2, shape = s) + 
   geom_abline(slope = 1, intercept = 0) +
   #scale_y_sqrt() + 
   #scale_x_sqrt() +
-  labs(x = 'Observed API', y = 'Predicted API') +
+  labs(y = 'Observed API', x = 'Predicted API') +
   guides(colour = FALSE)
 
 
@@ -1088,7 +1108,7 @@ mdg_poly_facet <- ggplot(mdg_cv3_poly_df, aes(pred_api, response, colour = model
   #scale_x_sqrt() +  
   facet_wrap(~ model) + 
   geom_smooth(method = 'lm', aes(colour = model), se = FALSE) +
-  labs(x = 'Observed API', y = 'Predicted API') +
+  labs(y = 'Observed API', x = 'Predicted API') +
   guides(colour = FALSE)
 
 
