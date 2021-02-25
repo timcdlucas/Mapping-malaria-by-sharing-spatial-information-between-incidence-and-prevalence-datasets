@@ -271,6 +271,9 @@ obspred_map <- function(cv_data,
   
   
   #test_shapes@data <- test_poly
+
+  test_shapes <- rgeos::gBuffer(test_shapes, byid = TRUE, width = 0)
+
   
   df <- ggplot2::fortify(test_shapes, region = 'area_id')
   
@@ -351,4 +354,49 @@ obspred_map <- function(cv_data,
 # ppj_cv_performance
 #  Print useful summaries.
 #  Summary function might be useful.
+
+
+
+
+###############################################
+# Plot pred obs map                           #
+###############################################
+
+
+error_map <- function(object, 
+                        cv_preds, 
+                        trans = 'identity', 
+                        limits = NULL, 
+                        column = TRUE,
+                        legend_title = 'response',
+                        mask = FALSE,
+                        ...){
+ 
+  
+  object$shapefiles@data <- 
+    object$shapefiles@data %>% 
+      left_join(cv_preds$summary$combined_aggregated, 
+                by = 'area_id') %>% 
+      mutate(error = pred_api - response.x)
+      
+  
+  
+  
+  df <- ggplot2::fortify(object$shapefiles, region = 'area_id')
+  
+  df <- object$shapefiles@data %>% 
+    mutate(area_id = as.character(area_id)) %>% 
+    left_join(df, ., by = c('id' = 'area_id'))
+  
+  
+  p <- ggplot(df, aes(long, lat, group = group, fill = error)) + 
+    geom_polygon() +
+    coord_equal() +
+    colorspace::scale_fill_continuous_diverging()
+  
+  print(p)
+  return(p)
+}
+
+
 

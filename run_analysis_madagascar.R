@@ -308,71 +308,6 @@ cv1_output3$summary$pr_metrics
 
 
 
-# Run 3 x models with 3 x hyperpars on cv2 Spatial.
-
-cat('Start cv2')
-data_cv2_mdg <- cv_spatial_folds(data_mdg, k = 3)
-save(data_cv2_mdg, file = 'model_outputs/mdg_cv_2.RData')
-autoplot(data_cv2_mdg, jitter = 0.0)
-ggsave('figs/mdg_cv_spatial.png')
-
-
-cat('Start cv2 model1')
-# Run 3 x models with 3 x hyperpars on cv1.
-arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
-cv2_output1 <- run_cv(data_cv2_mdg, mesh_mdg, its = 1000, 
-                      model.args = arg_list, CI = 0.8, 
-                      parallel_delay = delay, cores = 10, 
-                      drop_covs = 9)
-obspred_map(data_cv2_mdg, cv2_output1, column = FALSE)
-ggsave('figs/mdg_points_only_obspred_map2.png')
-obspred_map(data_cv2_mdg, cv2_output1, trans = 'log10', column = FALSE)
-ggsave('figs/mdg_points_only_obspred_map_log2.png')
-autoplot(cv2_output1, type = 'obs_preds', CI = TRUE)
-ggsave('figs/mdg_points_only_obspred2.png')
-save(cv2_output1, file = 'model_outputs/mdg_points_cv_2.RData')
-
-cat('Start cv2 model2')
-arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
-cv2_output2 <- run_cv(data_cv2_mdg, mesh_mdg, its = 1000, 
-                      model.args = arg_list, CI = 0.8, 
-                      parallel_delay = delay, cores = 10, 
-                      drop_covs = 9)
-obspred_map(data_cv2_mdg, cv2_output2, column = FALSE)
-ggsave('figs/mdg_polygons_only_obspred_map2.png')
-obspred_map(data_cv2_mdg, cv2_output2, trans = 'log10', column = FALSE)
-ggsave('figs/mdg_polygons_only_obspred_map_log2.png')
-autoplot(cv2_output2, type = 'obs_preds', CI = TRUE)
-ggsave('figs/mdg_polygons_only_obspred2.png')
-save(cv2_output2, file = 'model_outputs/mdg_polygon_cv_2.RData')
-
-cat('Start cv2 model3')
-arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
-cv2_output3 <- run_cv(data_cv2_mdg, mesh_mdg, its = 1000, 
-                      model.args = arg_list, CI = 0.8, 
-                      parallel_delay = delay, cores = 10, 
-                      drop_covs = 9)
-obspred_map(data_cv2_mdg, cv2_output3, column = FALSE)
-ggsave('figs/mdg_both_obspred_map2.png')
-obspred_map(data_cv2_mdg, cv2_output3, trans = 'log10', column = FALSE)
-ggsave('figs/mdg_both_obspred_map_log2.png')
-autoplot(cv2_output3, type = 'obs_preds', CI = TRUE)
-ggsave('figs/mdg_both_obspred2.png')
-
-
-
-save(cv2_output3, file = 'model_outputs/mdg_joint_cv_2.RData')
-
-cv2_output1$summary$polygon_metrics
-cv2_output2$summary$polygon_metrics
-cv2_output3$summary$polygon_metrics
-
-cv2_output1$summary$pr_metrics
-cv2_output2$summary$pr_metrics
-cv2_output3$summary$pr_metrics
-
-
-
 
 
 
@@ -390,7 +325,8 @@ cat('Start cv3 model1')
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv3_output1 <- run_cv(data_cv3_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      parallel_delay = delay)
+                      parallel_delay = delay,
+                      drop_covs = 9)
 obspred_map(data_cv3_mdg, cv3_output1, column = FALSE)
 ggsave('figs/mdg_points_only_obspred_map3.png')
 obspred_map(data_cv3_mdg, cv3_output1, trans = 'log10', column = FALSE)
@@ -403,7 +339,8 @@ cat('Start cv3 model2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv3_output2 <- run_cv(data_cv3_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      parallel_delay = delay)
+                      parallel_delay = delay,
+                      drop_covs = 9)
 obspred_map(data_cv3_mdg, cv3_output2, column = FALSE)
 ggsave('figs/mdg_polygons_only_obspred_map3.png')
 obspred_map(data_cv3_mdg, cv3_output2, trans = 'log10', column = FALSE)
@@ -416,7 +353,8 @@ cat('Start cv3 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv3_output3 <- run_cv(data_cv3_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      parallel_delay = delay)
+                      parallel_delay = delay,
+                      drop_covs = 9)
 obspred_map(data_cv3_mdg, cv3_output3, column = FALSE)
 ggsave('figs/mdg_both_obspred_map3.png')
 obspred_map(data_cv3_mdg, cv3_output3, trans = 'log10', column = FALSE)

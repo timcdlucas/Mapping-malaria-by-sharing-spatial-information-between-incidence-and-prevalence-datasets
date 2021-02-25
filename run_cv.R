@@ -7,6 +7,7 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, drop_c
   models <- list()
   results <- list()
   
+  print(parallel_delay)
   #for(i in seq_along(cv_data)){
   par_fun <- function(i){  
     message('Fitting model: ', i)
@@ -17,8 +18,13 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, drop_c
 
   if(cores > 1){
     if(Sys.info()["sysname"] != 'Windows'){
+      print('using mclapply')
       models <- mclapply(seq_along(cv_data), par_fun, mc.cores = cores)
+      print(class(models[[1]]))
+      print(length(models[[1]]))
+      #print(models[[1]])
     } else {
+      print('using parLapply')
       cl <- makePSOCKcluster(cores, outfile = "")
       setDefaultCluster(cl)
       clusterExport(cl, c('fit_model', 'cv_data', 'mesh', 'model.args', 'predict_model', 'predict_uncertainty', 'iidDraw',
@@ -32,6 +38,7 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, drop_c
       registerDoSEQ()
     }
   } else { 
+    print('running in serial')
     for(i in seq_along(cv_data)){
       models[[i]] <- par_fun(i)
     }
@@ -41,11 +48,14 @@ run_cv <- function(cv_data, mesh, its = 10, model.args = NULL, CI = 0.95, drop_c
   print('Model performance')
   for(i in seq_along(cv_data)){
     print(i)
+    
     results[[i]] <- cv_performance(models[[i]]$predictions, 
                                    cv_data[[i]]$test, 
                                    models[[i]]$model,
                                    use_points = model.args$use_points,
-                                   CI = CI)
+                                   CI = CI, serial_extract = FALSE)
+    print(i)
+    
   }
   
   summary <- summarise_cv_results(results)

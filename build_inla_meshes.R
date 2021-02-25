@@ -16,6 +16,7 @@ build_mesh <- function(data, mesh.args = NULL){
 
   pars[names(mesh.args)] <- mesh.args
 
+  data$shapefiles <- rgeos::gBuffer(data$shapefiles, byid = TRUE, width = 0)
   outline <- unionSpatialPolygons(data$shapefiles, IDs = rep(1, length(data$shapefiles)))
   plot(outline)
 

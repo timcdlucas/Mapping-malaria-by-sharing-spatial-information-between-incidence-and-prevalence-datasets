@@ -379,6 +379,7 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_po
     extracted[, 1] <- holdout$shapefiles$area_id[extracted[, 1]]
     names(extracted)[1] <- 'area_id'
   } else {
+    print('about to make fork')
     cl <- makeForkCluster(min(detectCores() - 1, 20))
     registerDoParallel(cl)
     extracted <- parallelExtract(rasters, holdout$shapefiles, fun = NULL, id = 'area_id')
@@ -427,7 +428,8 @@ cv_performance <- function(predictions, holdout, model_params, CI = 0.95, use_po
     extracted_reals[, 1] <- shapefiles$area_id[extracted_reals[, 1]]
     names(extracted_reals)[1] <- 'area_id'
   } else {
-    cl <- makeCluster(min(detectCores() - 1, 20))
+    paste('make another fork')
+    cl <- makeForkCluster(min(detectCores() - 1, 20))
     registerDoParallel(cl)
     extracted_reals <- parallelExtract(rasters_real, 
                                        holdout$shapefiles, fun = NULL, id = 'area_id')

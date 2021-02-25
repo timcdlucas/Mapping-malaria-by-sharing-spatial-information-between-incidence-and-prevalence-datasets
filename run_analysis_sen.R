@@ -139,7 +139,7 @@ save(data_sen, file = 'model_outputs/sen_full_data.RData')
 
 autoplot(data_sen)
 
-  mesh_sen <- build_mesh(data_sen, mesh.args = list(max.edge = c(0.1, 0.8), cut = 0.1, offset = c(2, 2), concave = -0.03))
+mesh_sen <- build_mesh(data_sen, mesh.args = list(max.edge = c(0.1, 0.8), cut = 0.1, offset = c(2, 2), concave = -0.03))
 
 data_cv1_sen <- cv_random_folds(data_sen, k = 10) # todo
 autoplot(data_cv1_sen, jitter = 0)
@@ -257,7 +257,8 @@ cat('Start cv1 model 2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = delay, drop_covs = 9)
+                      cores = 10, parallel_delay = delay, 
+                      drop_covs = 9)
 obspred_map(data_cv1_sen, cv1_output2, column = FALSE)
 ggsave('figs/sen_polygons_only_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output2, trans = 'log10', column = FALSE)
@@ -270,7 +271,8 @@ cat('Start cv1 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv1_output3 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = delay, drop_covs = 9)
+                      cores = 10, parallel_delay = delay, 
+                      drop_covs = 9)
 obspred_map(data_cv1_sen, cv1_output3, column = FALSE)
 ggsave('figs/sen_both_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output3, trans = 'log10', column = FALSE)
@@ -317,7 +319,9 @@ cat('Start cv2 model1')
 # Run 3 x models with 3 x hyperpars on cv1.
 arg_list[c('use_polygons', 'use_points')] <- c(0, 1)
 cv2_output1 <- run_cv(data_cv2_sen, mesh_sen, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 5, drop_covs = 9)
+                      model.args = arg_list, CI = 0.8, 
+                      parallel_delay = delay, cores = 5, 
+                      drop_covs = 9)
 obspred_map(data_cv2_sen, cv2_output1, column = FALSE)
 ggsave('figs/sen_points_only_obspred_map2.png')
 obspred_map(data_cv2_sen, cv2_output1, trans = 'log10', column = FALSE)
@@ -382,7 +386,9 @@ cv3_output1 <- run_cv(data_cv3_sen, mesh_sen, its = 1000,
                       model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 5, drop_covs = 9)
 obspred_map(data_cv3_sen, cv3_output1, column = FALSE)
 ggsave('figs/sen_points_only_obspred_map3.png')
-obspred_map(data_cv3_sen, cv3_output1, trans = 'log10', column = FALSE)
+obspred_map(data_cv3_sen, cv3_output1, 
+            trans = 'log10', column = FALSE,
+            mask = TRUE)
 ggsave('figs/sen_points_only_obspred_map_log3.png')
 autoplot(cv3_output1, type = 'obs_preds', CI = TRUE)
 ggsave('figs/sen_points_only_obspred3.png')
@@ -391,10 +397,14 @@ save(cv3_output1, file = 'model_outputs/sen_points_cv_3.RData')
 cat('Start cv3 model2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv3_output2 <- run_cv(data_cv3_sen, mesh_sen, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 5, drop_covs = 9)
+                      model.args = arg_list, CI = 0.8, 
+                      parallel_delay = delay, cores = 5, 
+                      drop_covs = 9)
 obspred_map(data_cv3_sen, cv3_output2, column = FALSE)
 ggsave('figs/sen_polygons_only_obspred_map3.png')
-obspred_map(data_cv3_sen, cv3_output2, trans = 'log10', column = FALSE)
+obspred_map(data_cv3_sen, cv3_output2, 
+            trans = 'log10', column = FALSE,
+            mask = TRUE)
 ggsave('figs/sen_polygons_only_obspred_map_log3.png')
 autoplot(cv3_output2, type = 'obs_preds', CI = FALSE)
 ggsave('figs/sen_polygons_only_obspred3.png')
@@ -406,7 +416,9 @@ cv3_output3 <- run_cv(data_cv3_sen, mesh_sen, its = 1000,
                       model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 5, drop_covs = 9)
 obspred_map(data_cv3_sen, cv3_output3, column = FALSE)
 ggsave('figs/sen_both_obspred_map3.png')
-obspred_map(data_cv3_sen, cv3_output3, trans = 'log10', column = FALSE)
+obspred_map(data_cv3_sen, cv3_output3, 
+            trans = 'log10', column = FALSE,
+            mask = TRUE)
 ggsave('figs/sen_both_obspred_map_log3.png')
 autoplot(cv3_output3, type = 'obs_preds', CI = FALSE)
 ggsave('figs/sen_both_obspred3.png')
@@ -440,5 +452,12 @@ cv3_output1$summary$pr_metrics
 cv3_output2$summary$pr_metrics
 cv3_output3$summary$pr_metrics
 
+p0 <- autoplot(data_sen, type = 'ada') + ggtitle('Observed API')
+p1 <- error_map(data_sen, cv3_output2, limits = c(-30, 70)) + 
+  ggtitle('Baseline') 
+p2 <- error_map(data_sen, cv3_output3, limits= c(-30, 70)) +
+  ggtitle('Joint')
+library(patchwork)
+p0  + p1 + p2
 
 print('Finished')
