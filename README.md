@@ -1,23 +1,15 @@
 
 ---
-title: A comparison of models for polygon data, point data or both for malaria mapping
+Code for Mapping malaria by sharing spatial information between incidence and prevalence datasets 
 ---
 
 
+This repository contains the code for the paper Mapping malaria by sharing spatial information between incidence and prevalence datasets which is now accepted for publication at the Journal of the Royal Statistical Society C.
 
-1. Use Madagascar + Indonesia as case studies.
-2. do cross validation on both pr and polygon. no good way to combine so just have to report both in every case
-3. can't see good way to compare stacked generalisation with linear polygon so have to do all linear.
-4. if this paper falls out easily can expand to ml and polygon as covariates. or project for ra?
-5. probably want random cv and spatial cv?
-6. might need more countries but do first draft like this.
-7. spatial only. but need to choose year/year range.
-8. compare Pearson and spearman. maybe Mae as well.
-9. how to handle spatial priors? try 3 values and pick best CV in each case.
-10. gives country X model X CV X metric X prevalence vs incidence.
+The preprint is [here](https://www.medrxiv.org/content/10.1101/2020.02.14.20023069v1)
 
+Unfortunately I do not have permission to share most of the data. 
+I made a parallel directory of codes and simulated data which I will try to get round to hosting somewhere sensible.
+It should be supplementary material with the paper as well.
 
-The script `run_analysis.R` is the main script that runs the full analysis.
-The other scripts contain function definitions used by `run_analysis.R`.
-Currently I am reading data directly from Z, mostly from the GBD2017 folder.
 
