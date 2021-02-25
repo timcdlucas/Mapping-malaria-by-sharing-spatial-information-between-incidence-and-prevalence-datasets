@@ -113,7 +113,8 @@ cat('Start cv1 model 2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 2, parallel_delay = delay, drop_covs = 9)
+                      cores = 2, parallel_delay = delay, 
+                      drop_covs = 9)
 obspred_map(data_cv1_mdg, cv1_output2, column = FALSE)
 ggsave('figs/mdgk2_polygons_only_obspred_map.png')
 obspred_map(data_cv1_mdg, cv1_output2, trans = 'log10', column = FALSE)
@@ -126,7 +127,8 @@ cat('Start cv1 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv1_output3 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 2, parallel_delay = delay, drop_covs = 9)
+                      cores = 2, parallel_delay = delay, 
+                      drop_covs = 9)
 obspred_map(data_cv1_mdg, cv1_output3, column = FALSE)
 ggsave('figs/mdgk2_both_obspred_map.png')
 obspred_map(data_cv1_mdg, cv1_output3, trans = 'log10', column = FALSE)
@@ -142,7 +144,8 @@ cat('Start cv1 model 4')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output4 <- run_cv(data_cv1_mdg, mesh_mdg, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 2, parallel_delay = delay)
+                      cores = 2, parallel_delay = delay,
+                      drop_covs = NULL)
 obspred_map(data_cv1_mdg, cv1_output4, column = FALSE)
 ggsave('figs/mdgk2_pr_gp_obspred_map.png')
 obspred_map(data_cv1_mdg, cv1_output4, trans = 'log10', column = FALSE)
@@ -178,7 +181,9 @@ cat('Start cv3 model1')
 cat('Start cv3 model2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv3_output2 <- run_cv(data_cv3_mdg, mesh_mdg, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 2, drop_covs = 9)
+                      model.args = arg_list, CI = 0.8, 
+                      parallel_delay = delay, cores = 2, 
+                      drop_covs = 9)
 obspred_map(data_cv3_mdg, cv3_output2, column = FALSE)
 ggsave('figs/mdgk2_polygons_only_obspred_map3.png')
 obspred_map(data_cv3_mdg, cv3_output2, trans = 'log10', column = FALSE)
@@ -190,7 +195,9 @@ save(cv3_output2, file = 'model_outputs/mdgk2_polygon_cv_3.RData')
 cat('Start cv3 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv3_output3 <- run_cv(data_cv3_mdg, mesh_mdg, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 2, drop_covs = 9)
+                      model.args = arg_list, CI = 0.8, 
+                      parallel_delay = delay, cores = 2, 
+                      drop_covs = 9)
 obspred_map(data_cv3_mdg, cv3_output3, column = FALSE)
 ggsave('figs/mdgk2_both_obspred_map3.png')
 obspred_map(data_cv3_mdg, cv3_output3, trans = 'log10', column = FALSE)
@@ -206,7 +213,9 @@ save(cv3_output3, file = 'model_outputs/mdgk2_joint_cv_3.RData')
 cat('Start cv3 model4')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv3_output4 <- run_cv(data_cv3_mdg, mesh_mdg, its = 1000, 
-                      model.args = arg_list, CI = 0.8, parallel_delay = delay, cores = 2, drop_covs = NULL)
+                      model.args = arg_list, CI = 0.8, 
+                      parallel_delay = delay, cores = 2, 
+                      drop_covs = NULL)
 obspred_map(data_cv3_mdg, cv3_output4, column = FALSE)
 ggsave('figs/mdgk2_pr_gp_obspred_map3.png')
 obspred_map(data_cv3_mdg, cv3_output4, trans = 'log10', column = FALSE)

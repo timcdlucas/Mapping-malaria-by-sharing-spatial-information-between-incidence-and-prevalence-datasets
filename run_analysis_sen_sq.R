@@ -4,6 +4,8 @@
 # Tim Lucas
 # 2018-05-30
 ###########
+source("setUserInfo.R")
+  
 
 # define paths
 
@@ -75,26 +77,26 @@ load('model_outputs/sen_full_data.RData')
 autoplot(data_sen)
 
 
-# Force small n prev.
+# Add squared terms.
+data_sen %>% names
 
-pr <- data_sen$pr$positive / data_sen$pr$examined
-data_sen$pr$examined <- 5
+covssq <- data_sen$covs[, 3:10] ^ 2
+names(covssq) <- paste0(names(covssq), 'sq')
+data_sen$covs <- cbind(data_sen$covs, covssq)
 
-pos <- (5 * pr)
-round_ud <- 
-  (pos - floor(pos)) > runif(length(pr))
+covsprsq <- data_sen$pr_covs[, 1:8] ^ 2
+names(covsprsq) <- paste0(names(covsprsq), 'sq')
+data_sen$pr_covs <- cbind(data_sen$pr_covs, covsprsq)
 
-pos[round_ud] <- ceiling(pos[round_ud])
-pos[!round_ud] <- floor(pos[!round_ud])
-data_sen$pr$positive <- pos
-
-
+covsrastsq <- data_sen$cov_rasters[[1:8]] ^ 2
+names(covsrastsq) <- paste0(names(covsrastsq), 'sq')
+data_sen$cov_rasters <- stack(data_sen$cov_rasters, covsrastsq)
 
 mesh_sen <- build_mesh(data_sen, mesh.args = list(max.edge = c(0.1, 0.8), cut = 0.1, offset = c(2, 2), concave = -0.03))
 
+# Does this definitely do keep_pr?
 data_cv1_sen <- cv_random_folds(data_sen, k = 10) # todo
 autoplot(data_cv1_sen, jitter = 0)
-save(data_cv1_sen, file = 'model_outputs/senpsn_cv_1.RData')
 
 
 
@@ -131,28 +133,29 @@ cat('Start cv1 model 2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output2 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = delay, 
+                      cores = 2, parallel_delay = delay, 
                       drop_covs = 9)
 obspred_map(data_cv1_sen, cv1_output2, column = FALSE)
-ggsave('figs/senpsn_polygons_only_obspred_map.png')
+ggsave('figs/sensq_polygons_only_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output2, trans = 'log10', column = FALSE)
-ggsave('figs/senpsn_polygons_only_obspred_map_log.png')
+ggsave('figs/sensq_polygons_only_obspred_map_log.png')
 autoplot(cv1_output2, type = 'obs_preds', CI = FALSE)
-ggsave('figs/senpsn_polygons_only_obspred.png')
-save(cv1_output2, file = 'model_outputs/senpsn_polygon_cv_1.RData')
+ggsave('figs/sensq_polygons_only_obspred.png')
+save(cv1_output2, file = 'model_outputs/sensq_polygon_cv_1.RData')
 
 cat('Start cv1 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv1_output3 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = delay, drop_covs = 9)
+                      cores = 2, parallel_delay = delay, 
+                      drop_covs = 9)
 obspred_map(data_cv1_sen, cv1_output3, column = FALSE)
-ggsave('figs/senpsn_both_obspred_map.png')
+ggsave('figs/sensq_both_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output3, trans = 'log10', column = FALSE)
-ggsave('figs/senpsn_both_obspred_map_log.png')
+ggsave('figs/sensq_both_obspred_map_log.png')
 autoplot(cv1_output3, type = 'obs_preds', CI = TRUE)
-ggsave('figs/senpsn_both_obspred.png')
-save(cv1_output3, file = 'model_outputs/senpsn_joint_cv_1.RData')
+ggsave('figs/sensq_both_obspred.png')
+save(cv1_output3, file = 'model_outputs/sensq_joint_cv_1.RData')
 
 
 
@@ -161,14 +164,15 @@ cat('Start cv1 model 4')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv1_output4 <- run_cv(data_cv1_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      cores = 10, parallel_delay = delay)
+                      cores = 2, parallel_delay = delay,
+                      drop_covs = NULL)
 obspred_map(data_cv1_sen, cv1_output4, column = FALSE)
-ggsave('figs/senpsn_pr_gp_obspred_map.png')
+ggsave('figs/sensq_pr_gp_obspred_map.png')
 obspred_map(data_cv1_sen, cv1_output4, trans = 'log10', column = FALSE)
-ggsave('figs/senpsn_pr_gp_only_obspred_map_log.png')
+ggsave('figs/sensq_pr_gp_only_obspred_map_log.png')
 autoplot(cv1_output4, type = 'obs_preds', CI = FALSE)
-ggsave('figs/senpsn_pr_gp_only_obspred.png')
-save(cv1_output4, file = 'model_outputs/senpsn_pr_gp_cv_1.RData')
+ggsave('figs/sensq_pr_gp_only_obspred.png')
+save(cv1_output4, file = 'model_outputs/sensq_pr_gp_cv_1.RData')
 
 
 cv1_output2$summary$polygon_metrics
@@ -186,9 +190,8 @@ cv1_output3$summary$polygon_metrics
 
 cat('Start cv3')
 data_cv3_sen <- cv_spatial_folds(data_sen, k = 5, keep_pr = TRUE)
-save(data_cv3_sen, file = 'model_outputs/senpsn_cv_3.RData')
 autoplot(data_cv3_sen, jitter = 0.0)
-ggsave('figs/senpsn_cv_spatial.png')
+ggsave('figs/sensq_cv_spatial.png')
 
 
 cat('Start cv3 model1')
@@ -198,28 +201,30 @@ cat('Start cv3 model2')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv3_output2 <- run_cv(data_cv3_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      parallel_delay = delay, cores = 5, drop_covs = 9)
+                      parallel_delay = delay, cores = 2, 
+                      drop_covs = 9)
 obspred_map(data_cv3_sen, cv3_output2, column = FALSE)
-ggsave('figs/senpsn_polygons_only_obspred_map3.png')
+ggsave('figs/sensq_polygons_only_obspred_map3.png')
 obspred_map(data_cv3_sen, cv3_output2, trans = 'log10', column = FALSE)
-ggsave('figs/senpsn_polygons_only_obspred_map_log3.png')
+ggsave('figs/sensq_polygons_only_obspred_map_log3.png')
 autoplot(cv3_output2, type = 'obs_preds', CI = FALSE)
-ggsave('figs/senpsn_polygons_only_obspred3.png')
-save(cv3_output2, file = 'model_outputs/senpsn_polygon_cv_3.RData')
+ggsave('figs/sensq_polygons_only_obspred3.png')
+save(cv3_output2, file = 'model_outputs/sensq_polygon_cv_3.RData')
 
 cat('Start cv3 model3')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 1)
 cv3_output3 <- run_cv(data_cv3_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      parallel_delay = delay, cores = 5, drop_covs = 9)
+                      parallel_delay = delay, cores = 2, 
+                      drop_covs = 9)
 obspred_map(data_cv3_sen, cv3_output3, column = FALSE)
-ggsave('figs/senpsn_both_obspred_map3.png')
+ggsave('figs/sensq_both_obspred_map3.png')
 obspred_map(data_cv3_sen, cv3_output3, trans = 'log10', column = FALSE)
-ggsave('figs/senpsn_both_obspred_map_log3.png')
+ggsave('figs/sensq_both_obspred_map_log3.png')
 autoplot(cv3_output3, type = 'obs_preds', CI = FALSE)
-ggsave('figs/senpsn_both_obspred3.png')
+ggsave('figs/sensq_both_obspred3.png')
 
-save(cv3_output3, file = 'model_outputs/senpsn_joint_cv_3.RData')
+save(cv3_output3, file = 'model_outputs/sensq_joint_cv_3.RData')
 
 
 
@@ -228,15 +233,16 @@ cat('Start cv3 model4')
 arg_list[c('use_polygons', 'use_points')] <- c(1, 0)
 cv3_output4 <- run_cv(data_cv3_sen, mesh_sen, its = 1000, 
                       model.args = arg_list, CI = 0.8, 
-                      parallel_delay = delay, cores = 5, drop_covs = NULL)
+                      parallel_delay = delay, cores = 2, 
+                      drop_covs = NULL)
 obspred_map(data_cv3_sen, cv3_output4, column = FALSE)
-ggsave('figs/senpsn_pr_gp_obspred_map3.png')
+ggsave('figs/sensq_pr_gp_obspred_map3.png')
 obspred_map(data_cv3_sen, cv3_output4, trans = 'log10', column = FALSE)
-ggsave('figs/senpsn_pr_gp_obspred_map_log3.png')
+ggsave('figs/sensq_pr_gp_obspred_map_log3.png')
 autoplot(cv3_output4, type = 'obs_preds', CI = FALSE)
-ggsave('figs/senpsn_pr_gp_obspred3.png')
+ggsave('figs/sensq_pr_gp_obspred3.png')
 
-save(cv3_output4, file = 'model_outputs/senpsn_pr_gp_cv_3.RData')
+save(cv3_output4, file = 'model_outputs/sensq_pr_gp_cv_3.RData')
 
 
 
@@ -246,22 +252,21 @@ cv3_output3$summary$polygon_metrics
 
 
 
-
-senpsn1df <- rbind(cv1_output2$summary$combined_aggregated %>% mutate(model = 'polys'),
+sen1sqdf <- rbind(cv1_output2$summary$combined_aggregated %>% mutate(model = 'polys'),
                   cv1_output3$summary$combined_aggregated %>% mutate(model = 'both'),
                   cv1_output4$summary$combined_aggregated %>% mutate(model = 'prgp'))
 
-write.csv(senpsn1df, 'model_outputs/senpsn1df.csv')
+write.csv(sen1sqdf, 'model_outputs/sen1sqdf.csv')
 
 
 
 
 
-senpsn3df <- rbind(cv3_output2$summary$combined_aggregated %>% mutate(model = 'polys'),
+sen3sqdf <- rbind(cv3_output2$summary$combined_aggregated %>% mutate(model = 'polys'),
                   cv3_output3$summary$combined_aggregated %>% mutate(model = 'both'),
                   cv3_output4$summary$combined_aggregated %>% mutate(model = 'prgp'))
 
-write.csv(senpsn3df, 'model_outputs/senpsn3df.csv')
+write.csv(sen3sqdf, 'model_outputs/sen3sqdf.csv')
 
 
 get_sigs <- function(df){
@@ -286,10 +291,8 @@ get_sigs <- function(df){
 }
 
 
-get_sigs(senpsn1df)
-get_sigs(senpsn3df)
-
-
+get_sigs(sen1sqdf)
+get_sigs(sen3sqdf)
 
 
 print('Finished')
